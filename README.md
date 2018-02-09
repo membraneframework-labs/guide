@@ -22,7 +22,7 @@ Membrane Framework in general is an open-source project, but we're aware that so
 
 ### Language
 
-We have chosen Elixir as a language as underlying Erlang/OTP allows us to easily write highly concurrent, soft-realtime, reliable applications. BEAM - the Erlang's Virtual Machine is a wonderful piece of software that handles for us many hard topics related to concurrency and reliability. Elixir itself allows us to write code using sane syntax with high degree of efficency.
+We have chosen Elixir as a language as underlying Erlang/OTP allows us to easily write highly concurrent, soft-realtime, reliable applications. BEAM - the Erlang's Virtual Machine is a wonderful piece of software that handles for us many hard topics related to concurrency and reliability. One of it's great benefits that was reason to use Elixir instead of Go is that it's garbage collector works per-process \(where process is an Erlang process, not the system one\) which prevents hiccups from happening if application is getting large. Elixir itself allows us to write code using sane syntax with high degree of efficency.
 
 We refer to C libraries only when absolutely necessary or it makes no sense to rewrite complicated piece of code from scratch.
 
