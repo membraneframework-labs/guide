@@ -1,15 +1,15 @@
 # Elements
 
-Elements in Membrane Framework are the most basic entities. They are represented by their own Erlang process, that has internal state and communicate by message passing.
+Elements in Membrane Framework are the most basic entities. They are represented by their own Erlang process, that has internal state and communicates by message passing.
 
-Every Element is created to solve some problem. The examples of element may be: audio decoder(converting raw audio to encoded format), file source(reading data from file and passing it to other elements) or UDP sink(sending data from application via UDP socket). 
+Every Element is created to solve some problem. The examples of the element may be one of those: audio decoder(converting raw audio to encoded format), file source (reading data from a file and passing it to other elements) or UDP sink (sending data from an application via UDP socket). 
 
-Elements define their own `options` that parametrizes their work. For example, some audio decoder may have an option named `bitrate` that represents bitrate of the output data.
+Elements define their own `options` that parametrize their work. For example, some audio decoder may have an option named `bitrate` that represents bitrate of the output data.
 
-There are three basic types of elements: `sink`, `source` and `filters`:
+There are three basic types of elements: `sink`, `source`, and `filters`:
 * `Source` - responsible for delivering data to other elements
-* `Sink` - defines endpoint for data flowing in application. 
-* `Filter` - element that receives data from other elements, processes it and sends it further to the next elements 
+* `Sink` - defines an endpoint for data flowing in an application. 
+* `Filter` - an element that receives data from other elements, processes it and sends it further to the next elements 
 
 Every element may be in one of three states:
 * :stopped - element has been created
@@ -18,9 +18,9 @@ Every element may be in one of three states:
 
 ## Pads and capabilities 
 
-To create flow of data between elements in the application, they have to communicate with each others. For that purpose, the concept of `pads` and `capabilities` is used. `Pads` are basically inputs and outputs of the elements. In Membrane, input pads of the Element are called `source pads` and output pads are `sink pads`. It is worth mentioning that `Source` elements may only contain `source` pads, `Sinks` contain only `sink` pads, and `Filters` can have both of them.
+To create the flow of data between elements in the application, they have to communicate with each other. For that purpose, the concept of `pads` and `capabilities` is used. `Pads` are basically inputs and outputs of the elements. In Membrane, input pads of the Element are called `source pads` and output pads are `sink pads`. It is worth mentioning that `Source` elements may only contain `source` pads, `Sinks` contain only `sink` pads, and `Filters` can have both of them.
 
-Every pad has some capabilities, which defines type of data that it is expecting. This format can be, for example, raw audio with specific sample rate or encoded audio in given format.
+Every pad has some capabilities, which defines a type of data that it is expecting. This format can be, for example, raw audio with specific sample rate or encoded audio in given format.
 
 Two elements that should send data between them, should have linked pads. One pad can be linked with only one other pad of a different element. Only links between source and sink pads are allowed. Furthermore, to link two pads, their capabilities have to be compatible.
 
@@ -28,4 +28,4 @@ Two elements that should send data between them, should have linked pads. One pa
 
 Pipeline is a container that consists of many elements and links between them. Like an Element, every Pipeline also has playback state and on its basis, it manages the state of the contained elements. 
  
-During the application execution, elements may want to signal some events. For that purpose, they send `message` to their supervisor, which in most cases is a pipeline. Programmer can handle those messages by defining the appropriate method in the pipeline module.
+During the application execution, elements may want to signal some events. For that purpose, they send the `message` to their supervisor, which in most cases is a pipeline. A programmer can handle those messages by defining the appropriate method in the pipeline module.
