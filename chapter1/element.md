@@ -1,8 +1,8 @@
 # Implementing new element
 
-Implementing new element is very similar to declaring new pipeline. All you have to do is create new module and implement some callbacks.
+Implementing new element is very similar to declaring new pipeline. All you have to do is create a new module and implement some callbacks.
 
-The first decision to make is to specify what kind of element we are going to implement: `source`, `sink` or `filter`. In this chapter we will implement very simple filter that counts received buffers and passes them to next element. It will build simple statistics and send them to Pipeline via `Membrane.Message` mechanism.
+The first decision to make is to specify what kind of element we are going to implement: `source`, `sink` or `filter`. In this chapter, we will implement a very simple filter that counts received buffers and passes them to next element. It will build simple statistics and send them to Pipeline via `Membrane.Message` mechanism.
 
 ## Base module
 
@@ -30,7 +30,7 @@ def_options interval: [
 
 ## Pads
 
-It is very common for filter, to declare two pads that are called :source and :sink 
+It is very common for the filter, to declare two pads that are called :source and :sink 
 
 ```elixir
 def_known_source_pads source: {:always, :pull, :any}
@@ -39,15 +39,15 @@ def_known_sink_pads sink: {:always, {:pull, demand_in: :bytes},
 
 In above definition, atom :always means that pad of this element is always available. The second option is 'dynamic' which means that pad is being created on request, for example, during the 'playing' state.
 
-:pull declares the mode of the pad. It means that this element sends buffers to the next element only when they are demanded. Demands are received in `handle_demand` callback and they may refer to number of bytes or buffers to send. The unit is specified by next argument - `demand_in: :bytes`. Pull mode is often used when playing real-time media. 
+:pull declares the mode of the pad. It means that this element sends buffers to the next element only when they are demanded. Demands are received in `handle_demand` callback and they may refer to the number of bytes or buffers to send. The unit is specified by next argument - `demand_in: :bytes`. Pull mode is often used when playing real-time media. 
 
-The second options is :push mode, that means that element will send buffers whenever it wants or whenever they are available. In this case specifying demand unit is unnecessary. 
+The second option is :push mode, that means that element will send buffers whenever it wants or whenever they are available. In this case, specifying demand unit is unnecessary. 
 
 
 
 ## `handle_init/1`
 
-In handle_init we will initialize internal state of the element. As the first argument of callback options will be received. In our state we will create variable for counting buffers and timer. Timer won't be initialized at this point, we will wait for 'handle_play' callback, which informs that pipeline is in the `playing` state.
+In handle_init we will initialize internal state of the element. As the first argument of callback options will be received. In our state, we will create variable for counting buffers and timer. Timer won't be initialized at this point, we will wait for 'handle_play' callback, which informs that pipeline is in the `playing` state.
 
 ``` elixir
 @impl
@@ -63,7 +63,7 @@ end
 
 ## `handle_play/1`
 
-Now it is a time to start timer telling that will send a :tick messages to our element, when it should flush results and reset the counter. We should also remember the created timer, to be able to release it, when the pipeline will stop processing data.
+Now it is a time to start timer telling that will send a :tick messages to our element when it should flush results and reset the counter. We should also remember the created timer, to be able to release it, when the pipeline will stop processing data.
 
 ```elixir
 @impl
@@ -80,9 +80,9 @@ end
 Since both of our pads work in `pull` mode, we have to handle incoming demands. In our case this task is very simple - we have to just redirect incoming demands to the previous element.
 
 For that purpose, we will return an action as an additional term in the output tuple: `{{:ok, action_list}, new_state}`.
-Actions are generally speaking the activity that we request element to perform. The example actions are: sending buffer/event/new_caps on some pad, sending messages to pipeline or - like in our case - sending demand on some `:sink` pad.
+Actions are generally speaking the activity that we request element to perform. The example actions are: sending buffer/event/new_caps on some pad, sending messages to the pipeline or - like in our case - sending demand on some `:sink` pad.
 
-Actions are always the entries in the keyword list, where the key is atom indicating the action name and the value contains the parameters of the action. In this case it is a tuple with pad name at first position and size of the demand on the second position. 
+Actions are always the entries in the keyword list, where the key is atom indicating the action name and the value contains the parameters of the action. In this case, it is a tuple with pad name at first position and size of the demand on the second position. 
 
 ```elixir
 @impl
@@ -125,7 +125,7 @@ end
 ```
 
 ## `handle_stop/1`
-Last but not least callback is `handle_stop/1`. It is place to stop the timer and clean up.
+Last but not least callback is `handle_stop/1`. It is the place to stop the timer and clean up.
 
 ```elixir
 @impl
@@ -147,4 +147,4 @@ def handle_message(message, _elem_name, state) do
 end
 ```
 
-You can use the pipeline from the previous chapter and put this element between sink and the decoder.
+You can use the pipeline from the previous chapter and put this element between the sink and the decoder.
