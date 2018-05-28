@@ -2,7 +2,7 @@
 
 * [Introduction](README.md)
 * [Basic concepts](chapter1.md)
-  * [Basic concepts](chapter1/concepts.md)
+  * [Elements](chapter1/concepts.md)
   * [First pipeline](chapter1/pipeline.md)
   * [First element](chapter1/element.md)
 * [Advanced](chapter2.md)
