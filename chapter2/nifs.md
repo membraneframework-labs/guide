@@ -1,11 +1,11 @@
 # NIFs
 
-NIFs (Native Implemented Functions) are used in Membrane Framework as a wrappers for C libraries.
-Since using NIFs has many drawback and can even crash Erlang virtual machine during the runtime, we use them only when absolutely necessary or it makes no sense to rewrite complicated piece of code from scratch.
+NIFs (Native Implemented Functions) are used in Membrane Framework as wrappers for C libraries.
+Since using NIFs has many drawbacks and can even crash Erlang virtual machine during the runtime, we use them only when absolutely necessary or it makes no sense to rewrite a complicated piece of code from scratch.
 
 ## Bundlex
 
-To simplify and unify the process of writing and compiling NIFs, we use our own build tool - [Bundlex](https://github.com/radiokit/bundlex). It is multi-platform tool that provides convenient way of loading, compiling NIFs in elixir modules. For more informations, please visit the Bundlex's github page.
+To simplify and unify the process of writing and compiling NIFs, we use our own build tool - [Bundlex](https://github.com/radiokit/bundlex). It is a multi-platform tool that provides a convenient way of loading, compiling NIFs in elixir modules. For more information, please visit the Bundlex's github page.
 
 
 ## Membrane Common
