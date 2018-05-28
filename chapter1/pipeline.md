@@ -1,6 +1,6 @@
-# Creating first pipeline
+# Creating the first pipeline
 
-In this chapter we will implement example of using elements and grouping them into pipeline.
+In this chapter, we will implement an example of using elements and grouping them into the pipeline.
 Namely, we will write an application that reads `.mp3` file and using PortAudio library plays its content to the default audio device in your system.
 
 
@@ -12,14 +12,14 @@ First of all, you have to add to dependencies our main repository - Membrane Cor
 {:membrane_core, git: "git@github.com:membraneframework/membrane-core.git"},
 ```
 
-Furthermore, implementations of Membrane elements are grouped in tiny modules. Each module has it own repository. In this tutorial, we will use `Membrane.Element.File` (for reading data from file) and `Membrane.Element.PortAudio` for writing the audio to audio device:
+Furthermore, implementations of Membrane elements are grouped in tiny modules. Each module has its own repository. In this tutorial, we will use `Membrane.Element.File` (for reading data from a file) and `Membrane.Element.PortAudio` for writing the audio to audio device:
 
 ```elixir
 {:membrane_element_file, git: "git@github.com:membraneframework/membrane-element-file.git"},
 {:membrane_element_portaudio, git: "git@github.com:membraneframework/membrane-element-portaudio.git"}.
 ```
 
-## Create module for our pipeline
+## Create a module for our pipeline
 
 To define a pipeline you have to create an empty module and add `use Membrane.Pipeline` clause.
 
@@ -35,7 +35,7 @@ defmodule Your.Module.Pipeline do
 ## Add `handle_init` definition
 
 Elements used in the pipeline and links between them should be given in `handle_init` function.
-This function receives single argument - configuration/options, which are given when the pipeline is started. In our case, it will be a string containing path to the `.mp3` file to play. 
+This function receives single argument - configuration/options, which are given when the pipeline is started. In our case, it will be a string containing the path to the `.mp3` file to play. 
 
 ```elixir
 def handle_init(path_to_mp3) do
@@ -43,7 +43,7 @@ def handle_init(path_to_mp3) do
 end
 ```
 
-Inside handle_init, we should define all elements and links between them. Firstly, let's create keyword list, that contains all elements that will be used in our application. Key of the keyword list represents the name that we give to the element. Value is an element specification.
+Inside handle_init, we should define all elements and links between them. Firstly, let's create the keyword list, that contains all elements that will be used in our application. Key of the keyword list represents the name that we give to the element. Value is an element specification.
 
 ```elixir
   children = [
@@ -77,7 +77,7 @@ Last but not least, we should return created terms in correct format - %Pipeline
   {{:ok, spec}, %{}}
 ```
 
-The return value contains also an empty map. It is a new state for the pipeline, which gives a possibility to store some additional informations for later use. In this case, it is unnecessary. 
+The return value contains also an empty map. It is a new state for the pipeline, which gives a possibility to store some additional information for later use. In this case, it is unnecessary. 
 
 
 To sum up, the whole file can look like this:
