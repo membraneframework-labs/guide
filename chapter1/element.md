@@ -8,7 +8,7 @@ The first decision to make is to specify what kind of element we are going to im
 
 To indicate choice of implementing 'filter' we have to add the following line to our module:
 ```
-use Membrane.Element.Baase.Filter
+use Membrane.Element.Base.Filter
 ```
 
 This macro forces us to invoke some macros or implement some methods in our module:
@@ -34,16 +34,16 @@ It is very common for the filter, to declare two pads that are called :source an
 
 ```elixir
 def_known_source_pads source: {:always, :pull, :any}
-def_known_sink_pads sink: {:always, {:pull, demand_in: :bytes},
+def_known_sink_pads sink: {:always, {:pull, demand_in: :bytes}, :any}
 ```
 
-In above definition, atom :always means that pad of this element is always available. The second option is 'dynamic' which means that pad is being created on request, for example, during the 'playing' state.
+In above definition, atom :always means that pad of this element is always available. The other option is `:dynamic` which means that pad is being created on request, for example, during the 'playing' state.
 
-:pull declares the mode of the pad. It means that this element sends buffers to the next element only when they are demanded. Demands are received in `handle_demand` callback and they may refer to the number of bytes or buffers to send. The unit is specified by next argument - `demand_in: :bytes`. Pull mode is often used when playing real-time media. 
+:pull declares the mode of the pad. It means that this element sends buffers to the next element only when they are demanded. Demands are received in `handle_demand` callback and they may refer to the number of bytes or buffers to send. The unit is specified by next argument - `demand_in: :bytes`. 
 
-The second option is :push mode, that means that element will send buffers whenever it wants or whenever they are available. In this case, specifying demand unit is unnecessary. 
+The other option is :push mode, that means that element will send buffers whenever it wants or whenever they are available. In this case, specifying demand unit is unnecessary. 
 
-
+The third element in the tuple represents the capabilities of the pad. `:any` means that every type of buffers can be passed on this pad.
 
 ## `handle_init/1`
 
@@ -135,12 +135,72 @@ def handle_stop(state) do
 end
 ```
 
+## Summary
+The complete code of our element can look like this:
+```elixir
+defmodule Your.Module.Element do
+  use Membrane.Element.Base.Filter
 
+  def_options interval: [
+    type: :integer, 
+    default: 1000, 
+    description: "Amount of the time in millisecods, telling how often statistics should be sent and zeroed"
+  ]
+
+  def_known_source_pads source: {:always, :pull, :any}
+  def_known_sink_pads sink: {:always, {:pull, demand_in: :bytes}, :any}
+
+  @impl
+  def handle_init(%__MODULE{interval: interval}) do
+    state = %{
+      interval: interval,
+      counter: 0,
+      timer: nil
+    }
+    {:ok, state}
+  end
+
+  @impl
+  def handle_play(state) do
+    {:ok, timer} = :timer.send_interval(state.interval, :tick)
+    {:ok, %{state | timer: timer}}
+  end
+  
+  @impl
+  def handle_demand :source, size, :buffers, _context, state do
+    {{:ok, [demand: {:sink, size}]}, state}
+  end
+
+  @impl
+  def handle_process1 :sink, %Membrane.Buffer{} = buffer, _, state do
+    new_state = %{counter: state.counter + 1}
+    {{:ok, [buffer: {:source, buffer}]}, new_state}
+  end
+
+  @impl
+  def handle_other(:tick, state) do
+    # create message to send
+    message = %Membrane.Message{type: :statistics, payload: %{counter: state.counter}}
+
+    # reset the timer
+    new_state = %{state | counter: 0}
+
+    {{:ok, [message: message]}, new_state}
+  end
+
+  @impl
+  def handle_stop(state) do
+    {:ok, :cancel} = :timer.cancel(state.timer)
+    {:ok, %{state | counter: 0,  timer: nil}}
+  end
+end
+```
 
 ## Test the element
 
 Our element is now ready! The last step is to put it in some pipeline and add callback handling messages in the pipeline. The simple example of such callback is the following:
 ```elixir
+@impl
 def handle_message(message, _elem_name, state) do
   IO.inspect message
   {:ok, state}

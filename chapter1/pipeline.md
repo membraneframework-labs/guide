@@ -12,11 +12,12 @@ First of all, you have to add to dependencies our main repository - Membrane Cor
 {:membrane_core, git: "git@github.com:membraneframework/membrane-core.git"},
 ```
 
-Furthermore, implementations of Membrane elements are grouped in tiny modules. Each module has its own repository. In this tutorial, we will use `Membrane.Element.File` (for reading data from a file) and `Membrane.Element.PortAudio` for writing the audio to audio device:
+Furthermore, implementations of Membrane elements are grouped in tiny modules. Each module has its own repository. In this tutorial, we will use `Membrane.Element.File` (for reading data from a file), `Membrane.Element.FFmpeg.Swresample.Converter` (for converting audio) and `Membrane.Element.PortAudio` for writing the audio to audio device:
 
 ```elixir
 {:membrane_element_file, git: "git@github.com:membraneframework/membrane-element-file.git"},
-{:membrane_element_portaudio, git: "git@github.com:membraneframework/membrane-element-portaudio.git"}.
+{:membrane_element_portaudio, git: "git@github.com:membraneframework/membrane-element-portaudio.git"},
+{:membrane_element_ffmpeg_swresample, git: "git@github.com:membraneframework/membrane-element-ffmpeg-swresample.git"},
 ```
 
 ## Create a module for our pipeline
@@ -49,7 +50,7 @@ Inside handle_init, we should define all elements and links between them. Firstl
   children = [
     file_src: %Membrane.Element.File.Source{location: path_to_mp3},
     decoder: Membrane.Element.Mad.Decoder,
-    converter: Membrane.Element.
+    converter: %Membrane.Element.FFmpeg.SWResample.Converter{source_caps: %Membrane.Caps.Audio.Raw{sample_rate: 48_000, format: :s16le, channels: 2}},
     sink: Membrane.Element.PortAudio.Sink,
   ]
 ```
@@ -89,7 +90,7 @@ defmodule Your.Module.Pipeline do
     children = [
       file_src: %Membrane.Element.File.Source{location: path_to_mp3},
       decoder: Membrane.Element.Mad.Decoder,
-      converter: Membrane.Element.
+      converter: %Membrane.Element.FFmpeg.SWResample.Converter{source_caps: %Membrane.Caps.Audio.Raw{sample_rate: 48000, format: :s16le, channels: 2}},
       sink: Membrane.Element.PortAudio.Sink,
     ]
 

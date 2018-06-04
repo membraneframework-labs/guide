@@ -18,7 +18,7 @@ Every element may be in one of three states:
 
 ## Pads and capabilities 
 
-To create the flow of data between elements in the application, they have to communicate with each other. For that purpose, the concept of `pads` and `capabilities` is used. `Pads` are basically inputs and outputs of the elements. In Membrane, input pads of the Element are called `source pads` and output pads are `sink pads`. It is worth mentioning that `Source` elements may only contain `source` pads, `Sinks` contain only `sink` pads, and `Filters` can have both of them.
+To create the flow of data between elements in the application, they have to communicate with each other. For that purpose, the concept of `pads` and `capabilities` is used. `Pads` are basically inputs and outputs of the elements. In Membrane, input pads of the Element are called `sink pads` and output pads are `source pads`. It is worth mentioning that `Source` elements may only contain `source` pads, `Sinks` contain only `sink` pads, and `Filters` can have both of them.
 
 Every pad has some capabilities, which defines a type of data that it is expecting. This format can be, for example, raw audio with specific sample rate or encoded audio in given format.
 
