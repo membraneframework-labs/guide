@@ -37,7 +37,7 @@ def_known_source_pads source: {:always, :pull, :any}
 def_known_sink_pads sink: {:always, {:pull, demand_in: :bytes}, :any}
 ```
 
-In above definition, atom :always means that pad of this element is always available. The other option is `:dynamic` which means that pad is being created on request, for example, during the 'playing' state.
+In above definition, atom :always means that pad of this element is always available. The other option is `:on_request` which means that pad is being created on request, for example, during the 'playing' state.
 
 :pull declares the mode of the pad. It means that this element sends buffers to the next element only when they are demanded. Demands are received in `handle_demand` callback and they may refer to the number of bytes or buffers to send. The unit is specified by next argument - `demand_in: :bytes`. 
 
