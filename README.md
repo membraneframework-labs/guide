@@ -1,7 +1,5 @@
 # Introduction
 
-This file serves as your book's preface, a great place to describe your book's content and ideas.
-
 ## Goals
 
 ### Technical
@@ -29,12 +27,3 @@ We have chosen Elixir as a language as underlying Erlang/OTP allows us to easily
 We refer to C libraries only when absolutely necessary or it makes no sense to rewrite a complicated piece of code from scratch.
 
 Currently they run as NIFs \(native code embedded in the VM, faster but can crash the VM\) but in the future releases we're planning to allow developer to decide whether he/she wants to run them as NIFs or run them as ports \(separate processes launched by the VM, slower but safer\) for increased reliability. Some components might always need to rely on NIFs due to technical limitations but wherever it's possible we're going to allow to detach the unsafe, crash-prone C code from the application's process so even if e.g. one of your encoders crashes the whole application will keep running.
-
-### API
-
-The API is similar to one of GStreamer so if you are a user of GStreamer, you will quickly find yourself familiar with it.
-
-For those who are not familiar with GStreamer:
-
-TODO
-
