@@ -1,0 +1,9 @@
+{
+    "plugins": ["insert-logo"],
+    "pluginsConfig": {
+        "insert-logo": {
+            "url": "https://www.membraneframework.org/wp-content/uploads/2018/06/cropped-membrane_logo_favicon-1-192x192.png",
+            "style": "background: none;width: 50%;"
+        }
+    }
+}
