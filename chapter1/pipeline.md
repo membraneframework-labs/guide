@@ -9,15 +9,15 @@ Namely, we will write an application that reads `.mp3` file and using PortAudio 
 Membrane Framework is spread across multiple repositories on GitHub. 
 First of all, you have to add to dependencies our main repository - Membrane Core, which contains all mechanisms used for managing pipelines and elements. To do this, just add the following line to `deps` in your `mix.exs`:
 ```elixir
-{:membrane_core, git: "git@github.com:membraneframework/membrane-core.git"},
+{:membrane_core, "~> 0.1"},
 ```
 
 Furthermore, implementations of Membrane elements are grouped in tiny modules. Each module has its own repository. In this tutorial, we will use `Membrane.Element.File` (for reading data from a file), `Membrane.Element.FFmpeg.Swresample.Converter` (for converting audio) and `Membrane.Element.PortAudio` for writing the audio to audio device:
 
 ```elixir
-{:membrane_element_file, git: "git@github.com:membraneframework/membrane-element-file.git"},
-{:membrane_element_portaudio, git: "git@github.com:membraneframework/membrane-element-portaudio.git"},
-{:membrane_element_ffmpeg_swresample, git: "git@github.com:membraneframework/membrane-element-ffmpeg-swresample.git"},
+{:membrane_element_file, "~> 0.1"},
+{:membrane_element_portaudio, "~> 0.1"},
+{:membrane_element_ffmpeg_swresample, "~> 0.1"},
 ```
 
 ## Create a module for our pipeline
