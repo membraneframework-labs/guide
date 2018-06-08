@@ -1,0 +1,22 @@
+language: node_js
+node_js: lts/*
+
+install:
+  - npm i -g gitbook-cli
+  - npm i gitbook-plugin-insert-logo
+
+script:
+  - gitbook build
+
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: bash deploy.sh ""
+  on:
+    branch:
+      - master
+  provider: script
+  script: bash deploy.sh $TRAVIS_BRANCH
+  on:
+    branch:
+      - feature/travis
