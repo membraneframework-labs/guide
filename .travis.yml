@@ -12,14 +12,16 @@ script:
   - ./node_modules/gitbook-cli/bin/gitbook.js build
 
 deploy:
-  skip_cleanup: true
-  provider: script
-  script: bash deploy.sh ""
-  on:
-    branch:
-      - master
+  - provider: script
+    skip_cleanup: true
+    script: bash deploy.sh ""
+    on:
+      branch:
+        - master
 
-  provider: script
-  script: bash deploy.sh $TRAVIS_BRANCH
-  on:
-    all_branches: true
+  - provider: script
+    skip_cleanup: true
+    script: bash deploy.sh $TRAVIS_BRANCH
+    on:
+      branch:
+        - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
