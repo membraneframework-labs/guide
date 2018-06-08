@@ -1,0 +1,25 @@
+language: node_js
+node_js: node
+cache:
+  directories:
+    - node_modules
+
+install:
+  - npm i gitbook-cli
+  - npm i gitbook-plugin-insert-logo
+
+script:
+  - ./node_modules/gitbook-cli/bin/gitbook.js build
+
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: bash deploy.sh ""
+  on:
+    branch:
+      - master
+
+  provider: script
+  script: bash deploy.sh $TRAVIS_BRANCH
+  on:
+    all_branches: true
