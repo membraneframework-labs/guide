@@ -1,0 +1,4 @@
+.*ignore
+*.yml
+*.sh
+package-lock.json
