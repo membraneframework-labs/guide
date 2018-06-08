@@ -20,5 +20,6 @@ deploy:
     skip_cleanup: true
     script: bash deploy.sh $TRAVIS_BRANCH
     on:
-      branch:
-        - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
+      all_branches: true
+      # if branch name matches semversion pattern
+      condition:  $TRAVIS_BRANCH =~ ^v[0-9]+\.[0-9]+(\.[0-9]+)?(-[^\s]*)?$
