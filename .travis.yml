@@ -4,6 +4,7 @@ node_js: node
 install:
   - npm i gitbook-cli
   - npm i gitbook-plugin-insert-logo
+  - npm i gitbook-plugin-analytics
 
 script:
   - ./node_modules/gitbook-cli/bin/gitbook.js build
