@@ -3,11 +3,11 @@
 In this chapter, we will implement an example of using elements and grouping them into the pipeline.
 Namely, we will write an application that reads `.mp3` file and using PortAudio library plays its content to the default audio device in your system.
 
-
 ## Add dependencies to `mix.exs`
 
-Membrane Framework is spread across multiple repositories on GitHub. 
+Membrane Framework is spread across multiple repositories on GitHub.
 First of all, you have to add to dependencies our main repository - Membrane Core, which contains all mechanisms used for managing pipelines and elements. To do this, just add the following line to `deps` in your `mix.exs`:
+
 ```elixir
 {:membrane_core, "~> 0.1"},
 ```
@@ -18,6 +18,27 @@ Furthermore, implementations of Membrane elements are grouped in tiny modules. E
 {:membrane_element_file, "~> 0.1"},
 {:membrane_element_portaudio, "~> 0.1"},
 {:membrane_element_ffmpeg_swresample, "~> 0.1"},
+{:membrane_element_mad, "~> 0.1"}
+```
+
+These dependencies rely on native libraries that have to be available in your system. You can use the following commands to install them.
+
+### MacOS
+
+```bash
+brew install mad ffmpeg portaudio
+```
+
+### Ubuntu
+
+```bash
+sudo apt-get install libmad0-dev ffmpeg portaudio19-dev
+```
+
+### Arch / Manjaro
+
+```bash
+sudo pacman -S ffmpeg libmad portaudio
 ```
 
 ## Create a module for our pipeline
@@ -27,16 +48,15 @@ To define a pipeline you have to create an empty module and add `use Membrane.Pi
 ```elixir
 defmodule Your.Module.Pipeline do
   use Membrane.Pipeline
-  
-  ...
-  
-```
 
+  ...
+
+```
 
 ## Add `handle_init` definition
 
 Elements used in the pipeline and links between them should be given in `handle_init` function.
-This function receives single argument - configuration/options, which are given when the pipeline is started. In our case, it will be a string containing the path to the `.mp3` file to play. 
+This function receives single argument - configuration/options, which are given when the pipeline is started. In our case, it will be a string containing the path to the `.mp3` file to play.
 
 ```elixir
 def handle_init(path_to_mp3) do
@@ -72,16 +92,16 @@ Last but not least, we should return created terms in correct format - %Pipeline
 ```elixir
   spec = %Membrane.Pipeline.Spec{
     children: children,
-    link: links
+    links: links
   }
 
   {{:ok, spec}, %{}}
 ```
 
-The return value contains also an empty map. It is a new state for the pipeline, which gives a possibility to store some additional information for later use. In this case, it is unnecessary. 
-
+The return value contains also an empty map. It is a new state for the pipeline, which gives a possibility to store some additional information for later use. In this case, it is unnecessary.
 
 To sum up, the whole file can look like this:
+
 ``` elixir
 defmodule Your.Module.Pipeline do
   use Membrane.Pipeline
@@ -111,11 +131,12 @@ defmodule Your.Module.Pipeline do
 end
 ```
 
-## Run the pipeline 
+## Run the pipeline
 
 The simplest way to create and run above pipeline is to type in iex console:
 
 ```elixir
+alias Membrane.Pipeline
 {:ok, pid} = Pipeline.start_link(Membrane.CoreTest.Pipeline, "/path/to/mp3", [])
 Pipeline.play(pid)
 ```
