@@ -32,7 +32,7 @@ brew install mad ffmpeg portaudio
 ### Ubuntu
 
 ```bash
-sudo apt-get install libmad0-dev ffmpeg portaudio19-dev
+sudo apt-get install libmad0-dev libswresample-dev libavutil-dev portaudio19-dev
 ```
 
 ### Arch / Manjaro
