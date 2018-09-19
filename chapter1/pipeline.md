@@ -137,7 +137,7 @@ The simplest way to create and run above pipeline is to type in iex console:
 
 ```elixir
 alias Membrane.Pipeline
-{:ok, pid} = Pipeline.start_link(Membrane.CoreTest.Pipeline, "/path/to/mp3", [])
+{:ok, pid} = Pipeline.start_link(Your.Module.Pipeline, "/path/to/mp3", [])
 Pipeline.play(pid)
 ```
 
