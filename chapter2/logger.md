@@ -1,6 +1,6 @@
 # Logger
 
-Due to the performance issues, we implemented our own system for managing logs. It also allows to filter messages on the basis of `tags`, so it is possible to display only logs from the specific module or referring to the specific task.
+Due to the performance issues, we implemented our own system for managing logs. It also allows filtering messages on the basis of `tags`, so it is possible to display only logs from the specific module or referring to the specific task.
 
 ## Usage
 
@@ -33,5 +33,5 @@ config :membrane_core, Membrane.Logger,
 
 You have to make sure, that logger module is available in your application. To use `Membrane.Loggers.Console`, you have to add it as a dependency to your `mix.exs`:
 ```elixir
-{:membrane_loggers, git: "git@github.com:membraneframework/membrane-loggers.git"}
+{:membrane_loggers, "~> 0.1"}
 ```
