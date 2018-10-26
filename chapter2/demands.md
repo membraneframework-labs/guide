@@ -23,7 +23,7 @@ def_input_pads output: [
 
 When downstream element (Source or Filter) receives a demand, it is expected to produce data and send it through one of its output pads. Elements handle incoming demands via `handle_demand/5` callback that is supplied with the following parameters:
 
-* pad - name of the output pad on which demand has been received
+* pad - name of the output pad on which the demand has been received
 * size - amount of data that is expected to be sent on given `pad`. It is important to note that the entire demand is always passed to `handle_demand` and it overrides previous value.
 * unit - unit of the demand, self-explanatory
 * context - `Membrane.Element.CallbackContext.Demand` structure, contains useful information like actual playback state of the element or size of the last demand (in case when this size is equal to 0 it means that handle_demand has been triggered by `:redemand` action, see below)
