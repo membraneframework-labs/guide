@@ -11,7 +11,7 @@ It receives options specified by the user, which should be parsed and on their b
 
 ### State stopped
 
-It is the first and the last state of every element. When being in it, elements should not have any "dynamic" resources, open files or devices.
+It is the first and the last state of every element. While being in it, elements should not have any "dynamic" resources, open files or devices.
 Elements in the `stopped` state might still not be linked, thus they shouldn't return from callbacks any actions that require sending any message via link (like caps and events).
 
 ### Stopped -> prepared change

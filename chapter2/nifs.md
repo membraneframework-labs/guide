@@ -17,7 +17,6 @@ A quick introduction to Unifex is available [here](https://github.com/membranefr
 ## [Membrane Common C](https://github.com/membraneframework/membrane-common-c)
 
 Membrane Framework also delivers some useful C routines which might be useful for creating many native modules. It exports the following functionalities:
-* parsing arguments passed to NIFs and serializing sample formats from our Elixir representation to 32bit format
 * methods used for sending logs to Membrane.Log.Router
 * implementation of RingBuffer 
 * abstraction over SHM playload (using [shmex](https://github.com/membraneframework/shmex))
