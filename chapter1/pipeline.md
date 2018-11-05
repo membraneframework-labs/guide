@@ -143,4 +143,4 @@ Pipeline.play(pid)
 
 The given `.mp3` file should be played on default device in your system. Please use `.mp3` that has no ID3 or ID3v2 tags.
 
-You can also clone demo from [here](https://github.com/membraneframework/membrane-demo) it also contains `.mp3` file without tags.
+You can also clone demo from [here](https://github.com/membraneframework/membrane-demo) that contains `.mp3` file without tags.
