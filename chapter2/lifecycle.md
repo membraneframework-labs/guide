@@ -20,7 +20,7 @@ It is a good place to allocate all needed resources (for example native resource
 
 ### State prepared
 
-Elements should have already all needed resources allocated in order to process data. Although all timers should be still stopped and waiting for the stream start. Elements are permitted to send caps and events via their pads, but sticky events will be queued in a pull buffer and processed after state change to the `playing`. Nevertheless, other events (not sticky) will be handled with `handle_event`
+Elements should have already all needed resources allocated in order to process data. Although all timers should be still stopped and waiting for the stream start. Elements are permitted to send caps and events via their pads, but sticky events will be queued in a pull buffer and processed after state change to the `playing`. Nevertheless, other events (not sticky) will be handled with `handle_event`.
 
 From this state, it is possible to transit to both 'stopped' and 'playing' states. Elements should be prepared for both of these changes and don't assume any of them.
 
@@ -31,7 +31,7 @@ Also, most Sinks should make their first demand in this callback.
 
 ### State playing
 
-Elements are processing data, timers are running. Sending buffers is allowed now.
+Elements are processing data, timers are running. Sending buffers and demands is allowed now.
 
 ### Playing -> prepared change
 
@@ -40,4 +40,4 @@ Since this moment, elements won't process any more buffers or sticky events. All
 
 ### Prepared -> stopped change
 
-When handling this change, all allocated resources should be cleaned, devices closed. Internal state of an element should be restored to the initial configuration (after `handle_init`) and be ready for the next transition to `prepared` state.
+When handling this change, all allocated resources should be cleaned, devices closed. Internal state of an element should be ready for the next transition to `prepared` state.
