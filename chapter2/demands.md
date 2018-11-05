@@ -35,13 +35,9 @@ Below, the very simple case of handling demand in Source element is presented. I
 @impl true
 def handle_demand(:output, size, :buffers, _ctx, state) do
   buffers =
-    1..size
-    |> Enum.map(fn num ->
-      {:buffer,
-       {:output, %Membrane.Buffer{payload: generate_payload(num)}}}
-    end)
+    1..size |> Enum.map(fn num -> %Membrane.Buffer{payload: generate_payload(num)} end)
 
-  {{:ok, buffers}, state}
+  {{:ok, buffer: {:output, buffers}}, state}
 end
 ```
 
