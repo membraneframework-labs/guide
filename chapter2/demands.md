@@ -7,7 +7,7 @@ When link between two Membrane elements works in `:pull` mode, data between them
 Demands might have one of the following units:
 
 * `:bytes` — self-explanatory, refers to number of bytes as an actual amount of data
-* `:buffers` — when demanding n buffers, element expects to receive n Membrane.Buffer structs. Their size might be dependent on capabilities or from the previous elements or their configuration. For example, element `Membrane.Element.File.Source` has option named `chunk_size` that defines how big the buffers are.
+* `:buffers` — when demanding _n_ buffers, element expects to receive _n_ Membrane.Buffer structs. Their size might be dependent on capabilities, the previous elements or their configuration. For example, element `Membrane.Element.File.Source` has option named `chunk_size` that defines how big the buffers are.
 
 Demand units handled by element should be specified as parameters of def_input_pads, i.e.:
 
@@ -21,7 +21,7 @@ def_input_pads output: [
 
 ## Handling incoming demand in a downstream element
 
-When downstream element (Source or Filter) receives a demand, it is expected to produce data and send it through one of its output pads. Elements handle incoming demands via `handle_demand/5` callback that is supplied with the following parameters:
+When a downstream element (Source or Filter) receives a demand, it is expected to produce data and send it through one of its output pads. Elements handle incoming demands via `handle_demand/5` callback that is supplied with the following parameters:
 
 * pad - name of the output pad on which the demand has been received
 * size - amount of data that is expected to be sent on given `pad`. It is important to note that the entire demand is always passed to `handle_demand` and it overrides previous value.
@@ -29,7 +29,7 @@ When downstream element (Source or Filter) receives a demand, it is expected to 
 * context - `Membrane.Element.CallbackContext.Demand` structure, contains useful information like actual playback state of the element or size of the last demand (in case when this size is equal to 0 it means that handle_demand has been triggered by `:redemand` action, see below)
 * state - actual internal state of the element (like in every other callback)
 
-Below, the very simple case of handling demand in Source element is presented. It just produce buffers on the spot in the `handle_demand` callback:
+Below, the very simple case of handling demand in Source element is presented. It just produces buffers on the spot in the `handle_demand` callback:
 
 ```elixir
 @impl true
@@ -48,7 +48,7 @@ end
 ## Demanding data from Sink or Filter
 
 Demanding is done by returning `{:demand, {pad_name, demand_size}}` action from one of the callbacks.
-For Sink elements it is very often `handle_prepared_to_playing` and for Filters the most common case is to return :demand from `handle_demand` callback.
+For Filters the most common case is to return :demand from `handle_demand` callback.
 It can be perceived as translating received demand from `output` pad to the other upstream element through the `input` pad:
 
 ```elixir
