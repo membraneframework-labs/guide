@@ -26,7 +26,7 @@ These dependencies rely on native libraries that have to be available in your sy
 ### MacOS
 
 ```bash
-brew install mad ffmpeg portaudio
+brew install mad ffmpeg portaudio pkg-config
 ```
 
 ### Ubuntu
@@ -38,7 +38,7 @@ sudo apt-get install libmad0-dev libswresample-dev libavutil-dev portaudio19-dev
 ### Arch / Manjaro
 
 ```bash
-sudo pacman -S ffmpeg libmad portaudio
+sudo pacman -S ffmpeg libmad portaudio pkg-config
 ```
 
 ## Create a module for our pipeline
@@ -141,4 +141,6 @@ alias Membrane.Pipeline
 Pipeline.play(pid)
 ```
 
-The given `.mp3` file should be played on default device in your system.
+The given `.mp3` file should be played on default device in your system. Please use `.mp3` that has no ID3 or ID3v2 tags.
+
+You can also clone demo from [here](https://github.com/membraneframework/membrane-demo) that contains `.mp3` file without tags.
