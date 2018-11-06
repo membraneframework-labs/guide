@@ -223,4 +223,4 @@ end
 
 You can use the pipeline from the previous chapter and put this element between the sink and the decoder.
 
-You can clone the complete "first element" demo from [here](https://github.com/membraneframework/membrane-demo).
+You can clone the complete "first element" demo from [here](https://github.com/membraneframework/membrane-demo/tree/v0.2).
