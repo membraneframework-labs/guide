@@ -33,5 +33,5 @@ config :membrane_core, Membrane.Logger,
 
 You have to make sure, that logger module is available in your application. To use `Membrane.Loggers.Console`, you have to add it as a dependency to your `mix.exs`:
 ```elixir
-{:membrane_loggers, "~> 0.1"}
+{:membrane_loggers, "~> 0.2.0"}
 ```
