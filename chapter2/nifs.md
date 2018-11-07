@@ -11,13 +11,12 @@ To simplify and unify the process of writing and compiling NIFs, we use our own 
 
 Generally, Writing NIFs require creating a lot of boilerplate code and programmer's efforts. To make this process more pleasant, Membrane Framework exports tool [Unifex](https://github.com/membraneframework/unifex) that is responsible for generating interfaces between simple C libraries and Elixir on the base of short `.exs` files.
 
-A quick introduction to Unifex is available [here](https://github.com/membraneframework/unifex/blob/master/pages/creating-unifex-nif.md).
-
+A quick introduction to Unifex is available [here](https://hexdocs.pm/unifex/creating_unifex_nif.html).
 
 ## [Membrane Common C](https://github.com/membraneframework/membrane-common-c)
 
 Membrane Framework also delivers some useful C routines which might be useful for creating many native modules. It exports the following functionalities:
-* methods used for sending logs to Membrane.Log.Router
-* implementation of RingBuffer 
-* abstraction over SHM playload (using [shmex](https://github.com/membraneframework/shmex))
 
+* methods used for sending logs to `Membrane.Log.Router`
+* implementation of RingBuffer
+* abstraction over SHM playload (using [shmex](https://github.com/membraneframework/shmex))
