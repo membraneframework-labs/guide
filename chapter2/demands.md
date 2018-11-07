@@ -79,7 +79,7 @@ def handle_other(%Membrane.Buffer{} = buffer, _ctx, state) do
 end
 ```
 
-### :redemand in Sources
+### `:redemand` in Sources
 
 In case of Sources, `:redemand` is just a helper that simplifies element's code.
 Element doesn't need to generate the whole demand synchronously at `handle_demand` or store current demand size in its state, but it can just generate one buffer and return `:redemand` action.
@@ -87,7 +87,7 @@ If there is still one or more buffers to produce, returning `:redemand` will tri
 If there are no more buffers demanded, `handle_demand` won't be invoked and the loop will end.
 One more advantage of the approach with `:redemand` action is that produced buffers will be sent one after another in separate messages and this could possibly improve the latency.
 
-### :redemand in Filters
+### `:redemand` in Filters
 
 `:redemand` in Filters is useful in situation when not the entire demand of output pad has been satisfied and there is a need to send demand for additional buffers through the input pad.
 A typical example of this situation is a parser that has not demanded enough bytes to parse the whole frame.
