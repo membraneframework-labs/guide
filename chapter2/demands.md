@@ -12,7 +12,7 @@ Demands might have one of the following units:
 Demand units handled by element should be specified as parameters of def_input_pads, i.e.:
 
 ```elixir
-def_input_pads output: [
+def_input_pads input: [
   mode: :pull,
   demand_in: :bytes,
   ...
