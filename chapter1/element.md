@@ -39,17 +39,17 @@ def_input_pads input: [availability: :always, mode: :pull, demand_unit: :bytes, 
 def_output_pads output: [availability: :always, mode: :pull, caps: :any]
 ```
 
-In above definition, availabilty :always means that pad of this element is always available. The other option is `:on_request` which means that pad is being created on request, for example, during the 'playing' state.
+In above definition, availability :always means that pad of this element is always available. The other option is `:on_request` which means that pad is being created on request, for example, during the 'playing' state.
 
 :pull mode means that this element sends buffers to the next element only when they are demanded. Demands are received in `handle_demand` callback and they may refer to the number of bytes or buffers to send. The unit is specified by next argument - `demand_in: :bytes`.
 
 The other option is :push mode, that means that element will send buffers whenever it wants or whenever they are available. In this case, specifying demand unit is unnecessary.
 
-The next element in the keyword list represents the capabilities of the pad. `:any` means that every type of buffers can be passed on this pad.
+The next element in the keyword list represents the capabilities of the pad. `:any` means that any type of buffer can be passed on this pad.
 
 ## `handle_init/1`
 
-In `handle_init` we initialize internal state of the element. As the first argument of callback options will be received. In our state, we will create variable for counting buffers and timer. Timer won't be initialized at this point, we will wait for 'handle_prepared_to_playing' callback, which informs that pipeline is in the `playing` state.
+In `handle_init` we initialize internal state of the element. As the first argument of callback, options will be received. In our state, we will create variable for counting buffers and timer. Timer won't be initialized at this point, we will wait for 'handle_prepared_to_playing' callback, which informs that pipeline is in the `playing` state.
 
 ``` elixir
 @impl true
@@ -95,7 +95,7 @@ end
 
 Incoming buffers are processed in this callback. We will update our counter and pass the buffer to the `:output` pad.
 
-Overriding callback `handle_process` means that we want to receive only one buffer at a time. But keep in mind that very often buffers are delivered to the element in groups. It is also possible to override `handle_process_list` callback, which by default performs that splitting job and invokes `handle_process` callbacks.
+Overriding callback `handle_process` means that we want to receive only one buffer at a time. However, keep in mind that very often buffers are delivered to the element in groups. It is also possible to override `handle_process_list` callback, which by default performs that splitting job and invokes `handle_process` callbacks.
 
 ```elixir
 @impl true
@@ -146,14 +146,12 @@ The complete code of our element can look like this:
 defmodule Your.Module.Element do
   use Membrane.Element.Base.Filter
 
-  def_options(
-    interval: [
+  def_options interval: [
       type: :integer,
       default: 1000,
       description:
         "Amount of the time in millisecods, telling how often statistics should be sent and zeroed"
     ]
-  )
 
   def_input_pads input: [availability: :always, mode: :pull, demand_unit: :bytes, caps: :any]
 
@@ -195,7 +193,7 @@ defmodule Your.Module.Element do
 
   @impl true
   def handle_other(:tick, _ctx, state) do
-    # create structure to send
+    # create term to send
     notification = {
       :counter,
       state.counter
