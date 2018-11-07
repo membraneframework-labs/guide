@@ -3,6 +3,8 @@
 In this chapter, we will implement an example of using elements and grouping them into the pipeline.
 Namely, we will write an application that reads `.mp3` file and using PortAudio library plays its content to the default audio device in your system.
 
+Source code for this pipeline as well as an mp3 file sample can be found in [membrane-demo repository](https://github.com/membraneframework/membrane-demo/tree/v0.2).
+
 ## Add dependencies to `mix.exs`
 
 Membrane Framework is spread across multiple repositories on GitHub.
@@ -143,4 +145,4 @@ Pipeline.play(pid)
 
 The given `.mp3` file should be played on default device in your system. Please use `.mp3` that has no ID3 or ID3v2 tags.
 
-You can also clone demo from [here](https://github.com/membraneframework/membrane-demo/tree/v0.2) that contains `.mp3` file without tags.
+The [demo available here](https://github.com/membraneframework/membrane-demo/tree/v0.2) contains an `.mp3` file without tags.

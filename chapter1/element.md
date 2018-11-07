@@ -4,6 +4,8 @@ Implementing a new element is very similar to declaring a new pipeline. All you 
 
 The first decision to make is to specify what kind of element we are going to implement: `source`, `sink` or `filter`. In this chapter, we will implement a very simple filter that counts received buffers and passes them to next element. It will build simple statistics and send them to Pipeline via `Membrane.Notification` mechanism.
 
+Source code for this filter can be found in [membrane-demo repository](https://github.com/membraneframework/membrane-demo/tree/v0.2).
+
 ## Base module
 
 To indicate the choice of implementing 'filter' we have to add the following line to our module:
@@ -39,13 +41,13 @@ def_input_pads input: [availability: :always, mode: :pull, demand_unit: :bytes, 
 def_output_pads output: [availability: :always, mode: :pull, caps: :any]
 ```
 
-In above definition, availability :always means that pad of this element is always available. The other option is `:on_request` which means that pad is being created on request, for example, during the 'playing' state.
+In above definition, availability `:always` means that pad of this element is always available. The other option is `:on_request` which means that pad is being created on request, for example, during the 'playing' state.
 
-:pull mode means that this element sends buffers to the next element only when they are demanded. Demands are received in `handle_demand` callback and they may refer to the number of bytes or buffers to send. The unit is specified by next argument - `demand_in: :bytes`.
+`:pull` mode means that this element sends buffers to the next element only when they are demanded. Demands are received in `handle_demand` callback and they may refer to the number of bytes or buffers to send. The unit is specified by next argument - `demand_in: :bytes`.
 
 The other option is :push mode, that means that element will send buffers whenever it wants or whenever they are available. In this case, specifying demand unit is unnecessary.
 
-The next element in the keyword list represents the capabilities of the pad. `:any` means that any type of buffer can be passed on this pad.
+The next element in the keyword list represents the capabilities (caps) of the pad. `:any` means that any type of buffer can be passed on this pad. If you want to restrict the types of data allowed on this pad you can caps specifications as described in [docs](https://hexdocs.pm/membrane_core/0.2.0/Membrane.Caps.Matcher.html)
 
 ## `handle_init/1`
 
@@ -122,7 +124,7 @@ def handle_other(:tick, _ctx, state) do
   # reset the timer
   new_state = %{state | counter: 0}
 
-  {{:ok, [notify: notification]}, new_state}
+  {{:ok, notify: notification}, new_state}
 end
 ```
 
@@ -182,13 +184,13 @@ defmodule Your.Module.Element do
 
   @impl true
   def handle_demand(:output, size, :bytes, _context, state) do
-    {{:ok, [demand: {:input, size}]}, state}
+    {{:ok, demand: {:input, size}}, state}
   end
 
   @impl true
   def handle_process(:input, %Membrane.Buffer{} = buffer, _, state) do
     new_state = %{state | counter: state.counter + 1}
-    {{:ok, [buffer: {:output, buffer}]}, new_state}
+    {{:ok, buffer: {:output, buffer}}, new_state}
   end
 
   @impl true
@@ -202,7 +204,7 @@ defmodule Your.Module.Element do
     # reset the timer
     new_state = %{state | counter: 0}
 
-    {{:ok, [notify: notification]}, new_state}
+    {{:ok, notify: notification}, new_state}
   end
 end
 ```
@@ -220,5 +222,3 @@ end
 ```
 
 You can use the pipeline from the previous chapter and put this element between the sink and the decoder.
-
-You can clone the complete "first element" demo from [here](https://github.com/membraneframework/membrane-demo/tree/v0.2).
