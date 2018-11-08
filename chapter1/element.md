@@ -43,11 +43,11 @@ def_output_pads output: [availability: :always, mode: :pull, caps: :any]
 
 In above definition, availability `:always` means that pad of this element is always available. The other option is `:on_request` which means that pad is being created on request, for example, during the 'playing' state.
 
-`:pull` mode means that this element sends buffers to the next element only when they are demanded. Demands are received in `handle_demand` callback and they may refer to the number of bytes or buffers to send. The unit is specified by next argument - `demand_in: :bytes`.
+`:pull` mode means that this element sends buffers to the next element only when they are demanded. Demands are received in `handle_demand` callback and they may refer to the number of bytes or buffers to send. The unit is specified with `:demand_unit` key.
 
 The other option is :push mode, that means that element will send buffers whenever it wants or whenever they are available. In this case, specifying demand unit is unnecessary.
 
-The next element in the keyword list represents the capabilities (caps) of the pad. `:any` means that any type of buffer can be passed on this pad. If you want to restrict the types of data allowed on this pad you can caps specifications as described in [docs](https://hexdocs.pm/membrane_core/0.2.0/Membrane.Caps.Matcher.html)
+The next element in the keyword list represents the capabilities (caps) of the pad. `:any` means that any type of buffer can be passed on this pad. If you want to restrict the types of data allowed on this pad you can define caps specifications as described in [docs](https://hexdocs.pm/membrane_core/0.2.0/Membrane.Caps.Matcher.html).
 
 ## `handle_init/1`
 
