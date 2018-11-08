@@ -26,7 +26,7 @@ From this state, it is possible to transit to both 'stopped' and 'playing' state
 
 ### Prepared -> playing change
 
-If an element is based on timer, it should be started in `handle_prepared_to_playing` callback.
+If an element is based on a timer, it should be started in `handle_prepared_to_playing` callback.
 Also, most Sinks should make their first demand in this callback.
 
 ### State playing
@@ -35,9 +35,9 @@ Elements are processing data, timers are running. Sending buffers and demands is
 
 ### Playing -> prepared change
 
-In callback handling this change, element should stop all running timers.
+In callback handling this change, the element should stop all running timers.
 Since this moment, elements won't process any more buffers or sticky events. All the data waiting in PullBuffers will be dropped.
 
 ### Prepared -> stopped change
 
-When handling this change, all allocated resources should be cleaned, devices closed. Internal state of an element should be ready for the next transition to `prepared` state.
+When handling this change, all allocated resources should be cleaned, devices closed. The internal state of an element should be ready for the next transition to `prepared` state.

@@ -5,7 +5,7 @@ Since using NIFs has many drawbacks and can even crash Erlang virtual machine du
 
 ## [Bundlex](https://github.com/membraneframework/bundlex)
 
-To simplify and unify the process of writing and compiling NIFs, we use our own build tool - [Bundlex](https://github.com/membraneframework/bundlex). It is a multi-platform tool that provides a convenient way of loading, compiling NIFs in elixir modules. For more information, please visit the Bundlex's github page.
+To simplify and unify the process of writing and compiling NIFs, we use our own build tool - Bundlex. It is a multi-platform tool that provides a convenient way of loading, compiling NIFs in elixir modules. For more information, please visit [Bundlex's GitHub page.](https://github.com/membraneframework/bundlex)
 
 ## [Unifex](https://github.com/membraneframework/unifex)
 
@@ -19,4 +19,4 @@ Membrane Framework also delivers some useful C routines which might be useful fo
 
 * methods used for sending logs to `Membrane.Log.Router`
 * implementation of RingBuffer
-* abstraction over SHM playload (using [shmex](https://github.com/membraneframework/shmex))
+* abstraction over SHM payload (using [shmex](https://github.com/membraneframework/shmex))

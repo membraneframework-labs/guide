@@ -8,13 +8,13 @@ Source code for this pipeline as well as an mp3 file sample can be found in [mem
 ## Add dependencies to `mix.exs`
 
 Membrane Framework is spread across multiple repositories on GitHub.
-First of all, you have to add to dependencies our main repository - Membrane Core, which contains all mechanisms used for managing pipelines and elements. To do this, just add the following line to `deps` in your `mix.exs`:
+First of all, you have to add to dependencies our main repository - Membrane Core, which contains all mechanisms used for managing pipelines and elements. To do this, just add the following line to the `deps` in your `mix.exs`:
 
 ```elixir
 {:membrane_core, "~> 0.2.0"},
 ```
 
-Furthermore, implementations of Membrane elements are grouped in tiny modules. Each module has its own repository. In this tutorial, we will use `Membrane.Element.File` (for reading data from a file), `Membrane.Element.FFmpeg.Swresample.Converter` (for converting audio) and `Membrane.Element.PortAudio` for writing the audio to audio device:
+Furthermore, implementations of Membrane elements are grouped into tiny modules. Each module has its own repository. In this tutorial, we will use `Membrane.Element.File` (for reading data from a file), `Membrane.Element.FFmpeg.Swresample.Converter` (for audio format conversion) and `Membrane.Element.PortAudio` (for writing the audio to audio device):
 
 ```elixir
 {:membrane_element_file, "~> 0.2.0"},
@@ -58,7 +58,7 @@ defmodule Your.Module.Pipeline do
 ## Add `handle_init` definition
 
 Elements used in the pipeline and links between them should be given in `handle_init` function.
-This function receives single argument - configuration/options, which are given when the pipeline is started. In our case, it will be a string containing the path to the `.mp3` file to play.
+This function receives a single argument - configuration/options, which are given when the pipeline is started. In our case, it will be a string containing the path to the `.mp3` file to play.
 
 ```elixir
 def handle_init(path_to_mp3) do
@@ -89,7 +89,7 @@ Then, we should initialize a map containing links between elements. Keys and val
   }
 ```
 
-Last but not least, we should return created terms in correct format - %Pipeline.Spec{}
+Last but not least, we should return created terms in the correct format - %Pipeline.Spec{}
 
 ```elixir
   spec = %Membrane.Pipeline.Spec{
@@ -143,6 +143,6 @@ alias Membrane.Pipeline
 Pipeline.play(pid)
 ```
 
-The given `.mp3` file should be played on default device in your system. Please use `.mp3` that has no ID3 or ID3v2 tags.
+The given `.mp3` file should be played on the default device in your system. Please use `.mp3` that has no ID3 or ID3v2 tags.
 
 The [demo available here](https://github.com/membraneframework/membrane-demo/tree/v0.2) contains an `.mp3` file without tags.
