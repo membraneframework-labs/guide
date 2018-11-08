@@ -8,4 +8,6 @@
 * [Advanced](chapter2.md)
   * [Logger](chapter2/logger.md)
   * [NIFs](chapter2/nifs.md)
+  * [Demands](chapter2/demands.md)
+  * [Element lifecycle](chapter2/lifecycle.md)
 
