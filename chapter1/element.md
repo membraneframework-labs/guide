@@ -2,9 +2,9 @@
 
 Implementing a new element is very similar to declaring a new pipeline. All you have to do is create a new module and implement some callbacks.
 
-The first decision to make is to specify what kind of element we are going to implement: `source`, `sink` or `filter`. In this chapter, we will implement a very simple filter that counts received buffers and passes them to next element. It will build simple statistics and send them to Pipeline via `Membrane.Notification` mechanism.
+The first decision to make is to specify what kind of element we are going to implement: `source`, `sink` or `filter`. In this chapter, we will implement a very simple filter that counts received buffers and passes them to the next element. It will build simple statistics and send them to Pipeline via `Membrane.Notification` mechanism.
 
-Source code for this filter can be found in [membrane-demo repository](https://github.com/membraneframework/membrane-demo/tree/v0.2).
+Source code for this filter can be found in the [membrane-demo repository](https://github.com/membraneframework/membrane-demo/tree/v0.2).
 
 ## Base module
 
@@ -28,13 +28,13 @@ Our element will have only one option - time interval, telling how often statist
 def_options interval: [
     type: :integer,
     default: 1000,
-    description: "Amount of the time in millisecods, telling how often statistics should be sent and zeroed"
+    description: "Amount of the time in milliseconds, telling how often statistics should be sent and zeroed"
   ]
 ```
 
 ## Pads
 
-It is very common for the filter to declare two pads that are called :input and :output
+It is very common for the filter to declare two pads that are called `:input` and `:output`
 
 ```elixir
 def_input_pads input: [availability: :always, mode: :pull, demand_unit: :bytes, caps: :any]
@@ -43,15 +43,15 @@ def_output_pads output: [availability: :always, mode: :pull, caps: :any]
 
 In above definition, availability `:always` means that pad of this element is always available. The other option is `:on_request` which means that pad is being created on request, for example, during the 'playing' state.
 
-`:pull` mode means that this element sends buffers to the next element only when they are demanded. Demands are received in `handle_demand` callback and they may refer to the number of bytes or buffers to send. The unit is specified with `:demand_unit` key.
+`:pull` mode means that this element sends buffers to the next element only when they are demanded. Demands are received in the `handle_demand` callback and they may refer to the number of bytes or buffers to send. The unit is specified with the `:demand_unit` key.
 
-The other option is :push mode, that means that element will send buffers whenever it wants or whenever they are available. In this case, specifying demand unit is unnecessary.
+The other option is `:push` mode, that means that element will send buffers whenever it wants or whenever they are available. In this case, specifying a demand unit is unnecessary.
 
 The next element in the keyword list represents the capabilities (caps) of the pad. `:any` means that any type of buffer can be passed on this pad. If you want to restrict the types of data allowed on this pad you can define caps specifications as described in [docs](https://hexdocs.pm/membrane_core/0.2.0/Membrane.Caps.Matcher.html).
 
 ## `handle_init/1`
 
-In `handle_init` we initialize internal state of the element. As the first argument of callback, options will be received. In our state, we will create variable for counting buffers and timer. Timer won't be initialized at this point, we will wait for 'handle_prepared_to_playing' callback, which informs that pipeline is in the `playing` state.
+In `handle_init` we initialize the internal state of the element. As the first argument of callback, options will be received. In our state, we will create variable for counting buffers and timer. Timer won't be initialized at this point, we will wait for 'handle_prepared_to_playing' callback, which informs that pipeline is in the `playing` state.
 
 ``` elixir
 @impl true
@@ -115,7 +115,7 @@ We will receive our ticks here, so we will know that we should zero the counter.
 ```elixir
 @impl true
 def handle_other(:tick, _ctx, state) do
-  # create structure to send
+  # create the term to send
   notification = {
     :counter,
     state.counter
@@ -152,7 +152,7 @@ defmodule Your.Module.Element do
       type: :integer,
       default: 1000,
       description:
-        "Amount of the time in millisecods, telling how often statistics should be sent and zeroed"
+        "Amount of the time in milliseconds, telling how often statistics should be sent and zeroed"
     ]
 
   def_input_pads input: [availability: :always, mode: :pull, demand_unit: :bytes, caps: :any]
@@ -195,7 +195,7 @@ defmodule Your.Module.Element do
 
   @impl true
   def handle_other(:tick, _ctx, state) do
-    # create term to send
+    # create the term to send
     notification = {
       :counter,
       state.counter
