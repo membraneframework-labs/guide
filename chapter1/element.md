@@ -101,7 +101,7 @@ Overriding callback `handle_process` means that we want to receive only one buff
 
 ```elixir
 @impl true
-def handle_process(:input, %Membrane.Buffer{} = buffer, _, state) do
+def handle_process(:input, %Membrane.Buffer{} = buffer, _context, state) do
   new_state = %{state | counter: state.counter + 1}
   {{:ok, [buffer: {:output, buffer}]}, new_state}
 end
@@ -188,7 +188,7 @@ defmodule Your.Module.Element do
   end
 
   @impl true
-  def handle_process(:input, %Membrane.Buffer{} = buffer, _, state) do
+  def handle_process(:input, %Membrane.Buffer{} = buffer, _context, state) do
     new_state = %{state | counter: state.counter + 1}
     {{:ok, buffer: {:output, buffer}}, new_state}
   end

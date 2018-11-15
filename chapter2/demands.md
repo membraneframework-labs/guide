@@ -49,7 +49,7 @@ It can be perceived as translating received demand from `output` pad to the othe
 
 ```elixir
 @impl true
-def handle_demand(:output, size, _, %Ctx.Demand{}, state) do
+def handle_demand(:output, size, _unit, %Ctx.Demand{}, state) do
   {{:ok, demand: {:input, size}}, state}
 end
 ```
