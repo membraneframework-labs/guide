@@ -4,9 +4,9 @@ Due to the performance issues, we implemented our own system for managing logs. 
 
 ## Usage
 
-Just add `use Membrane.Mixins.Log` in your module. If you want to add the default tags to each logged message, you can pass them by macro's argument, i.e. `Membrane.Mixins.Log, tags: [:my_tag1, :my_tag2]`
+Just add `use Membrane.Log` in your module. If you want to add the default tags to each logged message, you can pass them by macro's argument, i.e. `Membrane.Log, tags: [:my_tag1, :my_tag2]`
 
-Then, you can invoke functions `Logger.Debug`, `Logger.info`, `Logger.warn`, and `Logger.warn_error` in your module. Your logs will be sent to the router that will dispatch them to appropriate logger instances.
+Then, you can invoke functions `Logger.debug`, `Logger.info`, `Logger.warn`, and `Logger.warn_error` in your module. Your logs will be sent to the router that will dispatch them to appropriate logger instances.
 
 ## Configuration
 
