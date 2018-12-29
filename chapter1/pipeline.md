@@ -72,7 +72,7 @@ Inside `handle_init`, we should define all elements and links between them. Firs
   children = [
     file_src: %Membrane.Element.File.Source{location: path_to_mp3},
     decoder: Membrane.Element.Mad.Decoder,
-    converter: %Membrane.Element.FFmpeg.SWResample.Converter{source_caps: %Membrane.Caps.Audio.Raw{sample_rate: 48_000, format: :s16le, channels: 2}},
+    converter: %Membrane.Element.FFmpeg.SWResample.Converter{output_caps: %Membrane.Caps.Audio.Raw{sample_rate: 48_000, format: :s16le, channels: 2}},
     sink: Membrane.Element.PortAudio.Sink,
   ]
 ```
@@ -112,7 +112,7 @@ defmodule Your.Module.Pipeline do
     children = [
       file_src: %Membrane.Element.File.Source{location: path_to_mp3},
       decoder: Membrane.Element.Mad.Decoder,
-      converter: %Membrane.Element.FFmpeg.SWResample.Converter{source_caps: %Membrane.Caps.Audio.Raw{sample_rate: 48000, format: :s16le, channels: 2}},
+      converter: %Membrane.Element.FFmpeg.SWResample.Converter{output_caps: %Membrane.Caps.Audio.Raw{sample_rate: 48000, format: :s16le, channels: 2}},
       sink: Membrane.Element.PortAudio.Sink,
     ]
 
