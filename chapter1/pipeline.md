@@ -142,3 +142,37 @@ Pipeline.play(pid)
 ```
 
 The given `.mp3` file should be played on default device in your system.
+
+## Connecting `push` pad to `pull` pad
+
+If you want to connect two pads, namely a pad that is in `push` mode to one that 
+is in `pull` mode, you MUST use a toilet. The toilet is a container that
+stores buffer send by `push` element and allows `pull` element to
+place demands. Creating a toilet is quite a simple feat. 
+When linking pads just use the third slot of the tuple.
+
+```elixir
+links = %{
+  #...
+  {:push, :source} => {:pull, :sink, toilet: true},
+  #...
+}
+```
+
+You may ask a question, what to do if the toilet keeps overflowing?
+Create a bigger toilet of course... Toilet is more flexible than you might think
+you can not only enable it but also configure its size.
+
+```elixir
+toilet_config = %{warn: warn_threshold, fail: fail_threshold}
+links = %{
+  #...
+  {:push, :source} => {:pull, :sink, toilet: toilet_config},
+  #...
+}
+```
+
+When numbers of buffers in toilet exceed `warn_threshold` you will get
+a warning, but if it exceeds `fail_threshold` pipeline will crash.
+For the optimal experience you will have to choose those values
+manually for the specific thing, you want to achieve.
