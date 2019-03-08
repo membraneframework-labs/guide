@@ -10,4 +10,4 @@
   * [NIFs](chapter2/nifs.md)
   * [Demands](chapter2/demands.md)
   * [Element lifecycle](chapter2/lifecycle.md)
-
+  * [Testing](chapter2/testing.md)
