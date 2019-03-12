@@ -11,7 +11,7 @@ We will discuss and walk you through writing tests on a real-world example for t
 In order to simplify things and make the test easier to maintain and modify, we propose the following solution:
 
 - Create a sample file for the element under test. As an example, for the AAC decoder we'll use a very simple AAC audio file
-- Create a known output as a reference file. For example, we save raw audio frames as the reference output for our AAC Decoder
+- Create a known output as a reference file. For example, we save raw audio frames as the reference output for our AAC Decoder. **Note**: This may not always be the best solution since most encoders produce a non-deterministic output for the same input
 - Use the input file and reference file as sources of truth for your tests
 
 ## Running tests
@@ -45,7 +45,7 @@ As described above, we will use input/reference files as our data sources. Those
 ```elixir
     in_path = "fixtures/input-sample.aac" |> Path.expand(__DIR__)
     reference_path = "fixtures/reference-sample.raw" |> Path.expand(__DIR__)
-
+    ...
     assert {:ok, file} = File.read(in_path)
 ```
 
@@ -70,7 +70,7 @@ Finally, we'll compare the decoded_frame with a reference frame from the saved r
     assert {:ok, ref_file} = File.read(reference_path)
 
     assert <<ref_frame::bytes-size(4096), _::binary>> = ref_file
-
+    ...
     assert bit_size(decoded_frame) == bit_size(ref_frame)
     assert Membrane.Payload.to_binary(decoded_frame) == ref_frame
   end
@@ -87,18 +87,21 @@ Our test pipeline uses [`Membrane.Testing.Pipeline`](https://hexdocs.pm/membrane
 defmodule DecodingPipeline do
   @moduledoc false
 
-  def get_options(%{in: in_path, out: out_path, pid: pid}) do
-    %Membrane.Testing.Pipeline.Options{
+  alias Membrane.Testing.Pipeline
+
+  def make_pipeline(in_path, out_path, pid \\ self()) do
+    Pipeline.start_link(%Pipeline.Options{
       elements: [
         file_src: %Membrane.Element.File.Source{location: in_path},
-        decoder: Membrane.Element.AAC.Decoder, # Replace with the element you're testing
+        decoder: Membrane.Element.AAC.Decoder,
         sink: %Membrane.Element.File.Sink{location: out_path}
       ],
       monitored_callbacks: [:handle_notification],
       test_process: pid
-    }
+    })
   end
 end
+
 ```
 
 **NOTE:** We need to monitor `:handle_notification` callback to correctly wait for `EndOfStream` message in our test. Otherwise, it may happen that the test finishes before the whole file was decoded.
@@ -127,16 +130,6 @@ First, we define a couple of helper methods.
   end
 ```
 
-`make_pipeline` starts our custom `DecodingPipeline` and links it to the current test process:
-
-```elixir
-  def make_pipeline(in_path, out_path) do
-    Membrane.Testing.Pipeline.start_link(
-      DecodingPipeline.get_options(%{in: in_path, out: out_path, pid: self()})
-    )
-  end
-```
-
 `assert_files_equal` compares two on-disk files:
 
 ```elixir
@@ -154,7 +147,7 @@ Notice the [`assert_receive_message`](https://hexdocs.pm/membrane_core/Membrane.
   describe "Decoding Pipeline should" do
     test "Decode AAC file" do
       {in_path, reference_path, out_path} = prepare_paths("sample")
-      assert {:ok, pid} = make_pipeline(in_path, out_path)
+      assert {:ok, pid} =  DecodingPipeline.make_pipeline(in_path, out_path)
 
       assert Pipeline.play(pid) == :ok # Start the pipeline
       assert_receive_message({:handle_notification, {{:end_of_stream, :input}, :sink}}, 3000) # Wait for EndOfStream message
@@ -163,6 +156,8 @@ Notice the [`assert_receive_message`](https://hexdocs.pm/membrane_core/Membrane.
   end
 end
 ```
+
+Once again, we are comparing the pipeline's output with our reference file to assert that everything works correctly.
 
 ## Using other testing utilities
 
