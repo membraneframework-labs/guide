@@ -64,7 +64,7 @@ Next, we will retrieve the first frame from the input file, pass it to the Nativ
     assert {:error, :not_enough_bits} = Native.decode_frame(frame, decoder_ref)
 ```
 
-Finally, we'll compare the decoded_frame with a reference frame from the saved raw file.
+Finally, we'll compare the decoded frame with a reference frame from the saved raw file.
 
 ```elixir
     assert {:ok, ref_file} = File.read(reference_path)
