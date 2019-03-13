@@ -79,7 +79,7 @@ Inside `handle_init`, we should define all elements and links between them. Firs
 
 Notice, that there are two approaches to element declarations: as a module name or as a struct of given module. The second approach gives the possibility to pass some additional argument.
 
-Then, we should initialize a map containing links between elements. Keys and values in this map should be a tuples {element_name, element_pad} describing links:
+Then, we should initialize a map containing links between elements. Keys and values in this map should be a tuples `{element_name, element_pad}` describing links:
 
 ```elixir
   links = %{
@@ -89,7 +89,7 @@ Then, we should initialize a map containing links between elements. Keys and val
   }
 ```
 
-Last but not least, we should return created terms in the correct format - %Pipeline.Spec{}
+Last but not least, we should return created terms in the correct format - `%Pipeline.Spec{}`
 
 ```elixir
   spec = %Membrane.Pipeline.Spec{
