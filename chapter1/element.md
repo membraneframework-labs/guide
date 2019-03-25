@@ -51,9 +51,9 @@ def_output_pad :output,
 
 In above definition, availability `:always` means that pad of this element is always available. The other option is `:on_request` which means that an instances of pad are created on request. For example, an audio mixer element can use it to allow linking new sources, even while in `:playing` state.
 
-`:pull` mode means that this element sends buffers to the next element only when they are demanded. When a when demand is received on an output pad, the `handle_demand` callback is invoked with total demand for the pad and a unit - either `:bytes` or `:buffers`.
+`:pull` mode means that this element sends buffers to the next element only when they are demanded. When a demand is received on an output pad, the `handle_demand` callback is invoked with total demand for the pad and a unit - either `:bytes` or `:buffers`.
 
-For input pads in `:pull` mode one more entry has to be provided - `:demand_unit`. It determines in which unit the demand is send to the upstream element and can be set, as mentioned, to `:bytes` or `:buffers`.
+For input pads in `:pull` mode one more entry has to be provided - `:demand_unit`. It determines in which unit the demand is sent to the upstream element and can be set, as mentioned, to `:bytes` or `:buffers`.
 
 The other option is `:push` mode, that means that element will send buffers whenever it wants or whenever they are available. In this case, specifying a demand unit is unnecessary.
 

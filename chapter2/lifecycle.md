@@ -36,7 +36,7 @@ Elements are processing data, timers are running. Sending buffers and demands is
 ### Playing -> prepared change
 
 In callback handling this change, the element should stop all running timers.
-Since this moment, elements won't process any more buffers or sticky events. All the data waiting in PullBuffers will be dropped.
+Since this moment, elements won't process any more buffers or sticky events. All the data waiting in InputBuffers will be dropped.
 
 ### Prepared -> stopped change
 

@@ -7,14 +7,16 @@ Source code for this pipeline as well as an mp3 file sample can be found in [mem
 
 ## Add dependencies to `mix.exs`
 
-Membrane Framework is spread across multiple repositories on GitHub.
-First of all, you have to add to dependencies our main repository - Membrane Core, which contains all mechanisms used for managing pipelines and elements. To do this, just add the following line to the `deps` in your `mix.exs`:
+Membrane Framework is modular and consists of many packages available on [hex.pm](https://hex.pm/users/membrane)
+To start the work, we have to add a dependency to our main package - Membrane Core, which contains all mechanisms used for creating and managing pipelines and elements. To do this, just add the following line to the `deps` in your `mix.exs`:
 
 ```elixir
 {:membrane_core, "~> 0.3.0"},
 ```
 
-Furthermore, implementations of Membrane elements are grouped into tiny modules. Each module has its own repository. In this tutorial, we will use `Membrane.Element.File` (for reading data from a file), `Membrane.Element.FFmpeg.Swresample.Converter` (for audio format conversion) and `Membrane.Element.PortAudio` (for writing the audio to audio device):
+Furthermore, there are quite a few Membrane elements providing different functionalities and supporting a variety of multimedia formats. Each element is available as a separate package.
+
+In this tutorial, we will use `Membrane.Element.File` (for reading data from a file), `Membrane.Element.FFmpeg.Swresample.Converter` (for audio format conversion) and `Membrane.Element.PortAudio` (for writing the audio to audio device):
 
 ```elixir
 {:membrane_element_file, "~> 0.2.3"},
