@@ -3,7 +3,7 @@
 In this chapter, we will implement an example of using elements and grouping them into the pipeline.
 Namely, we will write an application that reads `.mp3` file and using PortAudio library plays its content to the default audio device in your system.
 
-Source code for this pipeline as well as an mp3 file sample can be found in [membrane-demo repository](https://github.com/membraneframework/membrane-demo/tree/v0.2).
+Source code for this pipeline as well as an mp3 file sample can be found in [membrane-demo repository](https://github.com/membraneframework/membrane-demo/tree/v0.3).
 
 ## Add dependencies to `mix.exs`
 
@@ -11,16 +11,16 @@ Membrane Framework is spread across multiple repositories on GitHub.
 First of all, you have to add to dependencies our main repository - Membrane Core, which contains all mechanisms used for managing pipelines and elements. To do this, just add the following line to the `deps` in your `mix.exs`:
 
 ```elixir
-{:membrane_core, "~> 0.2.0"},
+{:membrane_core, "~> 0.3.0"},
 ```
 
 Furthermore, implementations of Membrane elements are grouped into tiny modules. Each module has its own repository. In this tutorial, we will use `Membrane.Element.File` (for reading data from a file), `Membrane.Element.FFmpeg.Swresample.Converter` (for audio format conversion) and `Membrane.Element.PortAudio` (for writing the audio to audio device):
 
 ```elixir
-{:membrane_element_file, "~> 0.2.0"},
-{:membrane_element_portaudio, "~> 0.2.0"},
-{:membrane_element_ffmpeg_swresample, "~> 0.2.0"},
-{:membrane_element_mad, "~> 0.2.0"}
+{:membrane_element_file, "~> 0.2.3"},
+{:membrane_element_portaudio, "~> 0.2.3"},
+{:membrane_element_ffmpeg_swresample, "~> 0.2.3"},
+{:membrane_element_mad, "~> 0.2.3"}
 ```
 
 These dependencies rely on native libraries that have to be available in your system. You can use the following commands to install them.
@@ -145,4 +145,4 @@ Pipeline.play(pid)
 
 The given `.mp3` file should be played on the default device in your system. Please use `.mp3` that has no ID3 or ID3v2 tags.
 
-The [demo available here](https://github.com/membraneframework/membrane-demo/tree/v0.2) contains an `.mp3` file without tags.
+The [demo available here](https://github.com/membraneframework/membrane-demo/tree/v0.3) contains an `.mp3` file without tags.
