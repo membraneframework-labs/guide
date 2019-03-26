@@ -145,16 +145,16 @@ The given `.mp3` file should be played on default device in your system.
 
 ## Connecting `push` pad to `pull` pad
 
-If you want to connect two pads, namely a pad that is in `push` mode to one that 
+If you want to connect two pads, namely a pad that is in `push` mode to one that
 is in `pull` mode, you MUST use a toilet. The toilet is a container that
-stores buffer send by `push` element and allows `pull` element to
-place demands. Creating a toilet is quite a simple feat. 
-When linking pads just use the third slot of the tuple.
+stores buffers sent by pushing element and allows pulling element to receive
+buffers on demand. Creating a toilet is quite a simple feat,
+when linking pads, just add info about toilet to a proper input pad.
 
 ```elixir
 links = %{
   #...
-  {:push, :source} => {:pull, :sink, toilet: true},
+  {:output, :push} => {:input, :pull, pull_buffer: [toilet: true]},
   #...
 }
 ```
@@ -167,7 +167,7 @@ you can not only enable it but also configure its size.
 toilet_config = %{warn: warn_threshold, fail: fail_threshold}
 links = %{
   #...
-  {:push, :source} => {:pull, :sink, toilet: toilet_config},
+  {:output, :push} => {:input, :pull, pull_buffer: [toilet: toilet_config]},
   #...
 }
 ```
