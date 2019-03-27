@@ -1,13 +1,22 @@
 # Summary
 
 * [Introduction](README.md)
-* [Basic concepts](chapter1.md)
-  * [Elements](chapter1/concepts.md)
-  * [First pipeline](chapter1/pipeline.md)
-  * [First element](chapter1/element.md)
-* [Advanced](chapter2.md)
-  * [Logger](chapter2/logger.md)
-  * [NIFs](chapter2/nifs.md)
-  * [Demands](chapter2/demands.md)
-  * [Element lifecycle](chapter2/lifecycle.md)
-  * [Testing](chapter2/testing.md)
+
+## Concepts
+
+* [Elements](concepts/elements.md)
+  * [Pads](concepts/pads.md)
+  * [Lifecycle](concepts/lifecycle.md)
+* [Pipelines](concepts/pipelines.md)
+
+## Building application
+
+* [Writing pipeline](creating_app/pipeline.md)
+* [Logger](creating_app/logger.md)
+
+## Creating new elements
+
+* [Tutorial](creating_element/tutorial.md)
+* [Testing](creating_element/testing.md)
+* [Native code integration](creating_element/natives.md)
+* [Demands](creating_element/demands.md)

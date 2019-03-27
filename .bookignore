@@ -2,3 +2,4 @@
 *.yml
 *.sh
 package-lock.json
+.vscode
