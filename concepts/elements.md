@@ -9,11 +9,15 @@ audio encoder (converting raw audio to encoded format like MP3),
 file source (reading data from a file and passing it to other elements) or
 UDP sink (sending data from an application via UDP socket).
 
-There are three basic types of elements: `sink`, `source`, and `filters`:
+## Element types
+
+There are three basic types of elements:
 
 * `Source` - responsible for getting (or generating) data delivering it to other elements
 * `Sink` - defines an endpoint for data flowing through an application.
 * `Filter` - an element that receives data from other elements, processes it and sends it further to the next elements
+
+## Playback states
 
 Every element may be in one of three states:
 
@@ -21,4 +25,27 @@ Every element may be in one of three states:
 * `:prepared` - element should be ready for processing data. All necessary resources should be allocated and initialized.
 * `:playing` - element is actually processing data
 
-Elements define their own `options` that parametrize their work. For example, some audio decoder may have an option named `bitrate` that represents bitrate of the output data.
+More detailed info can be found in [chapter about element's lifecycle](./lifecycle.md)
+
+## Pads
+
+Element's pads, much like contact pads on printed circuit board, are inputs and outputs of an element
+and are used to connect the elements with each other.
+
+The are covered in greater detail in [this chapter](./pads.md)
+
+## Options
+
+Both elements and their pads may define their own `options` that parametrize their work.
+For example, some audio decoder may have an option named `bitrate` that represents bitrate of the output data.
+
+The options for an element are passed when the element is created, while pad options are provided when
+two elements are linked
+
+## Defining an elements
+
+Elements are Elixir modules that `use` a proper module
+(either [`Membrane.Element.Base.Sink`](https://hexdocs.pm/membrane_core/Membrane.Element.Base.Sink.html),
+[`Membrane.Element.Base.Filter`](https://hexdocs.pm/membrane_core/Membrane.Element.Base.Filter.html) or
+[`Membrane.Element.Base.Source`](https://hexdocs.pm/membrane_core/Membrane.Element.Base.Source.html)).
+The have to define options and pads using provided macros (`def_input_pad`, `def_output_pad` and `def_options`) implement at least required callbacks.

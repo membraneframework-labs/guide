@@ -5,8 +5,8 @@
 ## Concepts
 
 * [Elements](concepts/elements.md)
-  * [Pads](concepts/pads.md)
   * [Lifecycle](concepts/lifecycle.md)
+  * [Pads](concepts/pads.md)
 * [Pipelines](concepts/pipelines.md)
 
 ## Building application
