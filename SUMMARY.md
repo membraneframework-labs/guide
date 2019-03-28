@@ -7,6 +7,7 @@
 * [Elements](concepts/elements.md)
   * [Lifecycle](concepts/lifecycle.md)
   * [Pads](concepts/pads.md)
+<!--- * [Events, buffers]() --->
 * [Pipelines](concepts/pipelines.md)
 
 ## Building application
@@ -16,7 +17,8 @@
 
 ## Creating new elements
 
-* [Tutorial](creating_element/tutorial.md)
+* [Basic element](creating_element/tutorial.md)
+<!--- * [Element with dynamic pads]() --->
 * [Testing](creating_element/testing.md)
 * [Native code integration](creating_element/natives.md)
 * [Demands](creating_element/demands.md)
