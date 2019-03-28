@@ -6,7 +6,6 @@
 
 * [Elements](concepts/elements.md)
   * [Lifecycle](concepts/lifecycle.md)
-  * [Pads](concepts/pads.md)
 <!--- * [Events, buffers]() --->
 * [Pipelines](concepts/pipelines.md)
 
