@@ -1,4 +1,4 @@
-# Implementing new element
+# Implementing first element
 
 Implementing a new element is very similar to declaring a new pipeline. All you have to do is create a new module and implement some callbacks.
 
@@ -61,7 +61,7 @@ In above definition, availability `:always` means that pad of this element is al
 
 For input pads in `:pull` mode one more entry has to be provided - `:demand_unit`. It determines in which unit the demand is sent to the upstream element and can be set, as mentioned, to `:bytes` or `:buffers`.
 
-The next element in the keyword list represents the capabilities (caps) of the pad. `:any` means that any type of buffer can be passed on this pad. If you want to restrict the types of data allowed on this pad you can define caps specifications as described in [docs](https://hexdocs.pm/membrane_core/0.3.0/Membrane.Caps.Matcher.html).
+The next element in the keyword list represents the capabilities (caps) of the pad. `:any` means that any type of buffer can be passed on this pad. If you want to restrict the types of data allowed on this pad you can define caps specifications as described in docs for module `Membrane.Caps.Matcher`.
 
 Last entry for input pad defines an option for this pad added just for demonstration purpose.
 The options for pads are defined just like element's options in `def_options` macro.
@@ -102,6 +102,8 @@ For that purpose, we will return an action as an additional term in the output t
 Actions are generally speaking the activity that we request the element to perform. The example actions are: sending buffer/event/new_caps on some pad, sending messages to the pipeline or - like in our case - sending demand through some input pad.
 
 Actions are always the entries in the keyword list, where the key is an atom indicating the action name and the value contains the parameters of the action. In this case, it is a tuple with the pad name at first position and size of the demand on the second position.
+
+More information on how the demands work can be found in a [separate chapter](demands.html)
 
 ```elixir
 @impl true

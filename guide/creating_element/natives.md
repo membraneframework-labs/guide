@@ -1,6 +1,6 @@
-# NIFs
+# Native code integration
 
-NIFs (Native Implemented Functions) are used in Membrane Framework as wrappers for C libraries.
+Native code is used in Membrane Framework quite often. Most common use case is to access create a wrapper for a C library.
 Since using NIFs has many drawbacks and can even crash Erlang virtual machine during the runtime, we use them only when absolutely necessary or it makes no sense to rewrite a complicated piece of code from scratch.
 
 ## [Bundlex](https://github.com/membraneframework/bundlex)

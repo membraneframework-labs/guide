@@ -17,25 +17,31 @@ defmodule GuideExDoc.MixProject do
     [
       api_reference: false,
       logo: "assets/logo.png",
-      main: "readme",
+      main: "introduction",
       extra_section: "Guide",
       extras:
         [
-          ".",
-          "concepts",
-          "creating_app",
-          "creating_element"
+          "introduction.md",
+          # concepts
+          "concepts/elements.md",
+          "concepts/pipelines.md",
+          # building apps
+          "creating_app/pipeline.md",
+          "creating_app/logger.md",
+          # creating elements
+          "creating_element/tutorial.md",
+          "creating_element/testing.md",
+          "creating_element/demands.md",
+          "creating_element/natives.md"
         ]
-        |> Enum.flat_map(&extras/1),
+        |> Enum.map(&Path.join("guide", &1)),
       groups_for_extras: [
-        Concepts: extras("concepts"),
-        "Building application": extras("creating_app"),
-        "Creating new elements": extras("creating_element")
+        Concepts: ~r"/concepts/",
+        "Building application": ~r"/creating_app/",
+        "Creating new elements": ~r"/creating_element/"
       ]
     ]
   end
-
-  defp extras(group), do: Path.wildcard("#{group}/*.md") |> Enum.sort()
 
   defp deps do
     [

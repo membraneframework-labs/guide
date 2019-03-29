@@ -113,7 +113,7 @@ When an input pad works in `:pull` mode you can also configure the buffer:
   }
 ```
 
-Available settings are described in the [InputBuffer docs](https://hexdocs.pm/membrane_core/Membrane.Core.InputBuffer.html#t:props_t/0).
+Available settings are described in the `Membrane.Core.InputBuffer` docs.
 
 Last but not least, we should return created terms in the correct format - `%Pipeline.Spec{}`
 
@@ -164,8 +164,8 @@ end
 The simplest way to create and run above pipeline is to type in iex console:
 
 ```elixir
-alias Membrane.Pipeline
-{:ok, pid} = Pipeline.start_link(Your.Module.Pipeline, "/path/to/mp3", [])
+alias Your.Module.Pipeline
+{:ok, pid} = Pipeline.start_link("/path/to/mp3")
 Pipeline.play(pid)
 ```
 
