@@ -1,10 +1,12 @@
 defmodule GuideExDoc.MixProject do
   use Mix.Project
 
+  @analytics_id "UA-120089337-2"
+
   def project do
     [
       app: :membrane_framework_guide,
-      name: "Membrane<br/>Framework",
+      name: "Membrane Guide",
       version: "0.3.0",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
@@ -39,8 +41,43 @@ defmodule GuideExDoc.MixProject do
         Concepts: ~r"/concepts/",
         "Building application": ~r"/creating_app/",
         "Creating new elements": ~r"/creating_element/"
-      ]
+      ],
+      before_closing_body_tag: &analytics/1,
+      before_closing_head_tag: &logo_fix/1
     ]
+  end
+
+  defp analytics(:epub), do: ""
+
+  defp analytics(:html) do
+    """
+    <!-- Google Analytics -->
+    <script>
+    window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+    ga('create', '#{@analytics_id}', 'auto');
+    ga('send', 'pageview');
+    </script>
+    <script async src='https://www.google-analytics.com/analytics.js'></script>
+     <!-- End Google Analytics -->
+    """
+  end
+
+  defp logo_fix(_) do
+    """
+    <style type="text/css">
+    .sidebar a.sidebar-projectLink {
+      text-align: center;
+    }
+    .sidebar div.sidebar-projectDetails:not(:last-child) {
+      padding: 0 15px;
+    }
+    .sidebar img.sidebar-projectImage {
+      margin: 10px;
+      max-height: 128px;
+      max-width: 128px;
+    }
+    </style>
+    """
   end
 
   defp deps do
