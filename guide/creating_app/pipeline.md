@@ -91,6 +91,30 @@ Then, we should initialize a map containing links between elements. Keys and val
   }
 ```
 
+If a pad has some options you can provide it in keyword at the end of the tuple:
+
+```elixir
+  links = %{
+    # ...
+    {:decoder, :output} => {:converter, :input, pad: [some_option: true]},
+    # ...
+  }
+```
+
+Available pad options are documented in elements' modules.
+
+When an input pad works in `:pull` mode you can also configure the buffer:
+
+```elixir
+  links = %{
+    # ...
+    {:decoder, :output} => {:converter, :input, buffer: [preffered_size: 42_000]},
+    # ...
+  }
+```
+
+Available settings are described in the `Membrane.Core.InputBuffer` docs.
+
 Last but not least, we should return created terms in the correct format - `%Pipeline.Spec{}`
 
 ```elixir
@@ -140,8 +164,8 @@ end
 The simplest way to create and run above pipeline is to type in iex console:
 
 ```elixir
-alias Membrane.Pipeline
-{:ok, pid} = Pipeline.start_link(Your.Module.Pipeline, "/path/to/mp3", [])
+alias Your.Module.Pipeline
+{:ok, pid} = Pipeline.start_link("/path/to/mp3")
 Pipeline.play(pid)
 ```
 

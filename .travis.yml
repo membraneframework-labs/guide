@@ -1,14 +1,12 @@
-language: node_js
-node_js: node
+language: elixir
+elixir:
+  - 1.8
+otp_release:
+  - 21.3
 sudo: false
 
-install:
-  - npm i gitbook-cli
-  - npm i gitbook-plugin-insert-logo
-  - npm i gitbook-plugin-analytics
-
 script:
-  - ./node_modules/gitbook-cli/bin/gitbook.js build
+  - mix docs
 
 deploy:
   - provider: script

@@ -1,4 +1,4 @@
-# Implementing new element
+# Implementing first element
 
 Implementing a new element is very similar to declaring a new pipeline. All you have to do is create a new module and implement some callbacks.
 
@@ -41,7 +41,14 @@ def_input_pad :input,
   availability: :always,
   mode: :pull,
   demand_unit: :bytes,
-  caps: :any
+  caps: :any,
+  options: [
+    divisor: [
+      type: :integer,
+      default: 1,
+      description: "Number by which the counter will be divided before sending notification"
+    ]
+  ]
 
 def_output_pad :output,
   availability: :always,
@@ -49,15 +56,15 @@ def_output_pad :output,
   caps: :any
 ```
 
-In above definition, availability `:always` means that pad of this element is always available. The other option is `:on_request` which means that an instances of pad are created on request. For example, an audio mixer element can use it to allow linking new sources, even while in `:playing` state.
-
+In above definition, availability `:always` means that pad of this element is always available.
 `:pull` mode means that this element sends buffers to the next element only when they are demanded. When a demand is received on an output pad, the `handle_demand` callback is invoked with total demand for the pad and a unit - either `:bytes` or `:buffers`.
 
 For input pads in `:pull` mode one more entry has to be provided - `:demand_unit`. It determines in which unit the demand is sent to the upstream element and can be set, as mentioned, to `:bytes` or `:buffers`.
 
-The other option is `:push` mode, that means that element will send buffers whenever it wants or whenever they are available. In this case, specifying a demand unit is unnecessary.
+The next element in the keyword list represents the capabilities (caps) of the pad. `:any` means that any type of buffer can be passed on this pad. If you want to restrict the types of data allowed on this pad you can define caps specifications as described in docs for module `Membrane.Caps.Matcher`.
 
-The next element in the keyword list represents the capabilities (caps) of the pad. `:any` means that any type of buffer can be passed on this pad. If you want to restrict the types of data allowed on this pad you can define caps specifications as described in [docs](https://hexdocs.pm/membrane_core/0.3.0/Membrane.Caps.Matcher.html).
+Last entry for input pad defines an option for this pad added just for demonstration purpose.
+The options for pads are defined just like element's options in `def_options` macro.
 
 ## `handle_init/1`
 
@@ -96,6 +103,8 @@ Actions are generally speaking the activity that we request the element to perfo
 
 Actions are always the entries in the keyword list, where the key is an atom indicating the action name and the value contains the parameters of the action. In this case, it is a tuple with the pad name at first position and size of the demand on the second position.
 
+More information on how the demands work can be found in a [separate chapter](demands.html)
+
 ```elixir
 @impl true
 def handle_demand(:output, size, :bytes, _context, state) do
@@ -122,13 +131,15 @@ end
 All messages sent to the element's process that were not recognized as internal membrane messages (like buffers, caps, events or notifications) are handled in `handle_other/3`.
 We will receive our ticks here, so we will know that we should zero the counter. It is also a good place to send a notification to the pipeline with the statistics.
 
+This also presents how pad options can be accessed via context.
+
 ```elixir
 @impl true
-def handle_other(:tick, _ctx, state) do
+def handle_other(:tick, ctx, state) do
   # create the term to send
   notification = {
     :counter,
-    state.counter
+    div(state.counter, ctx.pads.input.options.divisor)
   }
 
   # reset the timer
@@ -169,7 +180,14 @@ defmodule Your.Module.Element do
     availability: :always,
     mode: :pull,
     demand_unit: :bytes,
-    caps: :any
+    caps: :any,
+    options: [
+      divisor: [
+        type: :integer,
+        default: 1,
+        description: "Number by which the counter will be divided before sending notification"
+      ]
+    ]
 
   def_output_pad :output,
     availability: :always,
@@ -211,11 +229,11 @@ defmodule Your.Module.Element do
   end
 
   @impl true
-  def handle_other(:tick, _ctx, state) do
+  def handle_other(:tick, ctx, state) do
     # create the term to send
     notification = {
       :counter,
-      state.counter
+      div(state.counter, ctx.pads.input.options.divisor)
     }
 
     # reset the timer
@@ -225,17 +243,3 @@ defmodule Your.Module.Element do
   end
 end
 ```
-
-## Test the element
-
-Our element is now ready! The last step is to put it in some pipeline and add callback handling notifications in the pipeline. The simple example of such callback is the following:
-
-```elixir
-@impl true
-def handle_notification(notification, _elem_name, state) do
-  IO.inspect(notification)
-  {:ok, state}
-end
-```
-
-You can use the pipeline from the previous chapter and put this element between the sink and the decoder.
