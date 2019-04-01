@@ -2,7 +2,7 @@
 
 set -e
 
-cd ${TRAVIS_BUILD_DIR}/docs
+cd ${TRAVIS_BUILD_DIR}/doc
 
 for file in $(find -type f); do
   curl --ftp-create-dirs -s -S \

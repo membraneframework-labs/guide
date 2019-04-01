@@ -39,7 +39,7 @@ defmodule GuideExDoc.MixProject do
         |> Enum.map(&Path.join("guide", &1)),
       groups_for_extras: [
         Concepts: ~r"/concepts/",
-        "Building application": ~r"/creating_app/",
+        "Creating applications": ~r"/creating_app/",
         "Creating new elements": ~r"/creating_element/"
       ],
       before_closing_body_tag: &analytics/1,
