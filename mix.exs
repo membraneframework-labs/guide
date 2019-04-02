@@ -65,11 +65,9 @@ defmodule GuideExDoc.MixProject do
   defp logo_fix(_) do
     """
     <style type="text/css">
-    .sidebar a.sidebar-projectLink {
+    .sidebar div.sidebar-header {
       text-align: center;
-    }
-    .sidebar div.sidebar-projectDetails:not(:last-child) {
-      padding: 0 15px;
+      margin: 15px;
     }
     .sidebar img.sidebar-projectImage {
       margin: 10px;
