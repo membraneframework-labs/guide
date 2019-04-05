@@ -19,6 +19,7 @@ defmodule GuideExDoc.MixProject do
     [
       api_reference: false,
       logo: "assets/logo.png",
+      javascript_config_path: nil,
       main: "introduction",
       extra_section: "Guide",
       extras:
@@ -80,7 +81,7 @@ defmodule GuideExDoc.MixProject do
 
   defp deps do
     [
-      {:ex_doc, "~> 0.19"},
+      {:ex_doc, "~> 0.20"},
       {:membrane_core, "~> 0.3.0"}
     ]
   end
