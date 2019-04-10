@@ -9,3 +9,32 @@ jobs:
       - run: mix local.hex --force
       - run: mix deps.get
       - run: mix docs
+      - persist_to_workspace:
+          root: .
+          paths: doc
+  deploy:
+    machine:
+      enabled: true
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "78:41:d6:8c:c1:2d:ff:f4:30:40:d1:a3:26:9a:67:f5"
+      - attach_workspace:
+          at: /tmp/app
+      - run:
+          name: Deploy Over SSH
+          command: |
+            rsync -av --delete -e "ssh -p $SSH_PORT" /tmp/app/doc/ $SSH_USER@$SSH_HOST:$SSH_PATH/guide/$CIRCLE_BRANCH/
+
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: circle-ci
