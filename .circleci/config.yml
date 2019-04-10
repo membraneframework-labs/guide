@@ -37,7 +37,7 @@ jobs:
       - run:
           name: Deploy Over SSH
           command: |
-            scp -P $SSH_PORT landing/index.html $SSH_USER@$SSH_HOST:$SSH_PATH/guide/
+            scp -P $SSH_PORT landing/* $SSH_USER@$SSH_HOST:$SSH_PATH/guide/
 
 
 workflows:

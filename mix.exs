@@ -19,7 +19,7 @@ defmodule GuideExDoc.MixProject do
     [
       api_reference: false,
       logo: "assets/logo.png",
-      javascript_config_path: nil,
+      javascript_config_path: "../docs_config.js",
       main: "introduction",
       extra_section: "Guide",
       extras:
