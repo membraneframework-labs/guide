@@ -4,11 +4,11 @@ This repo contains sources for the guide into Membrane. The guide is available [
 
 You may also want to visit our [website](https://membraneframework.org).
 
-The guide is generated with [ex_doc](https://github.com/elixir-lang/ex_doc)
+The guide is generated with [ex_doc](https://github.com/elixir-lang/ex_doc).
 
 ## Membrane Core
 
-The actual core of the framework can be found [here](https://github.com/membraneframework/membrane-core) and the docs - [here](https://hexdocs.pm/membrane_core/)
+The actual core of the framework can be found [here](https://github.com/membraneframework/membrane-core) and the docs - [here](https://hexdocs.pm/membrane_core/).
 
 ## Support and questions
 
@@ -21,4 +21,4 @@ Copyright 2018, [Software Mansion](https://swmansion.com/?utm_source=git&utm_med
 [![Software Mansion](https://membraneframework.github.io/static/logo/swm_logo_readme.png)](
 https://swmansion.com/?utm_source=git&utm_medium=readme&utm_campaign=membrane)
 
-Licensed under the [Apache License, Version 2.0](LICENSE)
+Licensed under the [Apache License, Version 2.0](LICENSE).
