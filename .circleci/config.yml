@@ -51,7 +51,6 @@ workflows:
           filters:
             branches:
               only:
-                - circle-ci
                 - /v[0-9]+\.[0-9]+(-dev)?/
       - deploy-landing:
           filters:
