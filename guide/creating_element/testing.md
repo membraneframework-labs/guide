@@ -144,6 +144,57 @@ end
 
 Once again, we are comparing the pipeline's output with our reference file to assert that everything works correctly.
 
+### Customizing pipeline module
+
+[`Membrane.Testing.Pipeline`](https://hexdocs.pm/membrane_core/Membrane.Testing.Pipeline.html) allows us to provide our custom implementations of [`Membrane.Pipeline`](https://hexdocs.pm/membrane_core/Membrane.Pipeline.html) callbacks that will be executed prior to `Membrane.Testing.Pipeline`'s implementations. Let's create Pipeline that will answer to requests with response we passed in initialization options. To do this, we must define our custom module.
+
+```elixir
+defmodule Example.Pipeline do
+  use Membrane.Pipeline
+
+  def handle_init(options) do
+    state = %{response: options.response}
+    spec = %Membrane.Pipeline.Spec{children: [], links: []}
+    {{:ok, spec}, state}
+  end
+
+  def handle_other({:request, from}, state) do
+    send(from, {:response, state.response})
+    {:ok, state}
+  end
+
+  def handle_other(_message, state),
+    do: {:ok, state}
+end
+``````
+Note that `Membrane.Pipeline.Spec` of our pipeline module can contain empty lists of children and links.
+In order to use callbacks defined in `Example.Pipeline` and pass custom initialization arguments, we have to specify it in `Options`.
+
+```elixir
+Pipeline.start_link(%Pipeline.Options{
+  ...
+  module: Example.Pipeline,
+  custom_args: %{response: "Hello there!"}
+})
+```
+
+Now we can create another test case to try out new functionality.
+
+```elixir
+describe "Decoding Pipeline should" do
+  ...
+
+  test 'Answer with {:reponse, "Hello there!"} message' do
+    assert {:ok, pid} =  Pipeline.start_link(%Pipeline.Options{...})
+    assert Pipeline.play(pid) == :ok # Start the pipeline
+    test_process_pid = self()
+    send(pid, {:request, test_process_pid})
+    assert_pipeline_receive(pid, {:request, test_process_pid}) # Check if pipeline got message
+    assert_receive({:response, "Hello there!"}) # Check if we got return message
+  end
+end
+```
+
 ## Using other testing utilities
 
 Apart from the [`Membrane.Testing.Pipeline`](https://hexdocs.pm/membrane_core/Membrane.Testing.Pipeline.html), which we've already seen, there are a bunch of other testing utilities which may come in handy for different test scenarios:
