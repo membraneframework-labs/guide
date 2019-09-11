@@ -30,6 +30,7 @@ defmodule GuideExDoc.MixProject do
           "concepts/pipelines.md",
           # building apps
           "creating_app/pipeline.md",
+          "creating_app/advanced.md",
           "creating_app/logger.md",
           # creating elements
           "creating_element/tutorial.md",
@@ -82,7 +83,8 @@ defmodule GuideExDoc.MixProject do
   defp deps do
     [
       {:ex_doc, "~> 0.20"},
-      {:membrane_core, "~> 0.3.0"}
+      {:membrane_core, "~> 0.3.2"},
+      {:membrane_element_tee, "~> 0.1.0"}
     ]
   end
 end

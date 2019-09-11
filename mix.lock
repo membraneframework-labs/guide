@@ -1,10 +1,11 @@
 %{
-  "bunch": {:hex, :bunch, "1.1.0", "bf9ca22c788ad4f486afb4d6d5e1211ab09cbee473c5cf370e6e550b1df4bc4b", [:mix], [], "hexpm"},
+  "bunch": {:hex, :bunch, "1.2.0", "f26c6c84e2e5e245620c73a0a4560ca91a75b25744012537e055426568916ab7", [:mix], [], "hexpm"},
   "earmark": {:hex, :earmark, "1.3.2", "b840562ea3d67795ffbb5bd88940b1bed0ed9fa32834915125ea7d02e35888a5", [:mix], [], "hexpm"},
   "ex_doc": {:hex, :ex_doc, "0.20.1", "88eaa16e67c505664fd6a66f42ddb962d424ad68df586b214b71443c69887123", [:mix], [{:earmark, "~> 1.3", [hex: :earmark, repo: "hexpm", optional: false]}, {:makeup_elixir, "~> 0.10", [hex: :makeup_elixir, repo: "hexpm", optional: false]}], "hexpm"},
   "makeup": {:hex, :makeup, "0.8.0", "9cf32aea71c7fe0a4b2e9246c2c4978f9070257e5c9ce6d4a28ec450a839b55f", [:mix], [{:nimble_parsec, "~> 0.5.0", [hex: :nimble_parsec, repo: "hexpm", optional: false]}], "hexpm"},
   "makeup_elixir": {:hex, :makeup_elixir, "0.13.0", "be7a477997dcac2e48a9d695ec730b2d22418292675c75aa2d34ba0909dcdeda", [:mix], [{:makeup, "~> 0.8", [hex: :makeup, repo: "hexpm", optional: false]}], "hexpm"},
-  "membrane_core": {:hex, :membrane_core, "0.3.0", "21a490e296dcb0c300735cf9fe2296b60c189a79eedf01ec2f3b6b77211269d9", [:mix], [{:bunch, "~> 1.1", [hex: :bunch, repo: "hexpm", optional: false]}, {:qex, "~> 0.3", [hex: :qex, repo: "hexpm", optional: false]}], "hexpm"},
+  "membrane_core": {:hex, :membrane_core, "0.3.2", "cdb45c2db4654485d4405443af6d78bda5fcdae06f9c5774478f77c51d43fc63", [:mix], [{:bunch, "~> 1.1", [hex: :bunch, repo: "hexpm", optional: false]}, {:qex, "~> 0.3", [hex: :qex, repo: "hexpm", optional: false]}], "hexpm"},
+  "membrane_element_tee": {:hex, :membrane_element_tee, "0.1.0", "2a76b24e8abf38fb12eac9745bf1f6a666d5df381eaf6a5ae777e696a38f241e", [:mix], [{:bunch, "~> 1.0", [hex: :bunch, repo: "hexpm", optional: false]}, {:membrane_core, "~> 0.3.0", [hex: :membrane_core, repo: "hexpm", optional: false]}], "hexpm"},
   "nimble_parsec": {:hex, :nimble_parsec, "0.5.0", "90e2eca3d0266e5c53f8fbe0079694740b9c91b6747f2b7e3c5d21966bba8300", [:mix], [], "hexpm"},
   "qex": {:hex, :qex, "0.5.0", "5a3a9becf67d4006377c4c247ffdaaa8ae5b3634a0caadb788dc24d6125068f4", [:mix], [], "hexpm"},
 }
