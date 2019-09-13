@@ -81,7 +81,7 @@ end
 
 For integration tests, we'll check if the whole decoding pipeline with our AAC decoder works correctly.
 
-Our test pipeline uses [`Membrane.Testing.Pipeline`](https://hexdocs.pm/membrane_core/Membrane.Testing.Pipeline.html) module. This means that we only need to specify pipeline's [`Membrane.Testing.Pipeline.Options`](https://hexdocs.pm/membrane_core/Membrane.Testing.Pipeline.Options.html) and all elements links and callbacks are automatically implemented for us.
+Our test pipeline uses `Membrane.Testing.Pipeline` module. This means that we only need to specify pipeline's `Membrane.Testing.Pipeline.Options` and all elements' links and callbacks are automatically implemented for us.
 
 ```elixir
   Pipeline.start_link(%Pipeline.Options{
@@ -106,11 +106,17 @@ defmodule DecoderTest do
 
 First, we define a couple of helper methods.
 
-`prepare_paths` generates file paths for our input/reference files as well as creates a temporary output file for our testing pipeline which will automatically be cleaned up after the test is finished:
+`prepare_paths` generates file paths for our input/reference files as well as creates a temporary
+ output file for our testing pipeline which will automatically be cleaned up after the test is
+ finished:
 
 ```elixir
   def prepare_paths(filename) do
-    ...
+     in_path = "fixtures/input-#{filename}.aac" |> Path.expand(__DIR__)
+     reference_path = "fixtures/reference-#{filename}.raw" |> Path.expand(__DIR__)
+     out_path = "/tmp/output-decoding-#{filename}.raw"
+     File.rm(out_path)
+     on_exit(fn -> File.rm(out_path) end)
     {in_path, reference_path, out_path}
   end
 ```
@@ -126,13 +132,20 @@ First, we define a couple of helper methods.
 ```
 
 Finally, our test case.
-Notice the [`assert_end_of_stream`](https://hexdocs.pm/membrane_core/Membrane.Testing.Assertions.html#assert_end_of_stream/4) call which waits and validates that the `EndOfStream` message was received.
+Notice the `Membrane.Testing.Assertions.html#assert_end_of_stream/4` call which waits and
+validates that the `EndOfStream` message was received.
 
 ```elixir
   describe "Decoding Pipeline should" do
     test "Decode AAC file" do
       {in_path, reference_path, out_path} = prepare_paths("sample")
-      assert {:ok, pid} =  Pipeline.start_link(%Pipeline.Options{...})
+      assert {:ok, pid} =  Pipeline.start_link(%Pipeline.Options{     
+        elements: [
+          file_src: %Membrane.Element.File.Source{location: in_path},
+          decoder: Membrane.Element.AAC.Decoder,
+          sink: %Membrane.Element.File.Sink{location: out_path}
+        ]
+      })
 
       assert Pipeline.play(pid) == :ok # Start the pipeline
       assert_end_of_stream pid, :sink
@@ -146,7 +159,7 @@ Once again, we are comparing the pipeline's output with our reference file to as
 
 ### Customizing pipeline module
 
-[`Membrane.Testing.Pipeline`](https://hexdocs.pm/membrane_core/Membrane.Testing.Pipeline.html) allows us to provide our custom implementations of [`Membrane.Pipeline`](https://hexdocs.pm/membrane_core/Membrane.Pipeline.html) callbacks that will be executed prior to `Membrane.Testing.Pipeline`'s implementations. Let's create Pipeline that will answer to requests with response we passed in initialization options. To do this, we must define our custom module.
+`Membrane.Testing.Pipeline` allows us to provide our custom implementations of `Membrane.Pipeline` callbacks that will be executed prior to `Membrane.Testing.Pipeline`'s implementations. Let's create pipeline that will answer to requests with response we passed in initialization options. To do this, we must define our custom module.
 
 ```elixir
 defmodule Example.Pipeline do
@@ -166,7 +179,8 @@ defmodule Example.Pipeline do
   def handle_other(_message, state),
     do: {:ok, state}
 end
-``````
+```
+
 Note that `Membrane.Pipeline.Spec` of our pipeline module can contain empty lists of children and links.
 In order to use callbacks defined in `Example.Pipeline` and pass custom initialization arguments, we have to specify it in `Options`.
 
@@ -197,11 +211,11 @@ end
 
 ## Using other testing utilities
 
-Apart from the [`Membrane.Testing.Pipeline`](https://hexdocs.pm/membrane_core/Membrane.Testing.Pipeline.html), which we've already seen, there are a bunch of other testing utilities which may come in handy for different test scenarios:
+Apart from the `Membrane.Testing.Pipeline`, which we've already seen, there are a bunch of other testing utilities which may come in handy for different test scenarios:
 
-- [`Membrane.Testing.Assertions`](https://hexdocs.pm/membrane_core/Membrane.Testing.Assertions.html) - Contains all available assertions that work alongside `Membrane.Testing.Pipeline` and `Membrane.Testing.Sink`.
-- [`Membrane.Testing.Source`](https://hexdocs.pm/membrane_core/Membrane.Testing.Source.html) - Can be either used as an alternative for `File.Source` allowing you to pass in a list of payloads that will be supplied to the pipeline or it will output data based on the `actions_generator`. It can be useful for generating sequential payloads or a random input.
-- [`Membrane.Testing.Sink`](https://hexdocs.pm/membrane_core/Membrane.Testing.Sink.html) - A fake sink element that will pass all received buffers, events and caps to parent pipeline. Useful for asserting output buffers one by one.
+- `Membrane.Testing.Assertions` - Contains all available assertions that work alongside `Membrane.Testing.Pipeline` and `Membrane.Testing.Sink`.
+- `Membrane.Testing.Source` - Can be either used as an alternative for `File.Source` allowing you to pass in a list of payloads that will be supplied to the pipeline or it will output data based on the `actions_generator`. It can be useful for generating sequential payloads or a random input.
+- `Membrane.Testing.Sink` - A fake sink element that will pass all received buffers, events and caps to parent pipeline. Useful for asserting output buffers one by one.
 
 ## Summary
 
