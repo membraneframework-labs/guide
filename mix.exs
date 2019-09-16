@@ -36,7 +36,8 @@ defmodule GuideExDoc.MixProject do
           "creating_element/tutorial.md",
           "creating_element/testing.md",
           "creating_element/demands.md",
-          "creating_element/natives.md"
+          "creating_element/natives.md",
+          "creating_element/synchronization.md"
         ]
         |> Enum.map(&Path.join("guide", &1)),
       groups_for_extras: [

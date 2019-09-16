@@ -130,8 +130,9 @@ one of them, and one of the elements inside the pipeline produces data according
 will be different from the tempo of data consumption. This will eventually result in either buffer overflow
 or audible 'cracks' in audio playback (if the proper amount of audio samples is not available on time).
 
-Clock provider is an element that exports clock that should be used as the pipeline clock -
-the default clock used by elements' timers. You can set it by providing an atom with element's name via `:clock_provider`
+
+Clock provider is an element that exports clock that should be used as the pipeline clock - the default clock used by elements' timers.
+When there is only one element providing clock, the pipeline can choose it automatically. When there are two or more such elements, you can set it by providing an atom with element's name via `:clock_provider`
 field inside `Membrane.Pipeline.Spec` struct:
 
 ```elixir
