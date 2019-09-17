@@ -2,12 +2,12 @@
 
 After succcessfully running your first Membrane Pipeline, we can move on to more complicated stuff.
 In this guide, we will show you how to provide options for pads, how to link an element with dynamic pad(s)
-and how introduce synchronization of start between elements
+and how to introduce synchronization of start between elements
 
 ## Pad options
 
-Not only elements can have some options. Some pads have options as well.
-You can provide them in a keyword at the end of the tuple defining link:
+Not only elements can have options. Some pads have options as well.
+You can provide them in a keyword list at the end of the tuple defining link:
 
 ```elixir
 links = %{
