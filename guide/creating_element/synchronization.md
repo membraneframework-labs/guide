@@ -46,14 +46,14 @@ First important thing is to notice is the `def_clock` macro invocation inside si
 
 ```elixir
 defmodule Membrane.Element.PortAudio.Sink do
-    # ...
+  # ...
 
-    def_clock """
-    This clock corresponds to the amount of samples consumed by PortAudio device
-    and allows to synchronize with it.
-    """
+  def_clock """
+  This clock measures time by counting a number of samples consumed by a PortAudio device
+  and allows to synchronize with the device.
+  """
 
-    # ...
+  # ...
 end
 ```
 
