@@ -1,7 +1,7 @@
 # Synchronization, clock and timers
 
 Since version 0.4.0 Membrane Framework provides a means of synchronization between elements.
-This chapter presets how to use them: how to synchronize start of streams, use a clock provided by a pipeline and create an element that is a clock provider
+This chapter presets how to use them: how to synchronize start of streams, create an element that is a clock provider and use a clock provided by a pipeline.
 
 ## Synchronization
 
@@ -20,12 +20,14 @@ The only change introduced by this mechanism is possibility to configure latency
   end
 ```
 
-This action is useful in a scenario where, for example, audio is sent over Bluetooth that introduces noticeable delay and video is presented on screen with almost without latency. In such scenario, the video player need to be delayed to synchronize what you can see and hear. By setting latency you can
-let the framework to this for you!
+This action is useful in a scenario where, for example, audio is sent over Bluetooth that introduces noticeable delay
+and video is presented on screen with almost no latency. In such scenario, the video player need to be delayed
+to synchronize what you can see and hear. By setting latency you can let the framework to this for you!
 
 ## Providing a clock
 
-Some elements can provide a different source of time - like a hardware clock from sound card or elapsed time according to some library (like `libshout` consuming audio and sleeping for some time with small precision).
+Some elements can provide a different source of time - like a hardware clock from sound card or elapsed time
+according to some library (like `libshout` consuming audio and sleeping for some time with small precision).
 
 To become a clock provider for a pipeline your element needs to:
 
@@ -35,8 +37,10 @@ To become a clock provider for a pipeline your element needs to:
 ### Example
 
 Let's consider a real-life example: [PortAudio sink element](https://github.com/membraneframework/membrane-element-portaudio).
-It plays audio to the devices in your system via PortAudio library - open-source wrapper for . The native API exposed by this library is based on the callback - whenever PortAudio wants more data, it invokes a registered callback.
-So, to make sure audio samples produced by other elements in a pipeline, this element should export a clock in which the current time is based on the amount of audio samples consumed by PortAudio.
+It plays audio to the devices in your system via PortAudio library - open-source wrapper for audio I/O APIs on different platforms.
+The element uses PortAudio API based on a callback - whenever PortAudio wants more data, it invokes the registered callback.
+So, to make sure audio samples produced by other elements in a pipeline, this element should export a clock in which
+the current time is based on the amount of audio samples consumed by PortAudio.
 
 First important thing is to notice is the `def_clock` macro invocation inside sink's module:
 
@@ -100,7 +104,12 @@ static int callback(const void *_input_buffer, void *output_buffer,
 }
 ```
 
-The message format sent by `send_membrane_clock_update` is defined in `sink.spec.exs`. As you can see in the snippet below, the `:membrane_clock_update` message contains a tuple with a number of frames and number of samples per millisecond. We could divide frames by samples and get time in milliseconds, but instead we send both values (that can be interpreted as numerator and denominator) - this way the clock can ensure that division rounding error won't affect accuracy of the clock.
+The message format sent by `send_membrane_clock_update` is defined in `sink.spec.exs`.
+As you can see in the snippet below, the `:membrane_clock_update` message contains
+a tuple with a number of frames and number of samples per millisecond.
+We could divide frames by samples and get time in milliseconds,
+but instead we send both values (that can be interpreted as numerator and denominator) -
+this way the clock can ensure that division rounding error won't affect accuracy of the clock.
 
 ```elixir
 sends {:membrane_clock_update :: label, {frames :: int, sample_rate_ms :: int}}
@@ -110,11 +119,106 @@ The clock process accepts updates in different representations of time to next t
 
 * a single integer with time in milliseconds
 * tuple with numerator and denominator (used above)
-* rational number created by `Ratio` library (`t:Ratio.t/0`) - it can keep simplified fraction (2 integers) if needed to prevent rounding
+* rational number created by `Ratio` library (`t:Ratio.t/0`) - it can keep simplified fraction (2 integers)
+  if needed to prevent rounding
 
 They are described by `t:Membrane.Clock.update_t/0` type.
 
 ## Timers - using a clock
 
 Each element can use the clock provided by a pipeline by setting up the _timer_
-Timer sends ticks in intervals set at start
+Timer is a process that sends ticks in intervals set when it is started.
+This can be done by returning `t:Membrane.Element.Action.start_timer_t/0` action that requires a tuple containing:
+
+* an atom - id for a new timer,
+* time interval between ticks in (that can be of type `t:Membrane.Time.t/0` or `t:Ratio.t/0` where the numerator is `t:Membrane.Time.t/0`)
+* (optionally) pid of a clock that should be used by the timer. If no clock provided, a pipeline clock is used.
+
+Starting a clock means that the element will start receiving ticks that should be handled by a new callback -
+`c:Membrane.Element.Base.handle_tick/3` receiving timer id along with context and state.
+
+The timer can be stopped by `t:Membrane.Element.Action.stop_timer_t/0` action with id of a timer.
+
+### Example
+
+Here's a simplified example of a sink element that needs to consume video frames in proper speed and uses timer for that.
+
+* It starts a timer on `start_of_stream` with id `:demand_timer`,
+  interval being an inversion of framerate (that means if framerate is 30/1, the timer will send tick every 1/30th of a second, ~33 ms) and default (pipeline's) clock
+
+> **Notice**
+>
+> Thanks to using `Ratio.new/2` as an interval the rounding error will not accumulate.
+> Since interval has to be an integer, we could provide it as `1 |> Time.second() |> div(30)` but as the result would be
+> rounded, the tick demanding 1 000 000 000th frame would be sent 333 ms earlier than it should:
+>
+> ```elixir
+> alias Membrane.Time
+>
+> iex> 1 |> Time.second() |> div(30) |> Kernel.*(1_000_000_000) |> Time.to_milliseconds()
+> 33333333000
+>
+> iex> 1 |> Time.second() |> Ratio.new(30) |> Ratio.*(1_000_000_000) \
+> |> Ratio.floor() |> Time.to_milliseconds()
+> 33333333333
+> ```
+>
+
+* Demands a new frame on every tick (in `handle_tick/3`)
+* Stops the timer on either `end_of_stream` or when leaving `:playing` state
+
+```elixir
+defmodule Membrane.Element.VideoSink do
+  use Membrane.Sink
+
+  alias Membrane.{Buffer, Time}
+  alias Membrane.Caps.Video.Raw
+
+  def_input_pad :input, caps: Raw, demand_unit: :buffers
+
+  @impl true
+  def handle_init(_) do
+    {:ok, %{timer_started: false}}
+  end
+
+  @impl true
+  def handle_playing_to_prepared(_ctx, %{timer_started: true} = state) do
+    {{:ok, stop_timer: :timer}, %{state | timer_started: false}}
+  end
+
+  def handle_playing_to_prepared(_ctx, state) do
+    {:ok, state}
+  end
+
+  @impl true
+  def handle_start_of_stream(:input, ctx, state) do
+    use Ratio
+    {nom, denom} = ctx.pads.input.caps.framerate
+    # framerate means we need `num` of frames each `denom` seconds
+    demand_every = Ratio.new(Time.seconds(denom), nom)
+
+    timer = {:demand_timer, demand_every}
+    state = %{state | timer_started: true}
+
+    {{:ok, demand: :input, timer: timer}, state}
+  end
+
+  @impl true
+  def handle_end_of_stream(:input, _ctx, state) do
+    {{:ok, stop_timer: :timer}, %{state | timer_started: false}}
+  end
+
+  @impl true
+  def handle_write(:input, %Buffer{payload: _payload}, _ctx, state) do
+    # ...
+    # Code that does something with the payload, e.g. draw it on screen
+    # ...
+    {:ok, state}
+  end
+
+  @impl true
+  def handle_tick(:demand_timer, _ctx, state) do
+    {{:ok, demand: :input}, state}
+  end
+end
+```
