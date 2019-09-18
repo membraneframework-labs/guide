@@ -1,8 +1,8 @@
 # More advanced pipelines
 
-After succcessfully running your first Membrane Pipeline, we can move on to more complicated stuff.
+After successfully running your first Membrane Pipeline, we can move on to more complicated stuff.
 In this guide, we will show you how to provide options for pads, how to link an element with dynamic pad(s)
-and how to introduce synchronization of start between elements
+and how to introduce synchronization of start between elements.
 
 ## Pad options
 
@@ -17,7 +17,7 @@ links = %{
 }
 ```
 
-Available pad options are documented in elements' modules in `Pads` section.
+Available pad options are documented in every element's main module in automatically generated `Pads` section.
 
 When an input pad works in `:pull` mode you can also configure the buffer:
 
@@ -74,9 +74,9 @@ links = %{
 > to an element with dynamic output pad, the ids have to be provided explicitly to avoid
 > multiple entries with the same key.
 >
-> This API limitation will be adressed in the future releases of Membrane Core, see [this GitHub issue](https://github.com/membraneframework/membrane-core/issues/159)
+> This API limitation will be addressed in the future releases of Membrane Core, see [this GitHub issue](https://github.com/membraneframework/membrane-core/issues/159)
 
-Here's an example of a pipeline using an element with dynamic output pad - `Membrane.Element.Tee.Master`:
+Here's an example of a pipeline using an element with a dynamic output pad - `Membrane.Element.Tee.Master`:
 
 ```elixir
 defmodule MultipleCopyPipeline do
@@ -121,18 +121,18 @@ This example requires the following dependencies:
 
 ## Selecting a clock
 
-Some elements (most likely sinks) may provide its clock that can be used by the elements in the pipeline as a source
-of ticks informing about passing time. For example a sink, sending audio to a sound card may provide a clock based on
+Some elements (most likely sinks) may provide its clock that can be used by the elements in the pipeline to create timers generating ticks
+and informing about passing time. For example a sink, sending audio to a sound card may provide a clock based on
 a hardware clock on the device.
 
 If the pipeline ignores that clock, the clocks are not aligned, i.e. time is passing slower according to
 one of them, and one of the elements inside the pipeline produces data according to VM time, the tempo of data generation
-will be different from the tempo of data consumption. This will eventually result in either buffer overflow
-or audible 'cracks' in audio playback (if the proper amount of audio samples is not available on time).
+will be different from the tempo of data consumption. This will eventually result in either buffer overflow or underflow
+(causing, for example, audible 'cracks' in audio playback if the proper amount of audio samples is not available on time).
 
 Clock provider is an element that exports clock that should be used as the pipeline clock - the default clock used by elements' timers.
-When there is only one element providing clock, the pipeline can choose it automatically. When there are two or more such elements, you can set it by providing an atom with element's name via `:clock_provider`
-field inside `Membrane.Pipeline.Spec` struct:
+When there is only one element providing clock, the pipeline can choose it automatically. When there are two or more such elements,
+you can set it by providing an atom with element's name via `:clock_provider` field inside `Membrane.Pipeline.Spec` struct:
 
 ```elixir
 %Spec{
@@ -150,15 +150,17 @@ field inside `Membrane.Pipeline.Spec` struct:
 ## Synchronization
 
 Sometimes, you may need to synchronize some of the elements within a pipeline. A good example of a situation where such synchronization is needed is playing audio and video with 2 separate sinks.
-To do this you can use `:stream_sync` field in `Membrane.Pipeline.Spec` struct to specify elements that should start playing at the same moment. You can set it to `:sinks` atom or list of groups (lists) of elements.
+To do this you can use `:stream_sync` field in `Membrane.Pipeline.Spec` struct to specify elements that should start playing at the same moment. You can set it to `:sinks` atom synchronizing all sinks in the pipeline:
 
-Passing `:sinks` results in synchronizing all sinks in the pipeline,
-while passing a list of groups of elements synchronizes all elements in each group.
-It is worth mentioning that to keep the stream synchronized all involved elements need to rely on the same clock.
+```elixir
+%Spec{
+  # ...
+  stream_sync: :sinks
+  # ...
+}
+```
 
-By default, no elements are synchronized.
-
-Sample definitions:
+ or a list of groups (lists) of elements synchronizing all elements in each group:
 
 ```elixir
 %Spec{
@@ -174,10 +176,7 @@ Sample definitions:
   stream_sync: [[:element1, :element2], [:element3, :element4]]
   # ...
 }
-
-%Spec{
-  # ...
-  stream_sync: :sinks
-  # ...
-}
 ```
+It is worth mentioning that to keep the stream synchronized all involved elements need to rely on the same clock.
+
+By default, no elements are synchronized.

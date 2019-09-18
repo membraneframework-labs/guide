@@ -16,12 +16,12 @@ The only change introduced by this mechanism is possibility to configure latency
   @impl true
   def handle_init(options) do
     state = options |> Map.from_struct()
-    {{:ok, latency: 20 |> Time.milliseconds()}, state}
+    {{:ok, latency: 20 |> Membrane.Time.milliseconds()}, state}
   end
 ```
 
 This action is useful in a scenario where, for example, audio is sent over Bluetooth that introduces noticeable delay
-and video is presented on screen with almost no latency. In such scenario, the video player need to be delayed
+and video is presented on screen with almost no latency. In such scenario, the video player needs to be delayed
 to synchronize what you can see and hear. By setting latency you can let the framework to this for you!
 
 ## Providing a clock
@@ -40,7 +40,7 @@ Let's consider a real-life example: [PortAudio sink element](https://github.com/
 It plays audio to the devices in your system via PortAudio library - open-source wrapper for audio I/O APIs on different platforms.
 The element uses PortAudio API based on a callback - whenever PortAudio wants more data, it invokes the registered callback.
 So, to make sure audio samples produced by other elements in a pipeline, this element should export a clock in which
-the current time is based on the amount of audio samples consumed by PortAudio.
+the current time is based on the number of audio samples consumed by PortAudio.
 
 First important thing is to notice is the `def_clock` macro invocation inside sink's module:
 
@@ -50,7 +50,7 @@ defmodule Membrane.Element.PortAudio.Sink do
 
   def_clock """
   This clock measures time by counting a number of samples consumed by a PortAudio device
-  and allows to synchronize with the device.
+  and allows synchronization with the device.
   """
 
   # ...
@@ -82,7 +82,8 @@ This pid is then passed by the element to the native resource when the element e
 From this point, when PortAudio consumes audio it sends the update message to this clock.
 
 Here's the snippet from the native part of PortAudio sink. It's a callback
-called by PortAudio when an output device demands more audio data. To reduce the amount of messages sent, the actual message is sent every 100th invocation of the callback.
+called by PortAudio when an output device demands more audio data. To reduce the number of messages sent,
+the actual message is sent every 100th invocation of the callback.
 
 ```c
 #define SAMPLES_PER_MSEC 48
@@ -141,7 +142,7 @@ The timer can be stopped by `t:Membrane.Element.Action.stop_timer_t/0` action wi
 
 ### Example
 
-Here's a simplified example of a sink element that needs to consume video frames in proper speed and uses timer for that.
+Here's a simplified example of a sink element that uses timer to consume video frames at the right speed.
 
 * It starts a timer on `start_of_stream` with id `:demand_timer`,
   interval being an inversion of framerate (that means if framerate is 30/1, the timer will send tick every 1/30th of a second, ~33 ms) and default (pipeline's) clock
