@@ -2,16 +2,22 @@
 
 We strongly encourage contributors to test the elements they create.
 We usually advise on creating two types of tests: Unit Tests and Integration Tests.
-To facilitate writing tests and make the developer experience as smooth as possible, we expose a couple of testing utilities inside `Membrane.Testing` package.
+To facilitate writing tests and make the developer experience as smooth as possible, we expose a
+couple of testing utilities inside `Membrane.Testing` package.
 
-We will discuss and walk you through writing tests on a real-world example for the [AAC decoder](https://github.com/membraneframework/membrane-element-aac) element.
+We will discuss and walk you through writing tests on a real-world example for the
+[AAC decoder](https://github.com/membraneframework/membrane-element-aac) element.
 
 ## Setting up
 
-In order to simplify things and make the test easier to maintain and modify, we propose the following solution:
+In order to simplify things and make the test easier to maintain and modify, we propose the
+following solution:
 
-- Create a sample file for the element under test. As an example, for the AAC decoder we'll use a very simple AAC audio file
-- Create a known output as a reference file. For example, we save raw audio frames as the reference output for our AAC Decoder. **Note**: This may not always be the best solution since most encoders produce a non-deterministic output for the same input
+- Create a sample file for the element under test. As an example, for the AAC decoder we'll use a
+very simple AAC audio file
+- Create a known output as a reference file. For example, we save raw audio frames as the reference
+output for our AAC Decoder. **Note**: This may not always be the best solution since most encoders
+produce a non-deterministic output for the same input
 - Use the input file and reference file as sources of truth for your tests
 
 ## Running tests
@@ -40,7 +46,8 @@ Our test scenario will check if the native decoder is able to decode a single fr
   test "Decode 1 AAC frame" do
 ```
 
-As described above, we will use input/reference files as our data sources. Those files are placed inside `test/fixtures` directory
+As described above, we will use input/reference files as our data sources. Those files are placed
+inside `test/fixtures` directory
 
 ```elixir
     in_path = "fixtures/input-sample.aac" |> Path.expand(__DIR__)
@@ -55,7 +62,9 @@ The first step is to ensure we can create a `Native` decoder:
     assert {:ok, decoder_ref} = Native.create()
 ```
 
-Next, we will retrieve the first frame from the input file, pass it to the Native decoder and assert that it was decoded correctly. Subsequent calls to `decode_frame` should return `:not_enough_bits`, as all data is already parsed.
+Next, we will retrieve the first frame from the input file, pass it to the Native decoder and
+assert that it was decoded correctly. Subsequent calls to `decode_frame` should return
+`:not_enough_bits`, as all data is already parsed.
 
 ```elixir
     assert <<frame::bytes-size(256), _::binary>> = file
@@ -79,9 +88,12 @@ end
 
 ## Integration tests
 
-For integration tests, we'll check if the whole decoding pipeline with our AAC decoder works correctly.
+For integration tests, we'll check if the whole decoding pipeline with our AAC decoder works
+correctly.
 
-Our test pipeline uses `Membrane.Testing.Pipeline` module. This means that we only need to specify pipeline's `Membrane.Testing.Pipeline.Options` and all elements' links and callbacks are automatically implemented for us.
+Our test pipeline uses `Membrane.Testing.Pipeline` module. This means that we only need to specify
+pipeline's `Membrane.Testing.Pipeline.Options` and all elements' links and callbacks are
+automatically implemented for us.
 
 ```elixir
   Pipeline.start_link(%Pipeline.Options{
@@ -155,11 +167,15 @@ validates that the `EndOfStream` message was received.
 end
 ```
 
-Once again, we are comparing the pipeline's output with our reference file to assert that everything works correctly.
+Once again, we are comparing the pipeline's output with our reference file to assert that
+everything works correctly.
 
 ### Customizing pipeline module
 
-`Membrane.Testing.Pipeline` allows us to provide our custom implementations of `Membrane.Pipeline` callbacks that will be executed prior to `Membrane.Testing.Pipeline`'s implementations. Let's create pipeline that will answer to requests with response we passed in initialization options. To do this, we must define our custom module.
+`Membrane.Testing.Pipeline` allows us to provide our custom implementations of `Membrane.Pipeline`
+callbacks that will be executed prior to `Membrane.Testing.Pipeline`'s implementations. Let's
+create pipeline that will answer to requests with response we passed in initialization options. 
+To do this, we must define module which implements callbacks we want.
 
 ```elixir
 defmodule Example.Pipeline do
@@ -167,7 +183,7 @@ defmodule Example.Pipeline do
 
   def handle_init(options) do
     state = %{response: options.response}
-    spec = %Membrane.Pipeline.Spec{children: [], links: []}
+    # put spec of choice into spec
     {{:ok, spec}, state}
   end
 
@@ -181,12 +197,13 @@ defmodule Example.Pipeline do
 end
 ```
 
-Note that `Membrane.Pipeline.Spec` of our pipeline module can contain empty lists of children and links.
-In order to use callbacks defined in `Example.Pipeline` and pass custom initialization arguments, we have to specify it in `Options`.
+In order to use callbacks defined in `Example.Pipeline` and pass custom initialization arguments, 
+we have to specify it in `Options`. Please take note that there is no `elements` nor `links`
+options provided, because they can't be used with module override and will result in error
+when `Membrane.Testing.Pipeline.start_link/2` or `Membrane.Testing.Pipeline.start/2` is called.
 
 ```elixir
 Pipeline.start_link(%Pipeline.Options{
-  ...
   module: Example.Pipeline,
   custom_args: %{response: "Hello there!"}
 })
@@ -211,12 +228,19 @@ end
 
 ## Using other testing utilities
 
-Apart from the `Membrane.Testing.Pipeline`, which we've already seen, there are a bunch of other testing utilities which may come in handy for different test scenarios:
+Apart from the `Membrane.Testing.Pipeline`, which we've already seen, there are a bunch of other
+testing utilities which may come in handy for different test scenarios:
 
-- `Membrane.Testing.Assertions` - Contains all available assertions that work alongside `Membrane.Testing.Pipeline` and `Membrane.Testing.Sink`.
-- `Membrane.Testing.Source` - Can be either used as an alternative for `File.Source` allowing you to pass in a list of payloads that will be supplied to the pipeline or it will output data based on the `actions_generator`. It can be useful for generating sequential payloads or a random input.
-- `Membrane.Testing.Sink` - A fake sink element that will pass all received buffers, events and caps to parent pipeline. Useful for asserting output buffers one by one.
+- `Membrane.Testing.Assertions` - Contains all available assertions that work with
+`Membrane.Testing.Pipeline` and `Membrane.Testing.Sink`.
+- `Membrane.Testing.Source` - Can be either used as an alternative for `File.Source` allowing you
+to pass in a list of payloads that will be supplied to the pipeline or it will output data based
+on the `actions_generator`. It can be useful for generating sequential payloads or a random input.
+- `Membrane.Testing.Sink` - A fake sink element that will pass all received buffers, events and
+caps to parent pipeline. Useful for asserting output buffers one by one.
 
 ## Summary
 
-Full source code for the above examples can be found in [membrane-element-aac](https://github.com/membraneframework/membrane-element-aac/tree/master/test) repository.
+Full source code for the above examples can be found in 
+[membrane-element-aac](https://github.com/membraneframework/membrane-element-aac/tree/master/test)
+repository.
