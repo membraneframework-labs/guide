@@ -231,16 +231,79 @@ end
 Apart from the `Membrane.Testing.Pipeline`, which we've already seen, there are a bunch of other
 testing utilities which may come in handy for different test scenarios:
 
-- `Membrane.Testing.Assertions` - Contains all available assertions that work with
-`Membrane.Testing.Pipeline` and `Membrane.Testing.Sink`.
 - `Membrane.Testing.Source` - Can be either used as an alternative for `File.Source` allowing you
 to pass in a list of payloads that will be supplied to the pipeline or it will output data based
 on the `actions_generator`. It can be useful for generating sequential payloads or a random input.
 - `Membrane.Testing.Sink` - A fake sink element that will pass all received buffers, events and
 caps to parent pipeline. Useful for asserting output buffers one by one.
 
+We also prepared a bunch of assertions that work in conjunction with both
+`Membrane.Testing.Pipeline` and said elements. They are stored in `Membrane.Testing.Assertions`,
+they usually come in two flavors: `assert_*` and `refute_*` similarly to `ExUnit` assertions.
+
+### Testing sink
+
+`Membrane.Testing.Sink` reports caps, events and buffers it receives to it's pipeline. If you are
+using it within `Membrane.Testing.Pipeline` you can make assertions on this data. For example
+if you developed a tee and wanted to test if it copies test data correctly you could do it like
+this:
+
+```elixir
+alias Membrane.Testing.{Source, Pipeline, Sink}
+
+range = 1..100
+{:ok, pipeline} =
+    Pipeline.start_link(%Pipeline.Options{
+      elements: [
+        src: %Source{output: range},
+        tee: Tee,
+        sink1: %Sink{},
+        sink2: %Sink{},
+      ],
+      links: %{
+        {:src, :output} => {:tee, :input},
+        {:tee, :output, 1} => {:sink1, :input},
+        {:tee, :output, 2} => {:sink2, :input}
+      }
+    })
+
+Membrane.Pipeline.play(pipeline)
+
+# Wait for EndOfStream message on every sink
+assert_end_of_stream(pid, :sink1, :input, 3000)
+assert_end_of_stream(pid, :sink2, :input, 3000)
+
+# assert every message was received three times
+Enum.each(range, fn payload ->
+  assert_sink_buffer(pid, :sink1, %Buffer{payload: ^payload})
+  assert_sink_buffer(pid, :sink2, %Buffer{payload: ^payload})
+end)
+```
+
+### Testing element's interaction with Pipeline
+
+Other common use of these assertions is checking wether communication with Pipeline is proceeding
+correctly. You can either check wether Pipeline received a message that would be handled by
+`c:Membrane.Pipeline.handle_other/2`:
+
+```elixir
+assert_pipeline_receive(pipeline_pid, {:topic, _})
+```
+
+Such assertion would assert that message matching pattern `{:topic, _}` will be sent to
+pipeline with pid `pipeline_pid`.
+
+If you were for example to implement demuxer want to ensure pipeline is notified by demuxer asking
+for mapping of streams to pads you would do it like this:
+
+```elixir
+assert_pipeline_notified(pipeline, :tested_demuxer, {:mapping, mapping})
+assert mapping == expected_mapping
+```
+
 ## Summary
 
 Full source code for the above examples can be found in 
 [membrane-element-aac](https://github.com/membraneframework/membrane-element-aac/tree/master/test)
-repository.
+and [membrane-element-tee](https://github.com/membraneframework/membrane-element-tee/tree/master/test)
+repositories.
