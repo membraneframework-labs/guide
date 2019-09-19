@@ -83,10 +83,9 @@ defmodule GuideExDoc.MixProject do
 
   defp deps do
     [
-      {:ex_doc, "~> 0.20"},
-      {:membrane_core, "~> 0.3.0",
-       github: "membraneframework/membrane-core", branch: "sync", override: true},
-      {:membrane_element_tee, "~> 0.1.0"}
+      {:ex_doc, "~> 0.21"},
+      {:membrane_core, "~> 0.4.0"},
+      {:membrane_element_tee, "~> 0.2.0"}
     ]
   end
 end
