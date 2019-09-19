@@ -133,15 +133,15 @@ we need to specify that one of the pads is dynamic, by setting pad `availability
 to `:on_request`.
 
 Now, each time some element is linked to this pad, a new instance of the
-pad is created and callback `c:Membrane.Element.Base.Mixin.CommonBehaviour.handle_pad_added/3`
+pad is created and callback `c:Membrane.Element.Base.handle_pad_added/3`
 is invoked. Instances of a pad can be referenced as `{:dynamic, pad_name, number}`
 
 #### Gotchas
 
 As usual, with great power comes great responsibility. When implementing an element with
-dynamic pads you need to remember to implement `c:Membrane.Element.Base.Mixin.CommonBehaviour.handle_pad_added/3`
-and `c:Membrane.Element.Base.Mixin.CommonBehaviour.handle_pad_removed/3` callbacks.
-`c:Membrane.Element.Base.Mixin.SinkBehaviour.handle_event/4` might also need some attention as the default
+dynamic pads you need to remember to implement `c:Membrane.Element.Base.handle_pad_added/3`
+and `c:Membrane.Element.Base.handle_pad_removed/3` callbacks.
+`c:Membrane.Element.Base.handle_event/4` might also need some attention as the default
 implementation won't support dynamic pads. And of course, the logic of an element may become more complicated
 as it has to support changing number of pads.
 
@@ -156,7 +156,7 @@ two elements are linked
 ## Defining elements
 
 Elements are Elixir modules that `use` a proper module
-(either `Membrane.Element.Base.Sink`, `Membrane.Element.Base.Filter` or `Membrane.Element.Base.Source`).
-They have to define options and pads using provided macros (`Membrane.Element.Base.Mixin.SinkBehaviour.def_input_pad/2`,
-`Membrane.Element.Base.Mixin.SourceBehaviour.def_output_pad/2` and `Membrane.Element.Base.Mixin.CommonBehaviour.def_options/1`)
+(either `Membrane.Sink`, `Membrane.Filter` or `Membrane.Source`).
+They have to define options and pads using provided macros (`Membrane.Element.WithInputPads.def_input_pad/2`,
+`Membrane.Element.WithOutputPads.def_output_pad/2` and `Membrane.Element.Base.def_options/1`)
 and implement at least required callbacks.

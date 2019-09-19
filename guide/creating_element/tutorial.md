@@ -11,7 +11,7 @@ Source code for this filter can be found in the [membrane-demo repository](https
 To indicate the choice of implementing 'filter' we have to add the following line to our module:
 
 ```elixir
-use Membrane.Element.Base.Filter
+use Membrane.Filter
 ```
 
 This macro forces us to invoke some macros or implement some methods in our module:
