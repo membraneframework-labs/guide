@@ -46,7 +46,7 @@ defmodule GuideExDoc.MixProject do
         "Creating new elements": ~r"/creating_element/"
       ],
       before_closing_body_tag: &analytics/1,
-      before_closing_head_tag: &logo_fix/1
+      before_closing_head_tag: &head_hook/1
     ]
   end
 
@@ -65,7 +65,16 @@ defmodule GuideExDoc.MixProject do
     """
   end
 
-  defp logo_fix(_) do
+  defp head_hook(:epub), do: ""
+
+  defp head_hook(:html) do
+    """
+    #{logo_fix()}
+    #{favicon()}
+    """
+  end
+
+  defp logo_fix() do
     """
     <style type="text/css">
     .sidebar div.sidebar-header {
@@ -78,6 +87,15 @@ defmodule GuideExDoc.MixProject do
       max-width: 128px;
     }
     </style>
+    """
+  end
+
+  defp favicon() do
+    """
+    <link rel="icon" href="https://www.membraneframework.org/wp-content/uploads/2018/06/cropped-membrane_logo_favicon-1-32x32.png" sizes="32x32" />
+    <link rel="icon" href="https://www.membraneframework.org/wp-content/uploads/2018/06/cropped-membrane_logo_favicon-1-192x192.png" sizes="192x192" />
+    <link rel="apple-touch-icon-precomposed" href="https://www.membraneframework.org/wp-content/uploads/2018/06/cropped-membrane_logo_favicon-1-180x180.png" />
+    <meta name="msapplication-TileImage" content="https://www.membraneframework.org/wp-content/uploads/2018/06/cropped-membrane_logo_favicon-1-270x270.png" />
     """
   end
 
