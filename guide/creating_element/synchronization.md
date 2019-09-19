@@ -201,7 +201,7 @@ defmodule Membrane.Element.VideoSink do
     timer = {:demand_timer, demand_every}
     state = %{state | timer_started: true}
 
-    {{:ok, demand: :input, timer: timer}, state}
+    {{:ok, demand: :input, start_timer: timer}, state}
   end
 
   @impl true
