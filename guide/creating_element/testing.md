@@ -226,7 +226,7 @@ describe "Decoding Pipeline should" do
 end
 ```
 
-## Using other testing utilities
+## Using testing elements
 
 Apart from the `Membrane.Testing.Pipeline`, which we've already seen, there are a bunch of other
 testing utilities which may come in handy for different test scenarios:
@@ -243,10 +243,10 @@ they usually come in two flavors: `assert_*` and `refute_*` similarly to `ExUnit
 
 ### Testing sink
 
-`Membrane.Testing.Sink` reports caps, events and buffers it receives to it's pipeline. If you are
-using it within `Membrane.Testing.Pipeline` you can make assertions on this data. For example
-if you developed a tee and wanted to test if it copies test data correctly you could do it like
-this:
+`Membrane.Testing.Sink` reports caps, events and buffers it receives to its pipeline. If you are
+using it within `Membrane.Testing.Pipeline` you can make assertions about what the 
+`Membrane.Testing.Sink` have received. For example this is how `Membrane.Element.Tee.Parallel`
+could be tested:
 
 ```elixir
 alias Membrane.Testing.{Source, Pipeline, Sink}
@@ -269,32 +269,32 @@ range = 1..100
 
 Membrane.Pipeline.play(pipeline)
 
-# Wait for EndOfStream message on every sink
-assert_end_of_stream(pid, :sink1, :input, 3000)
-assert_end_of_stream(pid, :sink2, :input, 3000)
-
 # assert every message was received three times
 Enum.each(range, fn payload ->
   assert_sink_buffer(pid, :sink1, %Buffer{payload: ^payload})
   assert_sink_buffer(pid, :sink2, %Buffer{payload: ^payload})
 end)
+
+# Wait for EndOfStream message on every sink
+assert_end_of_stream(pid, :sink1, :input, 3000)
+assert_end_of_stream(pid, :sink2, :input, 3000)
 ```
 
-### Testing element's interaction with Pipeline
+### Testing element's interaction with a pipeline
 
-Other common use of these assertions is checking wether communication with Pipeline is proceeding
-correctly. You can either check wether Pipeline received a message that would be handled by
-`c:Membrane.Pipeline.handle_other/2`:
+Another common use of these assertions is checking weather communication with a pipeline is
+proceeding correctly. You can either check weather Pipeline received a message that would be
+handled by `c:Membrane.Pipeline.handle_other/2`:
 
 ```elixir
 assert_pipeline_receive(pipeline_pid, {:topic, _})
 ```
 
-Such assertion would assert that message matching pattern `{:topic, _}` will be sent to
+Such an assertion would assert that message matching pattern `{:topic, _}` will be sent to
 pipeline with pid `pipeline_pid`.
 
-If you were for example to implement demuxer want to ensure pipeline is notified by demuxer asking
-for mapping of streams to pads you would do it like this:
+If you were, for example, to implement a demuxer and you want to ensure pipeline is notified by
+the demuxer asking for mapping of streams to pads, you would do it like this:
 
 ```elixir
 assert_pipeline_notified(pipeline, :tested_demuxer, {:mapping, mapping})
