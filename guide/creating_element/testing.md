@@ -245,7 +245,7 @@ they usually come in two flavors: `assert_*` and `refute_*` similarly to `ExUnit
 
 `Membrane.Testing.Sink` reports caps, events and buffers it receives to its pipeline. If you are
 using it within `Membrane.Testing.Pipeline` you can make assertions about what the 
-`Membrane.Testing.Sink` have received. For example this is how `Membrane.Element.Tee.Parallel`
+`Membrane.Testing.Sink` has received. For example, this is how `Membrane.Element.Tee.Parallel`
 could be tested:
 
 ```elixir
@@ -282,8 +282,8 @@ assert_end_of_stream(pid, :sink2, :input, 3000)
 
 ### Testing element's interaction with a pipeline
 
-Another common use of these assertions is checking weather communication with a pipeline is
-proceeding correctly. You can either check weather Pipeline received a message that would be
+Another common use of these assertions is checking whether communication with a pipeline is
+proceeding correctly. You can either check whether Pipeline received a message that would be
 handled by `c:Membrane.Pipeline.handle_other/2`:
 
 ```elixir
