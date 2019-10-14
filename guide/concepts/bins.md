@@ -15,7 +15,7 @@ or replacing them as the stream changes.
 Bin's pads are defined similarly to element's pads and can be linked the same way.
 However, their role is limited to proxy the stream to elements inside (inputs)
 or outside (outputs). To achieve that, each input pad of a bin needs to be linked
-to an output outside and another input inside the bin. Accordingly, each bin's output
+to both an output pad from the outside of a bin and an input pad of an element inside the bin. Accordingly, each bin's output
 should be linked to output inside and input outside of the bin.
 
 ## Bins and the stream
@@ -28,8 +28,8 @@ get via notifications from elements inside.
 
 ## Bins as black boxes
 
-Bins are designed to take as much responsibility for elements inside as possible ,
-so that pipelines (or parent bins) didn't need to depend on bin's implementation
-details. That's why notifications from elements (or child bins) are sent to the
-parent bin only (or to the pipeline in case of top-level elements or bins). Also,
-messages received by a bin or pipeline can be forwarded only to its direct children.
+Bins are designed to take as much responsibility for the elements inside as possible
+so that pipelines (or parent bins) don't have to depend on bin's children.
+That's why notifications from elements (or child bins) are sent to the parent bin
+only (or to the pipeline in case of top-level elements or bins). Also, messages
+received by a bin or pipeline can be forwarded only to its direct children.
