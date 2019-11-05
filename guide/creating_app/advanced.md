@@ -7,26 +7,26 @@ and how to introduce synchronization of start between elements.
 ## Pad options
 
 Not only elements can have options. Some pads have options as well.
-You can provide them in a keyword list at the end of the tuple defining link:
+You can provide them in a keyword list as the second argument of `via_out/2`
+or `via_in/2`:
 
 ```elixir
-links = %{
+links = [
   # ...
-  {:decoder, :output} => {:mixer, :input, pad: [mute: true]},
+  link(:decoder) |> via_in(:input, options: [mute: true]) |> to(:mixer),
   # ...
-}
+]
 ```
-
 Available pad options are documented in every element's main module in automatically generated `Pads` section.
 
 When an input pad works in `:pull` mode you can also configure the buffer:
 
 ```elixir
-links = %{
+links = [
   # ...
-  {:decoder, :output} => {:mixer, :input, buffer: [preffered_size: 42_000]},
+  link(:decoder) |> via_in(:input, buffer: [preffered_size: 42_000]) |> to(:mixer)
   # ...
-}
+]
 ```
 
 Available settings are described in the `t:Membrane.Core.InputBuffer.props_t/0` docs.
@@ -34,11 +34,11 @@ Available settings are described in the `t:Membrane.Core.InputBuffer.props_t/0` 
 Of course, buffer and pad options can be combined:
 
 ```elixir
-links = %{
+links = [
   # ...
-  {:decoder, :output} => {:mixer, :input, pad: [mute: true], buffer: [preffered_size: 42_000]},
+  link(:decoder) |> via_in(:input, options: [mute: true], buffer: [preffered_size: 42_000]) |> to(:mixer)
   # ...
-}
+]
 ```
 
 ## Dynamic pads
@@ -47,41 +47,33 @@ Dynamic pads ([described here](elements.html#dynamic-pads)) can be linked just l
 The main difference is that each link creates a new instance of this pad, so it can be linked multiple times.
 
 ```elixir
-links = %{
+links = [
   # ...
-  {:decoder_a, :output} => {:mixer, :input},
-  {:decoder_b, :output} => {:mixer, :input},
-  {:decoder_c, :output} => {:mixer, :input},
+  link(:decoder_a) |> to(:mixer),
+  link(:decoder_b) |> to(:mixer),
+  link(:decoder_c) |> to(:mixer)
   # ...
-}
+]
 ```
 
-You can also explicitly specify the id of a dynamic pad that will be used:
+You can also explicitly specify the reference of a dynamic pad that will be used:
 
 ```elixir
-links = %{
+links = [
   # ...
-  {:decoder_1, :output} => {:mixer, :input, 1},
-  {:decoder_2, :output} => {:mixer, :input, 2},
-  {:decoder_3, :output} => {:mixer, :input, 3},
+  link(:decoder_a) |> via_in(Pad.ref(:input, :a)) |> to(:mixer),
+  link(:decoder_b) |> via_in(Pad.ref(:input, :b)) |> to(:mixer),
+  link(:decoder_c) |> via_in(Pad.ref(:input, :c)) |> to(:mixer)
   # ...
-}
+]
 ```
-
-> **Warning:**
->
-> Since map is used to define links, the keys have to be unique. In case of linking
-> to an element with dynamic output pad, the ids have to be provided explicitly to avoid
-> multiple entries with the same key.
->
-> This API limitation will be addressed in the future releases of Membrane Core, see [this GitHub issue](https://github.com/membraneframework/membrane-core/issues/159)
 
 Here's an example of a pipeline using an element with a dynamic output pad - `Membrane.Element.Tee.Master`:
 
 ```elixir
 defmodule MultipleCopyPipeline do
   use Membrane.Pipeline
-  alias Pipeline.Spec
+  alias ParentSpec
   alias Membrane.Element.{File, Tee}
 
   @impl true
@@ -94,16 +86,16 @@ defmodule MultipleCopyPipeline do
       file_sink3: %File.Sink{location: "/tmp/destination_file3"}
     ]
 
-    links = %{
-      {:file_src, :output} => {:tee, :input},
-      {:tee, :master} => {:file_sink1, :input},
-      {:tee, :copy, 2} => {:file_sink2, :input},
-      {:tee, :copy, 3} => {:file_sink3, :input}
-    }
+    links = [
+      link(:file_src) |> to(:tee),
+      link(:tee) |> via_out(:master) |> to(:file_sink1),
+      link(:tee) |> via_out(:copy) |> to(:file_sink2),
+      link(:tee) |> via_out(:copy) |> to(:file_sink3)
+    ]
 
     state = %{}
 
-    {{:ok, %Spec{children: children, links: links}}, state}
+    {{:ok, spec: %ParentSpec{children: children, links: links}}, state}
   end
 end
 ```
@@ -132,10 +124,10 @@ will be different from the tempo of data consumption. This will eventually resul
 
 Clock provider is an element that exports clock that should be used as the pipeline clock - the default clock used by elements' timers.
 When there is only one element providing clock, the pipeline can choose it automatically. When there are two or more such elements,
-you can set it by providing an atom with element's name via `:clock_provider` field inside `Membrane.Pipeline.Spec` struct:
+you can set it by providing an atom with element's name via `:clock_provider` field inside `Membrane.ParentSpec` struct:
 
 ```elixir
-%Spec{
+%ParentSpec{
   children: [
     # ...
     hardware_sink: # ... ,
@@ -150,10 +142,10 @@ you can set it by providing an atom with element's name via `:clock_provider` fi
 ## Synchronization
 
 Sometimes, you may need to synchronize some of the elements within a pipeline. A good example of a situation where such synchronization is needed is playing audio and video with 2 separate sinks.
-To do this you can use `:stream_sync` field in `Membrane.Pipeline.Spec` struct to specify elements that should start playing at the same moment. You can set it to `:sinks` atom synchronizing all sinks in the pipeline:
+To do this you can use `:stream_sync` field in `Membrane.ParentSpec` struct to specify elements that should start playing at the same moment. You can set it to `:sinks` atom synchronizing all sinks in the pipeline:
 
 ```elixir
-%Spec{
+%ParentSpec{
   # ...
   stream_sync: :sinks
   # ...
@@ -163,7 +155,7 @@ To do this you can use `:stream_sync` field in `Membrane.Pipeline.Spec` struct t
  or a list of groups (lists) of elements synchronizing all elements in each group:
 
 ```elixir
-%Spec{
+%ParentSpec{
   children: [
     # ...
     element1: # ... ,

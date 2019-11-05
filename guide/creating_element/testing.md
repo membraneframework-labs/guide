@@ -174,30 +174,33 @@ everything works correctly.
 
 `Membrane.Testing.Pipeline` allows us to provide our custom implementations of `Membrane.Pipeline`
 callbacks that will be executed prior to `Membrane.Testing.Pipeline`'s implementations. Let's
-create pipeline that will answer to requests with response we passed in initialization options. 
+create pipeline that will answer to requests with response we passed in initialization options.
 To do this, we must define module which implements callbacks we want.
 
 ```elixir
 defmodule Example.Pipeline do
   use Membrane.Pipeline
 
+  @impl true
   def handle_init(options) do
     state = %{response: options.response}
     # put spec of choice into spec
     {{:ok, spec}, state}
   end
 
+  @impl true
   def handle_other({:request, from}, state) do
     send(from, {:response, state.response})
     {:ok, state}
   end
 
+  @impl true
   def handle_other(_message, state),
     do: {:ok, state}
 end
 ```
 
-In order to use callbacks defined in `Example.Pipeline` and pass custom initialization arguments, 
+In order to use callbacks defined in `Example.Pipeline` and pass custom initialization arguments,
 we have to specify it in `Options`. Please take note that there is no `elements` nor `links`
 options provided, because they can't be used with module override and will result in error
 when `Membrane.Testing.Pipeline.start_link/2` or `Membrane.Testing.Pipeline.start/2` is called.
@@ -244,7 +247,7 @@ they usually come in two flavors: `assert_*` and `refute_*` similarly to `ExUnit
 ### Testing sink
 
 `Membrane.Testing.Sink` reports caps, events and buffers it receives to its pipeline. If you are
-using it within `Membrane.Testing.Pipeline` you can make assertions about what the 
+using it within `Membrane.Testing.Pipeline` you can make assertions about what the
 `Membrane.Testing.Sink` has received. For example, this is how `Membrane.Element.Tee.Parallel`
 could be tested:
 
@@ -303,7 +306,7 @@ assert mapping == expected_mapping
 
 ## Summary
 
-Full source code for the above examples can be found in 
+Full source code for the above examples can be found in
 [membrane-element-aac](https://github.com/membraneframework/membrane-element-aac/tree/master/test)
 and [membrane-element-tee](https://github.com/membraneframework/membrane-element-tee/tree/master/test)
 repositories.
