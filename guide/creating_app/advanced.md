@@ -7,8 +7,8 @@ and how to introduce synchronization of start between elements.
 ## Pad options
 
 Not only elements can have options. Some pads have options as well.
-You can provide them in a keyword list as the second argument of `via_out/2`
-or `via_in/2`:
+You can provide them in a keyword list within the second argument of `Membrane.ParentSpec.via_out/2`
+or `Membrane.ParentSpec.via_in/2`:
 
 ```elixir
 links = [
@@ -19,12 +19,12 @@ links = [
 ```
 Available pad options are documented in every element's main module in automatically generated `Pads` section.
 
-When an input pad works in `:pull` mode you can also configure the buffer:
+When an input pad works in `:pull` mode you can also configure its input buffer:
 
 ```elixir
 links = [
   # ...
-  link(:decoder) |> via_in(:input, buffer: [preffered_size: 42_000]) |> to(:mixer)
+  link(:decoder) |> via_in(:input, buffer: [preffered_size: 42_000]) |> to(:mixer),
   # ...
 ]
 ```
@@ -36,7 +36,7 @@ Of course, buffer and pad options can be combined:
 ```elixir
 links = [
   # ...
-  link(:decoder) |> via_in(:input, options: [mute: true], buffer: [preffered_size: 42_000]) |> to(:mixer)
+  link(:decoder) |> via_in(:input, options: [mute: true], buffer: [preffered_size: 42_000]) |> to(:mixer),
   # ...
 ]
 ```
@@ -51,19 +51,20 @@ links = [
   # ...
   link(:decoder_a) |> to(:mixer),
   link(:decoder_b) |> to(:mixer),
-  link(:decoder_c) |> to(:mixer)
+  link(:decoder_c) |> to(:mixer),
   # ...
 ]
 ```
 
-You can also explicitly specify the reference of a dynamic pad that will be used:
+You can also explicitly specify the reference of a dynamic pad that will be used.
+To create such reference, use `Membrane.Pad.ref/2`:
 
 ```elixir
 links = [
   # ...
   link(:decoder_a) |> via_in(Pad.ref(:input, :a)) |> to(:mixer),
   link(:decoder_b) |> via_in(Pad.ref(:input, :b)) |> to(:mixer),
-  link(:decoder_c) |> via_in(Pad.ref(:input, :c)) |> to(:mixer)
+  link(:microphone) |> via_in(Pad.ref(:input, 1)) |> to(:mixer),
   # ...
 ]
 ```
@@ -73,7 +74,6 @@ Here's an example of a pipeline using an element with a dynamic output pad - `Me
 ```elixir
 defmodule MultipleCopyPipeline do
   use Membrane.Pipeline
-  alias ParentSpec
   alias Membrane.Element.{File, Tee}
 
   @impl true

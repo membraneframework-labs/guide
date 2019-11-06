@@ -131,7 +131,13 @@ defmodule Your.Module.Pipeline do
     children = %{
       file: %Membrane.Element.File.Source{location: path_to_mp3},
       decoder: Membrane.Element.Mad.Decoder,
-      converter: %Membrane.Element.FFmpeg.SWResample.Converter{output_caps: %Membrane.Caps.Audio.Raw{sample_rate: 48_000, format: :s16le, channels: 2}},
+      converter: %Membrane.Element.FFmpeg.SWResample.Converter{
+        output_caps: %Membrane.Caps.Audio.Raw{
+          sample_rate: 48_000,
+          format: :s16le,
+          channels: 2
+        }
+      },
       player: Membrane.Element.PortAudio.Sink,
     }
 
