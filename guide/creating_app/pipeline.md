@@ -107,7 +107,7 @@ Since used elements define pads with default names - `:output` and `:input`, we 
   ]
 ```
 
-Last but not least, we should return created terms in the correct format - `%Membrane.ParentSpec{}`
+Last but not least, we should return created terms in the correct format - `Membrane.ParentSpec` struct. Note that it's aliased by default by `Membrane.Pipeline.__using__/1`.
 
 ```elixir
   spec = %ParentSpec{
