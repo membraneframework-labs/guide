@@ -12,7 +12,7 @@ or replacing them as the stream changes.
 
 ## Pads
 
-Bin's pads are defined similarly to element's pads and can be linked the same way.
+Bin's pads are defined similarly to element's pads and can be linked in similar way.
 However, their role is limited to proxy the stream to elements and bins inside (inputs)
 or outside (outputs). To achieve that, each input pad of a bin needs to be linked
 to both an output pad from the outside of a bin and an input pad of its child inside.
