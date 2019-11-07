@@ -134,7 +134,7 @@ to `:on_request`.
 
 Now, each time some element is linked to this pad, a new instance of the
 pad is created and callback `c:Membrane.Element.Base.handle_pad_added/3`
-is invoked. Instances of a pad can be referenced as `{:dynamic, pad_name, number}`
+is invoked. Instances of a pad can be referenced as `Pad.ref(pad_name, pad_id)`.
 
 #### Gotchas
 

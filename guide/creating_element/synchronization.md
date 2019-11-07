@@ -6,7 +6,7 @@ This chapter presets how to use them: how to synchronize start of streams, creat
 ## Synchronization
 
 Membrane provides a sync mechanism to make sure 2 elements will start their streams at the same time. Good news - there's no need to modify the elements
-to support this feature! If the `Membrane.Pipeline.Spec` contains info about
+to support this feature! If the `Membrane.ParentSpec` contains info about
 elements to synchronize, the framework itself will ensure that they will receive
 `StartOfStream` events at the same moment.
 

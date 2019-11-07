@@ -25,7 +25,7 @@ In this tutorial, we will use `Membrane.Element.File` (for reading data from a f
 {:membrane_element_mad, "~> 0.2.3"}
 ```
 
-These dependencies rely on native libraries that have to be available in your system. You can use the following commands to install them.
+These dependencies rely on native libraries that have to be available in your system. You can use [this docker image](https://hub.docker.com/r/membrane/bionic-membrane) or the following commands to install them.
 
 ### MacOS
 
@@ -63,6 +63,7 @@ Elements used in the pipeline and links between them should be given in `handle_
 This function receives a single argument - configuration/options, which are given when the pipeline is started. In our case, it will be a string containing the path to the `.mp3` file to play.
 
 ```elixir
+@impl true
 def handle_init(path_to_mp3) do
   ...
 end
@@ -71,35 +72,50 @@ end
 Inside `handle_init`, we should define all elements and links between them. Firstly, let's create the keyword list, that contains all elements that will be used in our application. Key of the keyword list represents the name that we give to the element. Value is an element specification.
 
 ```elixir
-  children = [
-    file_src: %Membrane.Element.File.Source{location: path_to_mp3},
+  children = %{
+    file: %Membrane.Element.File.Source{location: path_to_mp3},
     decoder: Membrane.Element.Mad.Decoder,
     converter: %Membrane.Element.FFmpeg.SWResample.Converter{output_caps: %Membrane.Caps.Audio.Raw{sample_rate: 48_000, format: :s16le, channels: 2}},
-    sink: Membrane.Element.PortAudio.Sink,
-  ]
+    player: Membrane.Element.PortAudio.Sink,
+  }
 ```
 
 Notice, that there are two approaches to element declarations: as a module name or as a struct of given module. The second approach gives the possibility to pass some additional argument.
 
-Then, we should initialize a map containing links between elements. Keys and values in this map should be a tuples `{element_name, element_pad}` describing links:
+Then, we should specify links using dedicated DSL:
 
 ```elixir
-  links = %{
-    {:file_src, :output} => {:decoder, :input},
-    {:decoder, :output} => {:converter, :input},
-    {:converter, :output} => {:sink, :input}
-  }
+  links = [
+    link(:file)
+    |> via_out(:output)
+    |> via_in(:input)
+    |> to(:decoder)
+    |> via_out(:output)
+    |> via_in(:input)
+    |> to(:converter)
+    |> via_out(:output)
+    |> via_in(:input)
+    |> to(:player)
+  ]
 ```
 
-Last but not least, we should return created terms in the correct format - `%Pipeline.Spec{}`
+Since used elements define pads with default names - `:output` and `:input`, we can skip `via_out` and `via_in` parts:
 
 ```elixir
-  spec = %Membrane.Pipeline.Spec{
+  links = [
+    link(:file) |> to(:decoder) |> to(:converter) |> to(:player)
+  ]
+```
+
+Last but not least, we should return created terms in the correct format - `Membrane.ParentSpec` struct. Note that it's aliased by default by `Membrane.Pipeline.__using__/1`.
+
+```elixir
+  spec = %ParentSpec{
     children: children,
     links: links
   }
 
-  {{:ok, spec}, %{}}
+  {{:ok, spec: spec}, %{}}
 ```
 
 The return value contains also an empty map. It is a new state for the pipeline, which gives a possibility to store some additional information for later use. In this case, it is unnecessary.
@@ -110,26 +126,31 @@ To sum up, the whole file can look like this:
 defmodule Your.Module.Pipeline do
   use Membrane.Pipeline
 
+  @impl true
   def handle_init(path_to_mp3) do
-    children = [
-      file_src: %Membrane.Element.File.Source{location: path_to_mp3},
+    children = %{
+      file: %Membrane.Element.File.Source{location: path_to_mp3},
       decoder: Membrane.Element.Mad.Decoder,
-      converter: %Membrane.Element.FFmpeg.SWResample.Converter{output_caps: %Membrane.Caps.Audio.Raw{sample_rate: 48000, format: :s16le, channels: 2}},
-      sink: Membrane.Element.PortAudio.Sink,
-    ]
-
-    links = %{
-      {:file_src, :output} => {:decoder, :input},
-      {:decoder, :output} => {:converter, :input},
-      {:converter, :output} => {:sink, :input}
+      converter: %Membrane.Element.FFmpeg.SWResample.Converter{
+        output_caps: %Membrane.Caps.Audio.Raw{
+          sample_rate: 48_000,
+          format: :s16le,
+          channels: 2
+        }
+      },
+      player: Membrane.Element.PortAudio.Sink,
     }
 
-    spec = %Membrane.Pipeline.Spec{
+    links = [
+      link(:file) |> to(:decoder) |> to(:converter) |> to(:player)
+    ]
+
+    spec = %ParentSpec{
       children: children,
       links: links
     }
 
-    {{:ok, spec}, %{}}
+    {{:ok, spec: spec}, %{}}
   end
 
 end
