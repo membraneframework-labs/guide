@@ -28,6 +28,7 @@ defmodule GuideExDoc.MixProject do
           # concepts
           "concepts/elements.md",
           "concepts/pipelines.md",
+          "concepts/bins.md",
           # building apps
           "creating_app/pipeline.md",
           "creating_app/advanced.md",
