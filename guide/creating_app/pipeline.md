@@ -11,7 +11,7 @@ Membrane Framework is modular and consists of many packages available on [hex.pm
 To start the work, we have to add a dependency to our main package - Membrane Core, which contains all mechanisms used for creating and managing pipelines and elements. To do this, just add the following line to the `deps` in your `mix.exs`:
 
 ```elixir
-{:membrane_core, "~> 0.3.0"},
+{:membrane_core, "~> 0.5.0"},
 ```
 
 Furthermore, there are quite a few Membrane elements providing different functionalities and supporting a variety of multimedia formats. Each element is available as a separate package.
