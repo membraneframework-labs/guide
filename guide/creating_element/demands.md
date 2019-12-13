@@ -60,7 +60,7 @@ If there is a need to refer to the previous value, the anonymous function can be
 ```elixir
 @impl true
 def handle_event(:output, %SomeEvent{}, _context, state) do
-  {{:ok, demand: demand: {:input, & &1+1}}, state}
+  {{:ok, demand: {:input, & &1+1}}, state}
 end
 ```
 
