@@ -19,10 +19,10 @@ Furthermore, there are quite a few Membrane elements providing different functio
 In this tutorial, we will use `Membrane.Element.File` (for reading data from a file), `Membrane.Element.FFmpeg.Swresample.Converter` (for audio format conversion) and `Membrane.Element.PortAudio` (for writing the audio to audio device):
 
 ```elixir
-{:membrane_element_file, "~> 0.2.3"},
-{:membrane_element_portaudio, "~> 0.2.3"},
-{:membrane_element_ffmpeg_swresample, "~> 0.2.3"},
-{:membrane_element_mad, "~> 0.2.3"}
+{:membrane_element_file, "~> 0.3.0"},
+{:membrane_element_portaudio, "~> 0.3.1"},
+{:membrane_element_ffmpeg_swresample, "~> 0.3.0"},
+{:membrane_element_mad, "~> 0.3.0"}
 ```
 
 These dependencies rely on native libraries that have to be available in your system. You can use [this docker image](https://hub.docker.com/r/membrane/bionic-membrane) or the following commands to install them.

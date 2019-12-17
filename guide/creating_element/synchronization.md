@@ -96,7 +96,7 @@ static int callback(const void *_input_buffer, void *output_buffer,
 
   SinkState *state = (SinkState *)user_data;
 
-  if (++state->ticks % 100 == 0) {
+  if (++(state->ticks) % 100 == 0) {
     send_membrane_clock_update(env, state->clock, UNIFEX_SEND_THREADED,
                                100 * frames_per_buffer, SAMPLES_PER_MSEC);
   }
