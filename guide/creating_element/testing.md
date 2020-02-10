@@ -263,11 +263,13 @@ range = 1..100
         sink1: %Sink{},
         sink2: %Sink{},
       ],
-      links: %{
-        {:src, :output} => {:tee, :input},
-        {:tee, :output, 1} => {:sink1, :input},
-        {:tee, :output, 2} => {:sink2, :input}
-      }
+      links: [
+        link(:src)
+        |> to(:tee)
+        |> to(:sink1),
+        link(:tee)
+        |> to(:sink2)
+      ]
     })
 
 Membrane.Pipeline.play(pipeline)
