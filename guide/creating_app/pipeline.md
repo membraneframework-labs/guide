@@ -7,7 +7,7 @@ Source code for this pipeline as well as an mp3 file sample can be found in [mem
 
 ## Add dependencies to `mix.exs`
 
-Membrane Framework is modular and consists of many packages available on [hex.pm](https://hex.pm/users/membrane)
+Membrane Framework is modular and consists of many packages available on [hex.pm](https://hex.pm/users/membraneframework)
 To start the work, we have to add a dependency to our main package - Membrane Core, which contains all mechanisms used for creating and managing pipelines and elements. To do this, just add the following line to the `deps` in your `mix.exs`:
 
 ```elixir
