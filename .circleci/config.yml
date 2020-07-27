@@ -2,7 +2,7 @@ version: 2.0
 jobs:
   build:
     docker:
-      - image: circleci/elixir:1.8
+      - image: circleci/elixir:1.10
     working_directory: ~/app
     steps:
       - checkout
@@ -38,7 +38,6 @@ jobs:
           name: "Deploy 'landing' over SSH"
           command: |
             scp -P $SSH_PORT landing/* $SSH_USER@$SSH_HOST:$SSH_PATH/guide/
-
 
 workflows:
   version: 2
