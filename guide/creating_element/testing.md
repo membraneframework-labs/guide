@@ -14,10 +14,10 @@ In order to simplify things and make the test easier to maintain and modify, we 
 following solution:
 
 - Create a sample file for the element under test. As an example, for the AAC decoder we'll use a
-very simple AAC audio file
+  very simple AAC audio file
 - Create a known output as a reference file. For example, we save raw audio frames as the reference
-output for our AAC Decoder. **Note**: This may not always be the best solution since most encoders
-produce a non-deterministic output for the same input
+  output for our AAC Decoder. **Note**: This may not always be the best solution since most encoders
+  produce a non-deterministic output for the same input
 - Use the input file and reference file as sources of truth for your tests
 
 ## Running tests
@@ -25,7 +25,7 @@ produce a non-deterministic output for the same input
 To run all tests, execute:
 
 ```sh
-$ mix test
+mix test
 ```
 
 ## Unit Tests
@@ -119,8 +119,8 @@ defmodule DecoderTest do
 First, we define a couple of helper methods.
 
 `prepare_paths` generates file paths for our input/reference files as well as creates a temporary
- output file for our testing pipeline which will automatically be cleaned up after the test is
- finished:
+output file for our testing pipeline which will automatically be cleaned up after the test is
+finished:
 
 ```elixir
   def prepare_paths(filename) do
@@ -144,14 +144,14 @@ First, we define a couple of helper methods.
 ```
 
 Finally, our test case.
-Notice the `Membrane.Testing.Assertions.html#assert_end_of_stream/4` call which waits and
+Notice the `Membrane.Testing.Assertions.assert_end_of_stream/4` call which waits and
 validates that the `EndOfStream` message was received.
 
 ```elixir
   describe "Decoding Pipeline should" do
     test "Decode AAC file" do
       {in_path, reference_path, out_path} = prepare_paths("sample")
-      assert {:ok, pid} =  Pipeline.start_link(%Pipeline.Options{     
+      assert {:ok, pid} =  Pipeline.start_link(%Pipeline.Options{
         elements: [
           file_src: %Membrane.Element.File.Source{location: in_path},
           decoder: Membrane.Element.AAC.Decoder,
@@ -235,10 +235,10 @@ Apart from the `Membrane.Testing.Pipeline`, which we've already seen, there are 
 testing utilities which may come in handy for different test scenarios:
 
 - `Membrane.Testing.Source` - Can be either used as an alternative for `File.Source` allowing you
-to pass in a list of payloads that will be supplied to the pipeline or it will output data based
-on the `actions_generator`. It can be useful for generating sequential payloads or a random input.
+  to pass in a list of payloads that will be supplied to the pipeline or it will output data based
+  on the `actions_generator`. It can be useful for generating sequential payloads or a random input.
 - `Membrane.Testing.Sink` - A fake sink element that will pass all received buffers, events and
-caps to parent pipeline. Useful for asserting output buffers one by one.
+  caps to parent pipeline. Useful for asserting output buffers one by one.
 
 We also prepared a bunch of assertions that work in conjunction with both
 `Membrane.Testing.Pipeline` and said elements. They are stored in `Membrane.Testing.Assertions`,
@@ -289,7 +289,7 @@ assert_end_of_stream(pid, :sink2, :input, 3000)
 
 Another common use of these assertions is checking whether communication with a pipeline is
 proceeding correctly. You can either check whether Pipeline received a message that would be
-handled by `c:Membrane.Pipeline.handle_other/2`:
+handled by `c:Membrane.Parent.handle_other/2`:
 
 ```elixir
 assert_pipeline_receive(pipeline_pid, {:topic, _})

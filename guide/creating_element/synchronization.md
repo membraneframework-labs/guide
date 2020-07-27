@@ -31,8 +31,8 @@ according to some library (like `libshout` consuming audio and sleeping for some
 
 To become a clock provider for a pipeline your element needs to:
 
-* use `Membrane.Element.Base.def_clock/1` to inform that this element exports clock
-* send updates to the clock process (`t:Membrane.Clock.update_t/0`) containing time to the next tick
+- use `Membrane.Element.Base.def_clock/1` to inform that this element exports clock
+- send updates to the clock process (`t:Membrane.Clock.update_message_t/0`) containing time to the next tick
 
 ### Example
 
@@ -118,12 +118,12 @@ sends {:membrane_clock_update :: label, {frames :: int, sample_rate_ms :: int}}
 
 The clock process accepts updates in different representations of time to next tick:
 
-* a single integer with time in milliseconds
-* tuple with numerator and denominator (used above)
-* rational number created by `Ratio` library (`t:Ratio.t/0`) - it can keep simplified fraction (2 integers)
+- a single integer with time in milliseconds
+- tuple with numerator and denominator (used above)
+- rational number created by `Ratio` library (`t:Ratio.t/0`) - it can keep simplified fraction (2 integers)
   if needed to prevent rounding
 
-They are described by `t:Membrane.Clock.update_t/0` type.
+They are described by `t:Membrane.Clock.update_message_t/0` type.
 
 ## Timers - using a clock
 
@@ -131,9 +131,9 @@ Each element can use the clock provided by a pipeline by setting up the _timer_
 Timer is a process that sends ticks in intervals set when it is started.
 This can be done by returning `t:Membrane.Element.Action.start_timer_t/0` action that requires a tuple containing:
 
-* an atom - id for a new timer,
-* time interval between ticks in (that can be of type `t:Membrane.Time.t/0` or `t:Ratio.t/0` where the numerator is `t:Membrane.Time.t/0`)
-* (optionally) pid of a clock that should be used by the timer. If no clock provided, a pipeline clock is used.
+- an atom - id for a new timer,
+- time interval between ticks in (that can be of type `t:Membrane.Time.t/0` or `t:Ratio.t/0` where the numerator is `t:Membrane.Time.t/0`)
+- (optionally) pid of a clock that should be used by the timer. If no clock provided, a pipeline clock is used.
 
 Starting a clock means that the element will start receiving ticks that should be handled by a new callback -
 `c:Membrane.Element.Base.handle_tick/3` receiving timer id along with context and state.
@@ -144,7 +144,7 @@ The timer can be stopped by `t:Membrane.Element.Action.stop_timer_t/0` action wi
 
 Here's a simplified example of a sink element that uses timer to consume video frames at the right speed.
 
-* It starts a timer on `start_of_stream` with id `:demand_timer`,
+- It starts a timer on `start_of_stream` with id `:demand_timer`,
   interval being an inversion of framerate (that means if framerate is 30/1, the timer will send tick every 1/30th of a second, ~33 ms) and default (pipeline's) clock
 
 > **Notice**
@@ -163,10 +163,9 @@ Here's a simplified example of a sink element that uses timer to consume video f
 > |> Ratio.floor() |> Time.to_milliseconds()
 > 33333333333
 > ```
->
 
-* Demands a new frame on every tick (in `handle_tick/3`)
-* Stops the timer on either `end_of_stream` or when leaving `:playing` state
+- Demands a new frame on every tick (in `handle_tick/3`)
+- Stops the timer on either `end_of_stream` or when leaving `:playing` state
 
 ```elixir
 defmodule Membrane.Element.VideoSink do
