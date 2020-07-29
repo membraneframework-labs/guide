@@ -25,6 +25,7 @@ defmodule GuideExDoc.MixProject do
       extras:
         [
           "introduction.md",
+          "packages.md",
           # concepts
           "concepts/elements.md",
           "concepts/pipelines.md",
