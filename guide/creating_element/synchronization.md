@@ -32,7 +32,7 @@ according to some library (like `libshout` consuming audio and sleeping for some
 To become a clock provider for a pipeline your element needs to:
 
 * use `Membrane.Element.Base.def_clock/1` to inform that this element exports clock
-* send updates to the clock process (`t:Membrane.Clock.update_t/0`) containing time to the next tick
+* send updates to the clock process (`t:Membrane.Clock.update_message_t/0`) containing time to the next tick
 
 ### Example
 
@@ -123,7 +123,7 @@ The clock process accepts updates in different representations of time to next t
 * rational number created by `Ratio` library (`t:Ratio.t/0`) - it can keep simplified fraction (2 integers)
   if needed to prevent rounding
 
-They are described by `t:Membrane.Clock.update_t/0` type.
+They are described by `t:Membrane.Clock.update_message_t/0` type.
 
 ## Timers - using a clock
 
