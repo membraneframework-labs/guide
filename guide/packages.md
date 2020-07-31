@@ -75,7 +75,7 @@ The Membrane docker ([Docker Hub](https://hub.docker.com/r/membrane/membrane), [
 | `membrane_element_mad`            |                                                     | [Hex](https://hex.pm/packages/membrane_element_mad) [Docs](https://hexdocs.pm/membrane_element_mad) [GitHub](https://github.com/membraneframework/membrane-element-mad)                                  |
 | `membrane_element_mpegaudioparse` |                                                     | [Hex](https://hex.pm/packages/membrane_element_mpegaudioparse) [Docs](https://hexdocs.pm/membrane_element_mpegaudioparse) [GitHub](https://github.com/membraneframework/membrane-element-mpegaudioparse) |
 | `membrane_opus_plugin`            | OPUS decoder                                        | [Hex](https://hex.pm/packages/membrane_opus_plugin) [Docs](https://hexdocs.pm/membrane_opus_plugin) [GitHub](https://github.com/membraneframework/membrane_opus_plugin)                                  |
-| `membrane_element_flac_encoder`   | [Suspended]                                         | [Hex](https://hex.pm/packages/membrane_element_flac_encoder) [Docs](https://hexdocs.pm/membrane_element_flac_encoder) [GitHub](https://github.com/membraneframework/membrane-element-flac-encoder)       |
+| `membrane_element_flac_encoder`   | [Suspended]                                         | [GitHub](https://github.com/membraneframework/membrane-element-flac-encoder)                                                                                                                             |
 
 
 ### Video codecs
@@ -93,9 +93,9 @@ The Membrane docker ([Docker Hub](https://hub.docker.com/r/membrane/membrane), [
 | ------------------------------------ | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `membrane_element_portaudio`         |                | [Hex](https://hex.pm/packages/membrane_element_portaudio) [Docs](https://hexdocs.pm/membrane_element_portaudio) [GitHub](https://github.com/membraneframework/membrane-element-portaudio)                         |
 | `membrane_element_ffmpeg_swresample` |                | [Hex](https://hex.pm/packages/membrane_element_ffmpeg_swresample) [Docs](https://hexdocs.pm/membrane_element_ffmpeg_swresample) [GitHub](https://github.com/membraneframework/membrane-element-ffmpeg-swresample) |
-| `membrane_element_audiometer`        |                | [Hex](https://hex.pm/packages/membrane_element_audiometer) [Docs](https://hexdocs.pm/membrane_element_audiometer) [GitHub](https://github.com/membraneframework/membrane-element-audiometer)                      |
+| `membrane_audiometer_plugin`         |                | [Hex](https://hex.pm/packages/membrane_audiometer_plugin) [Docs](https://hexdocs.pm/membrane_audiometer_plugin) [GitHub](https://github.com/membraneframework/membrane_audiometer_plugin)                         |
 | `membrane_element_live_audiomixer`   | [Experimental] | [GitHub](https://github.com/membraneframework/membrane-element-live-audiomixer)                                                                                                                                   |
-| `membrane_element_fade`              | [Experimental] | [Hex](https://hex.pm/packages/membrane_element_fade) [Docs](https://hexdocs.pm/membrane_element_fade) [GitHub](https://github.com/membraneframework/membrane-element-fade)                                        |
+| `membrane_element_fade`              | [Experimental] | [GitHub](https://github.com/membraneframework/membrane-element-fade)                                                                                                                                              |
 
 
 ### Raw video
@@ -131,14 +131,14 @@ The Membrane docker ([Docker Hub](https://hub.docker.com/r/membrane/membrane), [
 
 ## Others
 
-| Package                     | Description    | Links                                                                                                                                                                                  |
-| --------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `membrane_webrtc_server`    |                | [Hex](https://hex.pm/packages/membrane_webrtc_server) [Docs](https://hexdocs.pm/membrane_webrtc_server) [GitHub](https://github.com/membraneframework/webrtc-server)                   |
-| `membrane_protocol_sdp`     |                | [Hex](https://hex.pm/packages/membrane_protocol_sdp) [Docs](https://hexdocs.pm/membrane_protocol_sdp) [GitHub](https://github.com/membraneframework/membrane-protocol-sdp)             |
-| `membrane_protocol_rtsp`    |                | [Hex](https://hex.pm/packages/membrane_protocol_rtsp) [Docs](https://hexdocs.pm/membrane_protocol_rtsp) [GitHub](https://github.com/membraneframework/membrane-protocol-rtsp)          |
-| `membrane_common_audiomix`  | [Experimental] | [Hex](https://hex.pm/packages/membrane_common_audiomix) [Docs](https://hexdocs.pm/membrane_common_audiomix) [GitHub](https://github.com/membraneframework/membrane-common-audiomix)    |
-| `membrane_protocol_icecast` | [Suspended]    | [Hex](https://hex.pm/packages/membrane_protocol_icecast) [Docs](https://hexdocs.pm/membrane_protocol_icecast) [GitHub](https://github.com/membraneframework/membrane-protocol-icecast) |
-| `membrane_server_icecast`   | [Suspended]    | [Hex](https://hex.pm/packages/membrane_server_icecast) [Docs](https://hexdocs.pm/membrane_server_icecast) [GitHub](https://github.com/membraneframework/membrane-server-icecast)       |
+| Package                     | Description    | Links                                                                                                                                                                      |
+| --------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `membrane_webrtc_server`    |                | [Hex](https://hex.pm/packages/membrane_webrtc_server) [Docs](https://hexdocs.pm/membrane_webrtc_server) [GitHub](https://github.com/membraneframework/webrtc-server)       |
+| `membrane_protocol_sdp`     |                | [Hex](https://hex.pm/packages/membrane_protocol_sdp) [Docs](https://hexdocs.pm/membrane_protocol_sdp) [GitHub](https://github.com/membraneframework/membrane-protocol-sdp) |
+| `membrane_protocol_rtsp`    |                | [GitHub](https://github.com/membraneframework/membrane-protocol-rtsp)                                                                                                      |
+| `membrane_common_audiomix`  | [Experimental] | [GitHub](https://github.com/membraneframework/membrane-common-audiomix)                                                                                                    |
+| `membrane_protocol_icecast` | [Suspended]    | [GitHub](https://github.com/membraneframework/membrane-protocol-icecast)                                                                                                   |
+| `membrane_server_icecast`   | [Suspended]    | [GitHub](https://github.com/membraneframework/membrane-server-icecast)                                                                                                     |
 
 
 
