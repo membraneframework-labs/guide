@@ -144,7 +144,7 @@ First, we define a couple of helper methods.
 ```
 
 Finally, our test case.
-Notice the `Membrane.Testing.Assertions.html#assert_end_of_stream/4` call which waits and
+Notice the `Membrane.Testing.Assertions.assert_end_of_stream/4` call which waits and
 validates that the `EndOfStream` message was received.
 
 ```elixir
@@ -289,7 +289,7 @@ assert_end_of_stream(pid, :sink2, :input, 3000)
 
 Another common use of these assertions is checking whether communication with a pipeline is
 proceeding correctly. You can either check whether Pipeline received a message that would be
-handled by `c:Membrane.Pipeline.handle_other/2`:
+handled by `c:Membrane.Parent.handle_other/2`:
 
 ```elixir
 assert_pipeline_receive(pipeline_pid, {:topic, _})
