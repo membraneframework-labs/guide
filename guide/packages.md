@@ -13,22 +13,22 @@ We use the following [tags] in package descriptions:
 Check the [Membrane GitHub organization](https://github.com/membraneframework) to see which packages are actively developed currently.
 
 ## Demos
-All the official Membrane demos reside in the [membrane-demo](https://github.com/membraneframework/membrane-demo) package. They are:
-- [Basic demos](https://github.com/membraneframework/membrane-demo/tree/master/basic)
-- [RTP demo](https://github.com/membraneframework/membrane-demo/tree/master/rtp)
-- [Receiving RTP stream and publishing it via HLS](https://github.com/membraneframework/membrane-demo/tree/master/rtp)
-- [WebRTC signaling server demo](https://github.com/membraneframework/membrane-demo/tree/master/webrtc)
+All the official Membrane demos reside in the [membrane demo](https://github.com/membraneframework/membrane_demo) package. They are:
+- [Basic demos](https://github.com/membraneframework/membrane_demo/tree/master/basic)
+- [RTP demo](https://github.com/membraneframework/membrane_demo/tree/master/rtp)
+- [Receiving RTP stream and publishing it via HLS](https://github.com/membraneframework/membrane_demo/tree/master/rtp)
+- [WebRTC signaling server demo](https://github.com/membraneframework/membrane_demo/tree/master/webrtc)
 
 ## Docker
 
-The Membrane docker ([Docker Hub](https://hub.docker.com/r/membrane/membrane), [GitHub](https://github.com/membraneframework/docker-membrane)) contains Erlang, Elixir and libraries necessary to test and run the Membrane Framework.
+The Membrane docker ([Docker Hub](https://hub.docker.com/r/membrane/membrane), [GitHub](https://github.com/membraneframework/docker_membrane)) contains Erlang, Elixir and libraries necessary to test and run the Membrane Framework.
 
 ## Media agnostic packages
 
 | Package             | Description                                                                     | Links                                                                                                                                                          |
 | ------------------- | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `membrane_core`     | The core of the framework                                                       | [Hex](https://hex.pm/packages/membrane_core) [Docs](https://hexdocs.pm/membrane_core) [GitHub](https://github.com/membraneframework/membrane-core)             |
-| `membrane_common_c` | Utilities for the native parts of Membrane                                      | [Hex](https://hex.pm/packages/membrane_common_c) [Docs](https://hexdocs.pm/membrane_common_c) [GitHub](https://github.com/membraneframework/membrane-common-c) |
+| `membrane_core`     | The core of the framework                                                       | [Hex](https://hex.pm/packages/membrane_core) [Docs](https://hexdocs.pm/membrane_core) [GitHub](https://github.com/membraneframework/membrane_core)             |
+| `membrane_common_c` | Utilities for the native parts of Membrane                                      | [Hex](https://hex.pm/packages/membrane_common_c) [Docs](https://hexdocs.pm/membrane_common_c) [GitHub](https://github.com/membraneframework/membrane_common_c) |
 | `bundlex`           | Tool for compiling C/C++ code within Mix projects                               | [Hex](https://hex.pm/packages/bundlex) [Docs](https://hexdocs.pm/bundlex) [GitHub](https://github.com/membraneframework/bundlex)                               |
 | `unifex`            | Tool automatically generating NIF and CNode interfaces between C/C++ and Elixir | [Hex](https://hex.pm/packages/unifex) [Docs](https://hexdocs.pm/unifex) [GitHub](https://github.com/membraneframework/unifex)                                  |
 | `bunch`             | Extension of Elixir standard library                                            | [Hex](https://hex.pm/packages/bunch) [Docs](https://hexdocs.pm/bunch) [GitHub](https://github.com/membraneframework/bunch)                                     |
@@ -53,16 +53,14 @@ The Membrane docker ([Docker Hub](https://hub.docker.com/r/membrane/membrane), [
 
 | Package                                | Description                                                                                      | Links                                                                                                                                                                                                                   |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `membrane_rtp_plugin`                  | [Alpha] Membrane bins and elements for handling RTP and RTCP streams                             | [Hex](https://hex.pm/packages/membrane_rtp_plugin) [Docs](https://hexdocs.pm/membrane_rtp_plugin) [GitHub](https://github.com/membraneframework/membrane_rtp_plugin)                                                    |
-| `membrane_bin_rtp`                     | Bin consuming RTP stream. Will be deprecated when membrane_rtp_plugin goes stable.               | [Hex](https://hex.pm/packages/membrane_bin_rtp) [Docs](https://hexdocs.pm/membrane_bin_rtp) [GitHub](https://github.com/membraneframework/membrane-bin-rtp)                                                             |
-| `membrane_element_rtp`                 | Elements for consuming RTP stream. Will be deprecated when membrane_rtp_plugin goes stable.      | [Hex](https://hex.pm/packages/membrane_element_rtp) [Docs](https://hexdocs.pm/membrane_element_rtp) [GitHub](https://github.com/membraneframework/membrane-element-rtp)                                                 |
+| `membrane_rtp_plugin`                  | Membrane bins and elements for handling RTP and RTCP streams                                     | [Hex](https://hex.pm/packages/membrane_rtp_plugin) [Docs](https://hexdocs.pm/membrane_rtp_plugin) [GitHub](https://github.com/membraneframework/membrane_rtp_plugin)                                                    |
 | `membrane_rtp_aac_plugin`              | [Alpha] RTP AAC depayloader                                                                      | [Hex](https://hex.pm/packages/membrane_rtp_aac_plugin) [Docs](https://hexdocs.pm/membrane_rtp_aac_plugin) [GitHub](https://github.com/membraneframework/membrane_rtp_aac_plugin)                                        |
 | `membrane_rtp_h264_plugin`             | RTP H.264 depayloader                                                                            | [Hex](https://hex.pm/packages/membrane_rtp_h264_plugin) [Docs](https://hexdocs.pm/membrane_rtp_h264_plugin) [GitHub](https://github.com/membraneframework/membrane_rtp_h264_plugin)                                     |
 | `membrane_rtp_mpegaudio_plugin`        | Set of elements for payloading and depayloading MPEG Audio.                                      | [Hex](https://hex.pm/packages/membrane_rtp_mpegaudio_plugin) [Docs](https://hexdocs.pm/membrane_rtp_mpegaudio_plugin) [GitHub](https://github.com/membraneframework/membrane_rtp_mpegaudio_plugin)                      |
 | `membrane_rtp_opus_plugin`             | RTP OPUS depayloader                                                                             | [Hex](https://hex.pm/packages/membrane_rtp_opus_plugin) [Docs](https://hexdocs.pm/membrane_rtp_opus_plugin) [GitHub](https://github.com/membraneframework/membrane_rtp_opus_plugin)                                     |
 | `membrane_mpegts_plugin`               | MPEG-TS demuxer                                                                                  | [Hex](https://hex.pm/packages/membrane_mpegts_plugin) [Docs](https://hexdocs.pm/membrane_mpegts_plugin) [GitHub](https://github.com/membraneframework/membrane_mpegts_plugin)                                           |
 | `membrane_mp4_plugin`                  | Utilities for MP4 container parsing and serialization and elements for muxing the stream to CMAF | [Hex](https://hex.pm/packages/membrane_mp4_plugin) [Docs](https://hexdocs.pm/membrane_mp4_plugin) [GitHub](https://github.com/membraneframework/membrane_mp4_plugin)                                                    |
-| `membrane_http_adaptive_stream_plugin` | Plugin generating manifests for HTTP adaptive streaming protocols                                | [Hex](https://hex.pm/packages/membrane_http_adaptive_stream_plugin) [Docs](https://hexdocs.pm/membrane_http_adaptive_stream_plugin) [GitHub](https://github.com/membraneframework/membrane_http_adaptive_stream_plugin) |
+| `membrane_http_adaptive_stream_plugin` | Plugin generating manifests for HLS (DASH support planned)                                       | [Hex](https://hex.pm/packages/membrane_http_adaptive_stream_plugin) [Docs](https://hexdocs.pm/membrane_http_adaptive_stream_plugin) [GitHub](https://github.com/membraneframework/membrane_http_adaptive_stream_plugin) |
 | `membrane_element_icecast`             | [Experimental] Element capable of sending a stream into Icecast streaming server                 | [GitHub](https://github.com/membraneframework/membrane-element-icecast)                                                                                                                                                 |
 
 
@@ -148,6 +146,8 @@ The Membrane docker ([Docker Hub](https://hub.docker.com/r/membrane/membrane), [
 
 | Package                              | Description                            | Links                                                                                                                                                                                     |
 | ------------------------------------ | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `membrane_bin_rtp`                   | Moved to `membrane_rtp_plugin`         | [Hex](https://hex.pm/packages/membrane_bin_rtp) [Docs](https://hexdocs.pm/membrane_bin_rtp) [GitHub](https://github.com/membraneframework/membrane-bin-rtp)                               |
+| `membrane_element_rtp`               | Moved to `membrane_rtp_plugin`         | [Hex](https://hex.pm/packages/membrane_element_rtp) [Docs](https://hexdocs.pm/membrane_element_rtp) [GitHub](https://github.com/membraneframework/membrane-element-rtp)                   |
 | `membrane_element_rtp_jitter_buffer` | Moved to `membrane_rtp_plugin`         | [GitHub](https://github.com/membraneframework/membrane-element-rtp-jitter-buffer)                                                                                                         |
 | `membrane_element_httpoison`         | Use `membrane_element_hackney` instead | [Hex](https://hex.pm/packages/membrane_element_httpoison) [Docs](https://hexdocs.pm/membrane_element_httpoison) [GitHub](https://github.com/membraneframework/membrane-element-httpoison) |
 
