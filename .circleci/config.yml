@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run: mix local.hex --force
       - run: mix deps.get
-      - run: mix docs
+      - run: MIX_ENV=dev mix docs && ! mix docs 2>&1 | grep -q "warning:"
       - persist_to_workspace:
           root: .
           paths: doc
