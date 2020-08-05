@@ -14,7 +14,7 @@
 - Avoid ambiguous abbreviations (e.g. `res`) and unnamed ignored variables (e.g. `def handle_init(_)` -> `def handle_init(_options)`) [enforced by Credo]
 - When implementing something defined in some kind of document or standard (e.g. RFC) try to match variable names as closely as possible to the standard and always provide a reference in a comment
 - Every public module must have `@moduledoc` and its public functions both `@doc` and `@spec` [enforced by Credo]
-- Modulese should have the following layout [enforced by Credo]:
+- Modules should have the following layout [enforced by Credo]:
   - `@moduledoc`
   - `@behaviour`
   - `use`
