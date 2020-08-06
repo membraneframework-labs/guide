@@ -1,5 +1,7 @@
 # Membrane Framework
 
+> If you see something requiring improvement in this guide, feel free to create an issue or open a PR in [this repository](https://github.com/membraneframework/guide)
+
 ## Goals
 
 ### Technical
