@@ -12,11 +12,13 @@ We decided to make a framework that puts **reliability and scalability over all 
 
 It's API is heavily inspired by GStreamer's and here we pay tribute to all outstanding work made by its developers. Sometimes you need to write an application where you don't care if you spend 10 or 20 milliseconds on processing but you need to make it working 24/7 and then Membrane Framework is the right choice. If you need to squeeze each CPU cycle from your computer probably there are better solutions available.
 
-Moreover, we do not aim at making framework that handles all formats and tools ever invented. We prefer to maintain a smaller set of modules but with higher quality.
+Moreover, we do not aim at making framework that handles all formats and tools ever invented. We prefer to maintain a smaller set of modules but with higher quality. This obviously does not prevent third-party developers from creating their own extensions to the framework.
 
 ### Business
 
 Membrane Framework, in general, is an open-source project, but we're aware that some businesses need additional long-term support, availability of some of the key developers or implementing custom features or elements. This is why we're establishing Enterprise Edition of the Membrane Framework from the day one. The core and the most universal components of the framework will remain open for the whole community.
+
+The Enterprise Edition is handled through the [Software Mansion](https://swmansion.com/?utm_source=git&utm_medium=guide&utm_campaign=membrane), a consultancy which develops the framework on a daily basis and offers a wide range of other services in the area of software development.
 
 ## Design
 
@@ -28,4 +30,4 @@ We have chosen Elixir as a language as underlying Erlang/OTP allows us to easily
 
 We refer to C libraries only when absolutely necessary or it makes no sense to rewrite a complicated piece of code from scratch.
 
-Currently they run as NIFs \(native code embedded in the VM, faster but can crash the VM\) but in the future releases we're planning to allow developer to decide whether he/she wants to run them as NIFs or run them as ports \(separate processes launched by the VM, slower but safer\) for increased reliability. Some components might always need to rely on NIFs due to technical limitations but wherever it's possible we're going to allow to detach the unsafe, crash-prone C code from the application's process so even if e.g. one of your encoders crashes the whole application will keep running.
+Currently they run as NIFs \(native code embedded in the VM, faster but can crash the VM\) but in the future releases we're planning to allow developer to decide whether he/she wants to run them as NIFs or run them as ports \(separate processes launched by the VM, slower but safer\) for increased reliability. Some components might always need to rely on NIFs due to technical limitations but wherever it's possible we're going to allow to detach the unsafe, crash-prone C code from the application's process so even if e.g. one of your encoders crashes the whole application will keep running. This is handled by the [unifex](https://github.com/membraneframework/unifex), one of the many libraries accompanying the framework.
