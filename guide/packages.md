@@ -13,11 +13,7 @@ We use the following [tags] in package descriptions:
 Check the [Membrane GitHub organization](https://github.com/membraneframework) to see which packages are actively developed currently.
 
 ## Demos
-All the official Membrane demos reside in the [membrane demo](https://github.com/membraneframework/membrane_demo) package. They are:
-- [Basic demos](https://github.com/membraneframework/membrane_demo/tree/master/basic)
-- [RTP demo](https://github.com/membraneframework/membrane_demo/tree/master/rtp)
-- [Receiving RTP stream and publishing it via HLS](https://github.com/membraneframework/membrane_demo/tree/master/rtp)
-- [WebRTC signaling server demo](https://github.com/membraneframework/membrane_demo/tree/master/webrtc)
+The official Membrane demos reside in the [membrane demo](https://github.com/membraneframework/membrane_demo) repository. Check there for details.
 
 ## Docker
 
