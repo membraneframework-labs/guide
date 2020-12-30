@@ -34,7 +34,6 @@ defmodule GuideExDoc.MixProject do
           # building apps
           "creating_app/pipeline.md",
           "creating_app/advanced.md",
-          "creating_app/logger.md",
           # creating elements
           "creating_element/tutorial.md",
           "creating_element/testing.md",
