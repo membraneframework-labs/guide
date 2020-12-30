@@ -105,8 +105,8 @@ defmodule GuideExDoc.MixProject do
   defp deps do
     [
       {:ex_doc, "~> 0.21"},
-      {:membrane_core, "~> 0.5.0"},
-      {:membrane_element_tee, "~> 0.3.0"}
+      {:membrane_core, "~> 0.6.0"},
+      {:membrane_element_tee, "~> 0.4.0"}
     ]
   end
 end
