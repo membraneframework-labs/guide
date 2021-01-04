@@ -3,7 +3,7 @@
 In this chapter, we will implement an example of using elements and grouping them into the pipeline.
 Namely, we will write an application that reads `.mp3` file and using PortAudio library plays its content to the default audio device in your system.
 
-Source code for this pipeline as well as an mp3 file sample can be found in [membrane-demo repository](https://github.com/membraneframework/membrane-demo/tree/v0.3).
+Source code for this pipeline as well as an mp3 file sample can be found in [membrane demo repository](https://github.com/membraneframework/membrane_demo/tree/master/simple_pipeline).
 
 ## Add dependencies to `mix.exs`
 
@@ -11,7 +11,7 @@ Membrane Framework is modular and consists of many packages available on [hex.pm
 To start the work, we have to add a dependency to our main package - Membrane Core, which contains all mechanisms used for creating and managing pipelines and elements. To do this, just add the following line to the `deps` in your `mix.exs`:
 
 ```elixir
-{:membrane_core, "~> 0.5.0"},
+{:membrane_core, "~> 0.6.0"},
 ```
 
 Furthermore, there are quite a few Membrane elements providing different functionalities and supporting a variety of multimedia formats. Each element is available as a separate package.
@@ -19,10 +19,10 @@ Furthermore, there are quite a few Membrane elements providing different functio
 In this tutorial, we will use `Membrane.Element.File` (for reading data from a file), `Membrane.Element.FFmpeg.Swresample.Converter` (for audio format conversion) and `Membrane.Element.PortAudio` (for writing the audio to audio device):
 
 ```elixir
-{:membrane_element_file, "~> 0.3.0"},
-{:membrane_element_portaudio, "~> 0.3.1"},
-{:membrane_element_ffmpeg_swresample, "~> 0.3.0"},
-{:membrane_element_mad, "~> 0.3.0"}
+{:membrane_file_plugin, "~> 0.5.0"},
+{:membrane_portaudio_plugin, "~> 0.5.0"},
+{:membrane_ffmpeg_swresample_plugin, "~> 0.5.0"},
+{:membrane_mp3_mad_plugin, "~> 0.5.0"}
 ```
 
 These dependencies rely on native libraries that have to be available in your system. You can use [this docker image](https://hub.docker.com/r/membrane/bionic-membrane) or the following commands to install them.
@@ -73,10 +73,10 @@ Inside `handle_init`, we should define all elements and links between them. Firs
 
 ```elixir
   children = %{
-    file: %Membrane.Element.File.Source{location: path_to_mp3},
-    decoder: Membrane.Element.Mad.Decoder,
-    converter: %Membrane.Element.FFmpeg.SWResample.Converter{output_caps: %Membrane.Caps.Audio.Raw{sample_rate: 48_000, format: :s16le, channels: 2}},
-    player: Membrane.Element.PortAudio.Sink,
+    file: %Membrane.File.Source{location: path_to_mp3},
+    decoder: Membrane.MP3.MAD.Decoder,
+    converter: %Membrane.FFmpeg.SWResample.Converter{output_caps: %Membrane.Caps.Audio.Raw{sample_rate: 48_000, format: :s16le, channels: 2}},
+    player: Membrane.PortAudio.Sink,
   }
 ```
 
@@ -129,16 +129,16 @@ defmodule Your.Module.Pipeline do
   @impl true
   def handle_init(path_to_mp3) do
     children = %{
-      file: %Membrane.Element.File.Source{location: path_to_mp3},
-      decoder: Membrane.Element.Mad.Decoder,
-      converter: %Membrane.Element.FFmpeg.SWResample.Converter{
+      file: %Membrane.File.Source{location: path_to_mp3},
+      decoder: Membrane.MP3.MAD.Decoder,
+      converter: %Membrane.FFmpeg.SWResample.Converter{
         output_caps: %Membrane.Caps.Audio.Raw{
           sample_rate: 48_000,
           format: :s16le,
           channels: 2
         }
       },
-      player: Membrane.Element.PortAudio.Sink,
+      player: Membrane.PortAudio.Sink,
     }
 
     links = [
@@ -168,4 +168,4 @@ Pipeline.play(pid)
 
 The given `.mp3` file should be played on the default device in your system. Please use `.mp3` that has no ID3 or ID3v2 tags.
 
-The [demo available here](https://github.com/membraneframework/membrane-demo/tree/v0.3) contains an `.mp3` file without tags.
+The [demo available here](https://github.com/membraneframework/membrane_demo/tree/master/simple_pipeline) contains an `.mp3` file without tags.

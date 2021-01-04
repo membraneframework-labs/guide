@@ -4,7 +4,7 @@ Implementing a new element is very similar to declaring a new pipeline. All you 
 
 The first decision to make is to specify what kind of element we are going to implement: `source`, `sink` or `filter`. In this chapter, we will implement a very simple filter that counts received buffers and passes them to the next element. It will build simple statistics and send them to Pipeline via `Membrane.Notification` mechanism.
 
-Source code for this filter can be found in the [membrane-demo repository](https://github.com/membraneframework/membrane-demo/tree/v0.3).
+Source code for this filter can be found in the [membrane demo repository](https://github.com/membraneframework/membrane_demo/tree/master/simple_element).
 
 ## Base module
 

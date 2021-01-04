@@ -1,4 +1,4 @@
-# A guide to Membrane Multimedia Framework
+# The Guide to the Membrane Framework
 
 This repo contains sources for the guide into Membrane. The guide is available [here](https://membraneframework.org/guide).
 

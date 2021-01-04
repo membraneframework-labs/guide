@@ -7,7 +7,7 @@ defmodule GuideExDoc.MixProject do
     [
       app: :membrane_framework_guide,
       name: "Membrane Guide",
-      version: "0.5.0",
+      version: "0.6.0",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
       docs: docs(),
@@ -25,6 +25,7 @@ defmodule GuideExDoc.MixProject do
       extras:
         [
           "introduction.md",
+          "demos.md",
           "packages.md",
           "coding_style_guide.md",
           # concepts
@@ -34,7 +35,7 @@ defmodule GuideExDoc.MixProject do
           # building apps
           "creating_app/pipeline.md",
           "creating_app/advanced.md",
-          "creating_app/logger.md",
+          "creating_app/logging.md",
           # creating elements
           "creating_element/tutorial.md",
           "creating_element/testing.md",
@@ -105,8 +106,8 @@ defmodule GuideExDoc.MixProject do
   defp deps do
     [
       {:ex_doc, "~> 0.21"},
-      {:membrane_core, "~> 0.5.0"},
-      {:membrane_element_tee, "~> 0.3.0"}
+      {:membrane_core, "~> 0.6.0"},
+      {:membrane_element_tee, "~> 0.4.0"}
     ]
   end
 end
