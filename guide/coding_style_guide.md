@@ -28,9 +28,18 @@
   - `@macrocallback`
   - `@optional_callbacks`
   - `defmacro`, `defguard`, `def`, etc.
+- When defining structs, set default values explicitly and omit brackets
+```
+  # not preferred
+  defstruct [:name, :params, active: true]
+
+  # preferred
+  defstruct name: nil, params: nil, active: true
+  ```
 - Always use `@impl` when implementing behaviour. Apply it to every function clause to avoid situations where the last clause has a typo that is not reported as warning since its treated as different function
 - Read and follow the official [documentation writing](https://hexdocs.pm/elixir/writing-documentation.html) and [library creation](https://hexdocs.pm/elixir/library-guidelines.html) guides.
 - Make sure the generated docs look well. Run `mix docs` and open `doc/index.html` in your browser. Configure properly `:nest_modules_by_prefix` and `:groups_for_modules` options in `mix.exs` (see [`ex_doc` docs](https://hexdocs.pm/ex_doc/Mix.Tasks.Docs.html) for reference)
+- Read and follow [elixir style guide](https://github.com/christopheradams/elixir_style_guide/blob/master/README.md). It applies in all the situations not mentioned above.
 
 ## Naming Conventions
 
