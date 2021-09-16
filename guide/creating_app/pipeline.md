@@ -11,18 +11,18 @@ Membrane Framework is modular and consists of many packages available on [hex.pm
 To start the work, we have to add a dependency to our main package - Membrane Core, which contains all mechanisms used for creating and managing pipelines and elements. To do this, just add the following line to the `deps` in your `mix.exs`:
 
 ```elixir
-{:membrane_core, "~> 0.6.0"},
+{:membrane_core, "~> 0.7.0"},
 ```
 
 Furthermore, there are quite a few Membrane elements providing different functionalities and supporting a variety of multimedia formats. Each element is available as a separate package.
 
-In this tutorial, we will use `Membrane.Element.File` (for reading data from a file), `Membrane.Element.FFmpeg.Swresample.Converter` (for audio format conversion) and `Membrane.Element.PortAudio` (for writing the audio to audio device):
+In this tutorial, we will use `Membrane.Element.File` (for reading data from a file), `Membrane.Element.FFmpeg.SWResample.Converter` (for audio format conversion) and `Membrane.Element.PortAudio` (for writing the audio to audio device):
 
 ```elixir
-{:membrane_file_plugin, "~> 0.5.0"},
-{:membrane_portaudio_plugin, "~> 0.5.0"},
-{:membrane_ffmpeg_swresample_plugin, "~> 0.5.0"},
-{:membrane_mp3_mad_plugin, "~> 0.5.0"}
+{:membrane_file_plugin, "~> 0.6.0"},
+{:membrane_portaudio_plugin, "~> 0.8.0"},
+{:membrane_ffmpeg_swresample_plugin, "~> 0.8.0"},
+{:membrane_mp3_mad_plugin, "~> 0.8.0"}
 ```
 
 These dependencies rely on native libraries that have to be available in your system. You can use [this docker image](https://hub.docker.com/r/membrane/bionic-membrane) or the following commands to install them.
