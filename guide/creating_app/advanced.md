@@ -106,7 +106,7 @@ This example requires the following dependencies:
   defp deps do
     [
       {:membrane_element_tee, "~> 0.5.0"},
-      {:membrane_element_file, "~> 0.6.0"}
+      {:membrane_file_plugin, "~> 0.6.0"}
     ]
   end
 ```
