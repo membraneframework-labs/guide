@@ -105,8 +105,8 @@ This example requires the following dependencies:
 ```elixir
   defp deps do
     [
-      {:membrane_element_tee, "~> 0.1.0"},
-      {:membrane_element_file, "~> 0.2.0"}
+      {:membrane_element_tee, "~> 0.5.0"},
+      {:membrane_file_plugin, "~> 0.6.0"}
     ]
   end
 ```
