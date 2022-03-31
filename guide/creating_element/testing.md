@@ -218,7 +218,7 @@ Now we can create another test case to try out new functionality.
 describe "Decoding Pipeline should" do
   ...
 
-  test 'Answer with {:reponse, "Hello there!"} message' do
+  test 'Answer with {:response, "Hello there!"} message' do
     assert {:ok, pid} =  Pipeline.start_link(%Pipeline.Options{...})
     assert Pipeline.play(pid) == :ok # Start the pipeline
     test_process_pid = self()
