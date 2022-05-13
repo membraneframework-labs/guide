@@ -161,6 +161,14 @@ The Membrane docker ([Docker Hub](https://hub.docker.com/r/membrane/membrane), [
 
 
 
+## No longer mantained 
+
+| Package                              | Description                           | Links                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ------------------------------------ | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `membrane_libnice_plugin`                   | Replaced by `membrane_ice_plugin`        | [![Hex.pm](https://img.shields.io/hexpm/v/membrane_libnice_plugin.svg)](https://hex.pm/packages/membrane_libnice_plugin) [![Docs](https://img.shields.io/badge/api-docs-yellow.svg?style=flat)](https://hexdocs.pm/membrane_libnice_plugin) [![GitHub](https://api.iconify.design/octicon:logo-github-16.svg?color=gray&height=20)](https://github.com/membraneframework-labs/membrane_libnice_plugin)   
+
+
+
 ## Deprecated
 
 | Package                              | Description                           | Links                                                                                                                                                                                                                                                                                                                                                                                                         |
