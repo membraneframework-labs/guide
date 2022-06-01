@@ -7,7 +7,7 @@ defmodule GuideExDoc.MixProject do
     [
       app: :membrane_framework_guide,
       name: "Membrane Guide",
-      version: "0.7.0",
+      version: "0.8.0",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
       docs: docs(),
