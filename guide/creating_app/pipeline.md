@@ -25,7 +25,7 @@ In this tutorial, we will use `Membrane.Element.File` (for reading data from a f
 {:membrane_mp3_mad_plugin, "~> 0.8.0"}
 ```
 
-These dependencies rely on native libraries that have to be available in your system. You can use [this docker image](https://hub.docker.com/r/membrane/bionic-membrane) or the following commands to install them.
+These dependencies rely on native libraries that have to be available in your system. You can use the [`membraneframeworklabs/docker_membrane`](https://hub.docker.com/r/membraneframeworklabs/docker_membrane) docker image or the following commands to install them.
 
 ### MacOS
 
