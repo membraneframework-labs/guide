@@ -11,7 +11,7 @@ jobs:
       - run: 
           name: Build and push Docker image
           command: |
-            docker build -t membraneframeworklabs/guide:latest .
+            docker build --no-cache -t membraneframeworklabs/guide:latest .
             docker login -u $LABS_USER -p $LABS_USER_PASS
             docker push membraneframeworklabs/guide:latest
   deploy:
@@ -36,6 +36,5 @@ workflows:
           filters:
             branches:
               only:
-                - new-deployment
-                # - /v[0-9]+\.[0-9]+(-dev)?/
-                # - master
+                - /v[0-9]+\.[0-9]+(-dev)?/
+                - master
