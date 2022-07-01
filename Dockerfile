@@ -1,4 +1,6 @@
-FROM elixir:1.13 AS build 
+FROM elixir:alpine AS build 
+
+RUN apk add git
 
 COPY docs_versions.sh . 
 RUN chmod +x docs_versions.sh

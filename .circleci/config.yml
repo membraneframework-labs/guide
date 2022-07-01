@@ -8,9 +8,12 @@ jobs:
       - setup_remote_docker:
           version: 20.10.14
           docker_layer_caching: true
-      - run: docker build -t membraneframeworklabs:latest .
-      - run: docker login -u $LABS_USER -p $LABS_USER_PASS
-      - run: docker push membraneframeworklabs:latest
+      - run: 
+          name: Build and push Docker image
+          command: |
+            docker build -t membraneframeworklabs:latest .
+            docker login -u $LABS_USER -p $LABS_USER_PASS
+            docker push membraneframeworklabs:latest
   deploy:
     machine: true
     steps:
