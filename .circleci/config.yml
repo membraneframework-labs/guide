@@ -11,9 +11,9 @@ jobs:
       - run: 
           name: Build and push Docker image
           command: |
-            docker build -t membraneframeworklabs:latest .
+            docker build -t membraneframeworklabs/guide:latest .
             docker login -u $LABS_USER -p $LABS_USER_PASS
-            docker push membraneframeworklabs:latest
+            docker push membraneframeworklabs/guide:latest
   deploy:
     machine: true
     steps:
