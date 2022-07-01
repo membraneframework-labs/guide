@@ -23,7 +23,7 @@ jobs:
       - run:
           name: "Deploy guide image over SSH"
           command: |
-            ssh $SWM_USER@95.217.167.112 "docker rm -f membrane-guide && docker run -d --name membrane-guide -e VIRTUAL_HOST="membrane.stream" -e VIRTUAL_PATH="/guide" --restart=always -m 1G --network=proxy --pull=always membraneframeworklabs/guide:latest"
+            ssh $SWM_USER@95.217.167.112 "docker rm -f membrane-guide && docker run -d --name membrane-guide -e VIRTUAL_HOST="sandbox.membrane.work" -e VIRTUAL_PATH="/guide" --restart=always -m 1G --network=proxy --pull=always membraneframeworklabs/guide:latest"
 
 workflows:
   version: 2
