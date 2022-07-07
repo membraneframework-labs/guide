@@ -1,57 +1,41 @@
 version: 2.0
 jobs:
   build:
-    docker:
-      - image: membrane/membrane:latest
-    working_directory: ~/app
+    docker: 
+      - image: cimg/base:stable
     steps:
       - checkout
-      - run: mix local.hex --force
-      - run: mix deps.get
-      - run: MIX_ENV=dev mix docs && mix docs 2>&1 | (! grep -q "warning:")
-      - persist_to_workspace:
-          root: .
-          paths: doc
-  deploy-doc:
-    machine:
-      enabled: true
+      - setup_remote_docker:
+          version: 20.10.14
+          docker_layer_caching: true
+      - run: 
+          name: Build and push Docker image
+          command: |
+            docker build --no-cache -t membraneframeworklabs/guide:latest .
+            docker login -u $LABS_USER -p $LABS_USER_PASS
+            docker push membraneframeworklabs/guide:latest
+  deploy:
+    machine: true
     steps:
       - add_ssh_keys:
           fingerprints:
-            - "78:41:d6:8c:c1:2d:ff:f4:30:40:d1:a3:26:9a:67:f5"
-      - attach_workspace:
-          at: /tmp/app
+            - "bd:d0:c7:cc:db:2e:ae:98:fc:4e:ca:d6:3c:60:fd:a0"
       - run:
-          name: "Deploy 'doc' over SSH"
+          name: "Deploy guide image over SSH"
           command: |
-            rsync -av --delete -e "ssh -p $SSH_PORT" /tmp/app/doc/ $SSH_USER@$SSH_HOST:$SSH_PATH/guide/$CIRCLE_BRANCH/
-  deploy-landing:
-    machine:
-      enabled: true
-    working_directory: ~/app
-    steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "78:41:d6:8c:c1:2d:ff:f4:30:40:d1:a3:26:9a:67:f5"
-      - checkout
-      - run:
-          name: "Deploy 'landing' over SSH"
-          command: |
-            scp -P $SSH_PORT landing/* $SSH_USER@$SSH_HOST:$SSH_PATH/guide/
+            ssh $SWM_USER@$GUIDE_HOST 'docker rm -f membrane-guide && docker run -d --name membrane-guide -e VIRTUAL_HOST="membrane.stream" -e VIRTUAL_PATH="/guide" --restart=always -m 1G --network=proxy --pull=always membraneframeworklabs/guide:latest'
 
 workflows:
   version: 2
   build-and-deploy:
     jobs:
       - build
-      - deploy-doc:
+      - deploy:
           requires:
             - build
           filters:
             branches:
               only:
                 - /v[0-9]+\.[0-9]+(-dev)?/
-      - deploy-landing:
-          filters:
-            branches:
-              only: master
+                - master
+                
