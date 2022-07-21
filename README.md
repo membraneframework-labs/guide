@@ -1,8 +1,8 @@
 # The Guide to the Membrane Framework
 
-This repo contains sources for the guide into Membrane. The guide is available [here](https://membraneframework.org/guide).
+This repo contains sources for the guide into Membrane. The guide is available [here](https://membrane.stream/guide).
 
-You may also want to visit our [website](https://membraneframework.org).
+You may also want to visit our [website](https://membrane.stream).
 
 The guide is generated with [ex_doc](https://github.com/elixir-lang/ex_doc).
 
