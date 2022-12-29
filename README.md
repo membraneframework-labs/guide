@@ -14,7 +14,7 @@ The actual core of the framework can be found [here](https://github.com/membrane
 
 If you need any technical assistance with Membrane Framework, please don't hesitate to reach out to us via our [Discord](https://discord.gg/nwnfVSY).
 <br>
-For inquiries related to our commercial services or for other contact information, please visit our [Membrane website](https://membrane.stream/contact) for more information.
+For inquiries related to our commercial services or for other contact information, please visit [Membrane website](https://membrane.stream/contact) for more information.
 
 
 ## Copyright and License
