@@ -6,8 +6,8 @@ A guide on how to release guide.
 
 The guide is published automatically by the CI.
 
-- contents of `https://membraneframework.org/guide` are taken from `landing` on branch `master`
-- the guide is deployed from generated `docs` from branches in form `vX.X(-X)`, e.g. `v0.5` or `v0.5-dev` and become available under `https://membraneframework.org/guide/vX.X(-X)`
+- contents of `https://membrane.stream/guide` are taken from `landing` on branch `master`
+- the guide is deployed from generated `docs` from branches in form `vX.X(-X)`, e.g. `v0.5` or `v0.5-dev` and become available under `https://membrane.stream.org/guide/vX.X(-X)`
 
 ## Publishing new version without bumping minor
 
