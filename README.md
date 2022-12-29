@@ -1,8 +1,8 @@
 # The Guide to the Membrane Framework
 
-This repo contains sources for the guide into Membrane. The guide is available [here](https://membraneframework.org/guide).
+This repo contains sources for the guide into Membrane. The guide is available [here](https://membrane.stream/guide).
 
-You may also want to visit our [website](https://membraneframework.org).
+You may also want to visit our [website](https://membrane.stream).
 
 The guide is generated with [ex_doc](https://github.com/elixir-lang/ex_doc).
 
@@ -12,7 +12,10 @@ The actual core of the framework can be found [here](https://github.com/membrane
 
 ## Support and questions
 
-If you have any problems with Membrane Framework feel free to contact us on the [mailing list](https://groups.google.com/forum/#!forum/membrane-framework), [Discord](https://discord.gg/nwnfVSY) or via [e-mail](mailto:info@membraneframework.org).
+If you need any technical assistance with Membrane Framework, please don't hesitate to reach out to us via our [Discord](https://discord.gg/nwnfVSY).
+<br>
+For inquiries related to our commercial services or for other contact information, please visit [Membrane website](https://membrane.stream/contact) for more information.
+
 
 ## Copyright and License
 
