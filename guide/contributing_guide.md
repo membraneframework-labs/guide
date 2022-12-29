@@ -1,7 +1,9 @@
 # Contributing Guide
 
 ## General contribution info
-Any contributions to Membrane Framework are welcome. If you would like contribute, but you're not sure how to start or have some questions, don't hesitate to contact us via channels described in [README](../README.md#support-and-questions)
+Any contributions to Membrane Framework are welcome. If you would like contribute, but you're not sure how to start or have some questions, don't hesitate to contact us via our [Discord](https://discord.gg/nwnfVSY).
+<br>
+For inquiries related to our commercial services or for other contact information, please visit [Membrane website](https://membrane.stream/contact) for more information.
 <br>
 When contributing to existing repo:
 - fork it
@@ -12,7 +14,6 @@ When contributing to existing repo:
 <br>
 
 If you wish to create a new plugin you can give us a shout and if it's something we want as a part of our ecosystem we'll create a repo for you, guide you on your work and maintain the plugin in future. 
-<br>
 <br>
 However, if feel confident enough to maintain it on your own, you can, of course, create your own repo and hex package - we only ask you to follow the naming conventions of the framework package and modules. In that case, don't forget to let us know about your work so we could include it on the list of available plugins.
 
