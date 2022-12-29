@@ -1,4 +1,22 @@
-# Coding style
+# Contributing Guide
+
+## General contribution info
+Any contributions to Membrane Framework are welcome. If you would like contribute, but you're not sure how to start or have some questions, don't hesitate to contact us via channels described in [README](../README.md#support-and-questions)
+<br>
+When contributing to existing repo:
+- fork it
+- apply change on some branch with a meaningful name
+- create a PR from fork to our repo
+- await feedback from someone from the team
+- after passing the review, the PR will be merged
+<br>
+
+If you wish to create a new plugin you can give us a shout and if it's something we want as a part of our ecosystem we'll create a repo for you, guide you on your work and maintain the plugin in future. 
+<br>
+<br>
+However, if feel confident enough to maintain it on your own, you can, of course, create your own repo and hex package - we only ask you to follow the naming conventions of the framework package and modules. In that case, don't forget to let us know about your work so we could include it on the list of available plugins.
+
+## Code style guide
 
 - Use Elixir formatter (`mix format`). `.formatter.exs` should contain `:membrane_core` in `:import_deps`.
 - Use Dialyzer (via `:dialyxir` dependency and `mix dialyzer` command) and make sure it shows no warnings.
@@ -41,7 +59,7 @@
 - Make sure the generated docs look well. Run `mix docs` and open `doc/index.html` in your browser. Configure properly `:nest_modules_by_prefix` and `:groups_for_modules` options in `mix.exs` (see [`ex_doc` docs](https://hexdocs.pm/ex_doc/Mix.Tasks.Docs.html) for reference)
 - Read and follow [elixir style guide](https://github.com/christopheradams/elixir_style_guide/blob/master/README.md). It applies in all the situations not mentioned above.
 
-## Naming Conventions
+### Naming Conventions
 
 - Pure Elixir plugins:
   - Repo: `membrane_X_plugin` where X is format/protocol name (e.g. `membrane_mpegts_plugin`)
@@ -56,3 +74,13 @@
   - Application: `:membrane_X_format`
   - Format struct: `%Membrane.X{}` (e.g. `%Membrane.AAC{channels: 2}`)
   - Other modules: `Membrane.X.*`, the same namespace as plugins for this format (e.g. `Membrane.AAC.*`)
+
+## Contributing practices
+When creating contribution:
+- You can open a draft PR right away.
+- If PR solves GH issue, remember to link the issue to the PR (either by adding Closes # and PR number or using the UI)
+- When finished, make a self-review before assigning a reviewer.
+- Remember to watch for comments accidentally marked as outdated and <ins>don't mark someone else's comments as resolved.</ins>
+- When you consider all the comments fixed, re-request the review.
+- Do not force push changes to the reviewed commits - this breaks `changes since last review` functionality on GH
+- Always remove your branch after merging the PR. It should happen automatically. If not, ask someone with permissions to enable that in settings.
