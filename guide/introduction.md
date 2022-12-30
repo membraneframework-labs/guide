@@ -6,7 +6,7 @@ Membrane is a multimedia processing framework that focuses on reliability, concu
 ## Structure of the Membrane Framework
 The Membrane Framework allows you to define your own processing units, called "elements." An element might be able to mux incoming audio and video streams into a container, or play raw audio using your sound card.
 
-Elements can be organized into a "pipeline," which is a sequence of linked elements that performs a specific task. For example, a pipeline might receive an incoming RTSP stream from a webcam and convert it to an HLS stream, or act as a selective forwarding unit (SFU) to implement your own videoconferencing room.
+Elements can be organized into a "pipeline," - a sequence of linked elements that performs a specific task. For example, a pipeline might receive an incoming RTSP stream from a webcam and convert it to an HLS stream, or act as a selective forwarding unit (SFU) to implement your own videoconferencing room.
 
 ### Membrane Core
 [Membrane Core](https://github.com/membraneframework/membrane_core) is the heart and soul of the Membrane Framework. It is written entirely in Elixir and provides the internal mechanisms and developer's interfaces that allow you to prepare processing elements and link them together in a convenient yet reliable way. Note that Membrane Core does not contain any multimedia-specific logic. 
