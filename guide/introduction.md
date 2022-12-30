@@ -1,5 +1,5 @@
 # Membrane Framework guide
-Hello and welcome to the general guide to the Membrane Framework!
+Hello, and welcome to the general guide to the Membrane Framework!
 
 Membrane is a multimedia processing framework that focuses on reliability, concurrency, and scalability. It is primarily written in Elixir, while some platform-specific or time-constrained parts are written in C. With a range of existing packages and an easy-to-use interface for writing your own, Membrane can be used to process almost any type of multimedia.
 
