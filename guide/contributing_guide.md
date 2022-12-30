@@ -13,15 +13,11 @@ When contributing to existing repo:
 - after passing the review, the PR will be merged
 <br>
 
-If you wish to create a new plugin you can give us a shout and if it's something we want as a part of our ecosystem we'll create a repo for you, guide you on your work and maintain the plugin in future. 
-<br>
-However, if feel confident enough to maintain it on your own, you can, of course, create your own repo and hex package - we only ask you to follow the naming conventions of the framework package and modules. In that case, don't forget to let us know about your work so we could include it on the list of available plugins.
+If you wish to create a new plugin you can give us a shout and if it's something we want as a part of our ecosystem we'll create a repo for you, guide you on your work and maintain the plugin in future. However, if feel confident enough to maintain it on your own, you can, of course, create your own repo and hex package - we only ask you to follow the naming conventions of the framework package and modules. In that case, don't forget to let us know about your work so we could include it on the list of available plugins.
 
 ## Code style guide
 
-- Use Elixir formatter (`mix format`). `.formatter.exs` should contain `:membrane_core` in `:import_deps`.
-- Use Dialyzer (via `:dialyxir` dependency and `mix dialyzer` command) and make sure it shows no warnings.
-- Use Credo with the config taken from [`membrane_template_plugin`](https://github.com/membraneframework/membrane_template_plugin/blob/master/.credo.exs)
+- Base the package on [`membrane_template_plugin`](https://github.com/membraneframework/membrane_template_plugin). Use Elixir formatter, Dialyzer and Credo config specified there.
 - Indent with 2 spaces, use `LF` as end of line and `utf-8` encoding
 - For native code, use `clang-format` with config (`.clang-format`):
 
@@ -81,7 +77,7 @@ When creating contribution:
 - You can open a draft PR right away.
 - If PR solves GH issue, remember to link the issue to the PR (either by adding Closes # and PR number or using the UI)
 - When finished, make a self-review before assigning a reviewer.
-- Remember to watch for comments accidentally marked as outdated and <ins>don't mark someone else's comments as resolved.</ins>
+- Remember to watch for comments accidentally marked as outdated and don't mark someone else's comments as resolved.
 - When you consider all the comments fixed, re-request the review.
 - Do not force push changes to the reviewed commits - this breaks `changes since last review` functionality on GH
 - Always remove your branch after merging the PR. It should happen automatically. If not, ask someone with permissions to enable that in settings.
