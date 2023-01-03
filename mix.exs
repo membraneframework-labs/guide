@@ -27,7 +27,7 @@ defmodule GuideExDoc.MixProject do
           "introduction.md",
           "demos.md",
           "packages.md",
-          "coding_style_guide.md",
+          "contributing_guide.md",
           # concepts
           "concepts/elements.md",
           "concepts/pipelines.md",
