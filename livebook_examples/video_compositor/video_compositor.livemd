@@ -1,0 +1,132 @@
+# Video Compositor Example
+
+```elixir
+File.cd(__DIR__)
+Logger.configure(level: :error)
+
+Mix.install([
+  {:kino, "~> 0.8.1"},
+  {:membrane_core, "~> 0.11.2"},
+  {:membrane_kino_plugin, path: "../../../membrane_kino_plugin"},
+  {:membrane_file_plugin, "~> 0.13.0"},
+  {:membrane_raw_video_format, "~> 0.2"},
+  {:membrane_h264_ffmpeg_plugin, "~> 0.25.2"},
+  {:membrane_video_compositor_plugin, "~> 0.1.0"},
+  {:membrane_hackney_plugin, "~> 0.9.0"},
+  {:membrane_realtimer_plugin, "~> 0.6.0"}
+])
+```
+
+## Pipeline module definition
+
+Defines a video composer with a 1440x960 output scene, waiting for up to four videos. Each of them is downloaded in real-time from the network using the `Hackney` module, parsed and decoded from the H264 format, and composed in real-time. After that, they will be displayed using the `Kino.Video` player.
+
+```elixir
+defmodule DynamicVideoComposition do
+  use Membrane.Pipeline
+
+  alias Membrane.Hackney
+  alias Membrane.H264.FFmpeg.{Encoder, Parser, Decoder}
+  alias Membrane.{Pad, RawVideo, Time}
+  alias Membrane.Kino
+  alias Membrane.VideoCompositor
+  alias Membrane.VideoCompositor.RustStructs.BaseVideoPlacement, as: VideoPlacement
+
+  @media_url "http://raw.githubusercontent.com/membraneframework/static/gh-pages/samples/big-buck-bunny/bun33s_720x480.h264"
+
+  @framerate {25, 1}
+
+  @full_video %RawVideo{
+    width: 1440,
+    height: 960,
+    framerate: @framerate,
+    pixel_format: :I420,
+    aligned: true
+  }
+
+  @placement %VideoPlacement{
+    size: {720, 480},
+    position: {0, 0},
+    z_value: 0.0
+  }
+
+  @positions [{0, 0}, {720, 0}, {0, 480}, {720, 480}]
+
+  @impl true
+  def handle_init(_ctx, options) do
+    structure =
+      child(:compositor, %VideoCompositor{stream_format: @full_video})
+      |> child(:h264_encoder, %Encoder{profile: :baseline})
+      |> child(:parser, %Parser{framerate: @framerate})
+      |> child(:player, %Kino.Video.Sink{kino: options[:kino]})
+
+    start_time = Time.vm_time()
+    state = %{videos: 0, start_time: start_time}
+
+    {[spec: structure, playback: :playing], state}
+  end
+
+  @impl true
+  def handle_info(:add_video, _ctx, %{videos: videos} = state) when videos >= 4 do
+    {[], state}
+  end
+
+  @impl true
+  def handle_info(:add_video, _ctx, %{start_time: start_time, videos: videos} = state) do
+    position = Enum.at(@positions, videos)
+    placement = %VideoPlacement{@placement | position: position}
+    offset = Time.vm_time() - start_time
+
+    structure =
+      child({:media_source, videos}, %Hackney.Source{
+        location: @media_url,
+        hackney_opts: [follow_redirect: true],
+        max_retries: 3
+      })
+      |> child({:parser, videos}, %Parser{framerate: @framerate})
+      |> child({:decoder, videos}, Decoder)
+      |> child({:realtimer, videos}, Membrane.Realtimer)
+      |> via_in(Pad.ref(:input, videos),
+        options: [initial_placement: placement, timestamp_offset: offset]
+      )
+      |> get_child(:compositor)
+
+    {[spec: structure], %{state | videos: videos + 1}}
+  end
+end
+```
+
+## Playing video
+
+Kino video player.
+
+**Remember to press the play button on the player after viewing the first video**
+
+```elixir
+kino = Kino.Video.Binary.new()
+```
+
+Activate pipeline and wait for videos:
+
+```elixir
+{:ok, _supervisor_pid, pipeline} =
+  Membrane.Pipeline.start(DynamicVideoComposition, kino: kino)
+```
+
+One can add up to four video inputs:
+
+```elixir
+send(pipeline, :add_video)
+```
+
+```elixir
+send(pipeline, :add_video)
+```
+
+```elixir
+send(pipeline, :add_video)
+```
+
+```elixir
+send(pipeline, :add_video)
+```
