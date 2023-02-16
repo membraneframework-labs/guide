@@ -13,7 +13,8 @@ Mix.install([
   {:membrane_h264_ffmpeg_plugin, "~> 0.25.2"},
   {:membrane_video_compositor_plugin, "~> 0.1.0"},
   {:membrane_hackney_plugin, "~> 0.9.0"},
-  {:membrane_realtimer_plugin, "~> 0.6.0"}
+  {:membrane_realtimer_plugin, "~> 0.6.0"},
+  {:membrane_aac_format, "~> 0.7.0"}
 ])
 ```
 
@@ -58,7 +59,8 @@ defmodule DynamicVideoComposition do
       child(:compositor, %VideoCompositor{stream_format: @full_video})
       |> child(:h264_encoder, %Encoder{profile: :baseline})
       |> child(:parser, %Parser{framerate: @framerate})
-      |> child(:player, %Kino.Video.Sink{kino: options[:kino]})
+      |> via_in(:video)
+      |> child(:player, %Kino.Player.Sink{kino: options[:kino]})
 
     start_time = Time.vm_time()
     state = %{videos: 0, start_time: start_time}
@@ -103,14 +105,13 @@ Kino video player.
 **Remember to press the play button on the player after viewing the first video**
 
 ```elixir
-kino = Kino.Video.Binary.new()
+kino = Membrane.Kino.Player.new()
 ```
 
 Activate pipeline and wait for videos:
 
 ```elixir
-{:ok, _supervisor_pid, pipeline} =
-  Membrane.Pipeline.start(DynamicVideoComposition, kino: kino)
+{:ok, _supervisor_pid, pipeline} = Membrane.Pipeline.start(DynamicVideoComposition, kino: kino)
 ```
 
 One can add up to four video inputs:
