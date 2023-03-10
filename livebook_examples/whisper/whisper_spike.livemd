@@ -1,0 +1,46 @@
+# Whisper Spike
+
+```elixir
+File.cd(__DIR__)
+# Logger.configure(level: :error)
+
+Mix.install([
+  {:bumblebee, github: "elixir-nx/bumblebee"},
+  {:nx, github: "elixir-nx/nx", sparse: "nx", override: true},
+  {:exla, github: "elixir-nx/nx", sparse: "exla", override: true},
+  {:kino, "~> 0.8.1"}
+])
+
+Nx.global_default_backend(EXLA.Backend)
+```
+
+## Section
+
+```elixir
+{:ok, model_info} = Bumblebee.load_model({:hf, "openai/whisper-tiny"})
+{:ok, featurizer} = Bumblebee.load_featurizer({:hf, "openai/whisper-tiny"})
+{:ok, tokenizer} = Bumblebee.load_tokenizer({:hf, "openai/whisper-tiny"})
+
+serving =
+  Bumblebee.Audio.speech_to_text(model_info, featurizer, tokenizer,
+    max_new_tokens: 100,
+    defn_options: [compiler: EXLA]
+  )
+
+# audio =
+#   "./fixtures/voice.bin"
+#   |> File.read!()
+#   |> Nx.from_binary(:f32)
+
+# %{results: results} = Nx.Serving.run(serving, audio)
+
+# results
+```
+
+```elixir
+audio_input = Kino.Input.audio("Speech", sampling_rate: 16000)
+```
+
+```elixir
+Nx.Serving.run(serving, Kino.Input.read(audio_input).data |> Nx.from_binary(:f32))
+```
