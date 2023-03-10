@@ -1,0 +1,36 @@
+# Sound Wave Spike
+
+```elixir
+File.cd(__DIR__)
+# Logger.configure(level: :error)
+
+Mix.install([
+  {:kino, "~> 0.8.1"},
+  {:kino_vega_lite, "~> 0.1.7"}
+])
+```
+
+## Section
+
+```elixir
+alias VegaLite, as: Vl
+
+chart =
+  Vl.new(width: 800, height: 400)
+  |> Vl.mark(:line)
+  |> Vl.encode_field(:x, "t", type: :temporal)
+  |> Vl.encode_field(:y, "y", type: :quantitative, scale: [domain: [-1, 1]])
+  |> Kino.VegaLite.new()
+  |> Kino.render()
+
+step = 60
+
+Enum.each(1..300, fn i ->
+  # points = for x <- i..i+step do %{x: (x-i-step+20) / 10, y: :math.sin(x / 10)} end
+  point = %{t: i / 10, y: :math.sin(i / 10)}
+  Kino.VegaLite.push(chart, point, window: 60)
+  # Kino.VegaLite.clear(chart)
+  # Kino.VegaLite.push_many(chart, points)
+  Process.sleep(25)
+end)
+```
