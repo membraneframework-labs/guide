@@ -7,7 +7,7 @@ Logger.configure(level: :error)
 Mix.install([
   {:kino, "~> 0.8.1"},
   {:membrane_core, "~> 0.11.2"},
-  {:membrane_kino_plugin, path: "../../../membrane_kino_plugin"},
+  {:membrane_kino_plugin, github: "membraneframework-labs/membrane_kino_plugin"},
   {:membrane_file_plugin, "~> 0.13.0"},
   {:membrane_raw_video_format, "~> 0.2"},
   {:membrane_h264_ffmpeg_plugin, "~> 0.25.2"},
@@ -78,17 +78,18 @@ defmodule DynamicVideoComposition do
     position = Enum.at(@positions, videos)
     placement = %VideoPlacement{@placement | position: position}
     offset = Time.vm_time() - start_time
+    video_id = videos
 
     structure =
-      child({:media_source, videos}, %Hackney.Source{
+      child({:media_source, video_id}, %Hackney.Source{
         location: @media_url,
         hackney_opts: [follow_redirect: true],
         max_retries: 3
       })
-      |> child({:parser, videos}, %Parser{framerate: @framerate})
-      |> child({:decoder, videos}, Decoder)
-      |> child({:realtimer, videos}, Membrane.Realtimer)
-      |> via_in(Pad.ref(:input, videos),
+      |> child({:parser, video_id}, %Parser{framerate: @framerate})
+      |> child({:decoder, video_id}, Decoder)
+      |> child({:realtimer, video_id}, Membrane.Realtimer)
+      |> via_in(Pad.ref(:input, video_id),
         options: [initial_placement: placement, timestamp_offset: offset]
       )
       |> get_child(:compositor)
