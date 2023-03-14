@@ -1,0 +1,146 @@
+# RTMP Client Sink
+
+```elixir
+File.cd(__DIR__)
+# Logger.configure(level: :error)
+
+Mix.install([
+  {:membrane_kino_plugin, github: "membraneframework-labs/membrane_kino_plugin"},
+  {:membrane_core, "~>0.11.2"},
+  {:membrane_realtimer_plugin, "~>0.6.1"},
+  {:membrane_rtmp_plugin, "~>0.11.0"}
+])
+```
+
+## Section
+
+```elixir
+defmodule RTMP.Client.Sink do
+  use Membrane.Pipeline
+
+  alias Membrane.{
+    RTMP,
+    Kino
+  }
+
+  @impl true
+  def handle_init(_ctx, socket: socket, kino: kino) do
+    rtmp_source =
+      child(:rtmp_source, %RTMP.SourceBin{
+        socket: socket
+      })
+
+    video =
+      get_child(:rtmp_source)
+      |> via_out(:video)
+      |> via_in(:video)
+      |> get_child(:kino_player)
+
+    audio =
+      get_child(:rtmp_source)
+      |> via_out(:audio)
+      |> via_in(:audio)
+      |> get_child(:kino_player)
+
+    kino_player =
+      child(:kino_player, %Kino.Player.Sink{
+        kino: kino
+      })
+
+    structure = [rtmp_source, video, audio, kino_player]
+
+    {[spec: structure, playback: :playing], %{}}
+  end
+
+  # Once the source initializes, we grant it the control over the tcp socket
+  @impl true
+  def handle_child_notification(
+        {:socket_control_needed, _socket, _source} = notification,
+        :source,
+        _ctx,
+        state
+      ) do
+    send(self(), notification)
+
+    {[], state}
+  end
+
+  def handle_child_notification(_notification, _child, _ctx, state) do
+    {[], state}
+  end
+
+  @impl true
+  def handle_info({:socket_control_needed, socket, source} = notification, _ctx, state) do
+    case RTMP.SourceBin.pass_control(socket, source) do
+      :ok ->
+        :ok
+
+      {:error, :not_owner} ->
+        Process.send_after(self(), notification, 200)
+    end
+
+    {[], state}
+  end
+
+  # The rest of the module is used for self-termination of the pipeline after processing finishes
+  @impl true
+  def handle_element_end_of_stream(:sink, _pad, _ctx, state) do
+    {[terminate: :shutdown], state}
+  end
+
+  @impl true
+  def handle_element_end_of_stream(_child, _pad, _ctx, state) do
+    {[], state}
+  end
+end
+
+:ok
+```
+
+```elixir
+defmodule RTMP.Client.TcpServer do
+  @server_ip {127, 0, 0, 1}
+
+  def run!(port, kino) do
+    parent = self()
+
+    server_options = %Membrane.RTMP.Source.TcpServer{
+      port: port,
+      listen_options: [
+        :binary,
+        packet: :raw,
+        active: false,
+        ip: @server_ip
+      ],
+      socket_handler: fn socket ->
+        # On new connection a pipeline is started
+        {:ok, _supervisor, pipeline} = RTMP.Client.Sink.start(socket: socket, kino: kino)
+        send(parent, {:pipeline_spawned, pipeline})
+        pipeline
+      end
+    }
+
+    {:ok, _server} = Membrane.RTMP.Source.TcpServer.start_link(server_options)
+
+    pipeline =
+      receive do
+        {:pipeline_spawned, pid} ->
+          pid
+      end
+
+    RTMP.Client.Sink.terminate(pipeline, blocking?: true)
+  end
+end
+
+:ok
+```
+
+```elixir
+kino = Membrane.Kino.Player.new(:both)
+```
+
+```elixir
+{port, _rem} = System.get_env("RTMP_PORT", "1936") |> Integer.parse()
+
+RTMP.Client.TcpServer.run!(port, kino)
+```

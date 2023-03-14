@@ -1,26 +1,21 @@
-# RTMP Spike
+# RTMP Server Source
 
 ```elixir
 File.cd(__DIR__)
-Logger.configure(level: :error)
+# Logger.configure(level: :error)
 
 Mix.install([
-  {:membrane_kino_plugin, github: "membraneframework-labs/membrane_kino_plugin"},
+  {:membrane_core, "~>0.11.2"},
   {:membrane_realtimer_plugin, "~>0.6.1"},
   {:membrane_hackney_plugin, "~>0.9.0"},
-  {:membrane_rtmp_plugin, "~>0.10.0"}
+  {:membrane_rtmp_plugin, "~>0.11.0"}
 ])
 ```
 
 ## Section
 
 ```elixir
-# Before running this example, make sure that target RTMP server is live.
-# If you are streaming to eg. Youtube, you don't need to worry about it.
-# If you want to test it locally, you can run the FFmpeg server with:
-# ffmpeg -y -listen 1 -f flv -i rtmp://localhost:1935 -c copy dest.flv
-
-defmodule Example do
+defmodule RTMP.Server.Source do
   use Membrane.Pipeline
 
   @samples_url "https://raw.githubusercontent.com/membraneframework/static/gh-pages/samples/big-buck-bunny/"
@@ -29,7 +24,7 @@ defmodule Example do
 
   @impl true
   def handle_init(_ctx, destination: destination) do
-    structure = [
+    video_source =
       child(:video_source, %Membrane.Hackney.Source{
         location: @video_url,
         hackney_opts: [follow_redirect: true]
@@ -43,7 +38,9 @@ defmodule Example do
       |> child(:video_realtimer, Membrane.Realtimer)
       |> child(:video_payloader, Membrane.MP4.Payloader.H264)
       |> via_in(:video)
-      |> get_child(:rtmp_sink),
+      |> get_child(:rtmp_sink)
+
+    audio_source =
       child(:audio_source, %Membrane.Hackney.Source{
         location: @audio_url,
         hackney_opts: [follow_redirect: true]
@@ -54,9 +51,12 @@ defmodule Example do
       })
       |> child(:audio_realtimer, Membrane.Realtimer)
       |> via_in(:audio)
-      |> get_child(:rtmp_sink),
+      |> get_child(:rtmp_sink)
+
+    rtmp_target =
       child(:rtmp_sink, %Membrane.RTMP.Sink{rtmp_url: destination, max_attempts: :infinity})
-    ]
+
+    structure = [video_source, audio_source, rtmp_target]
 
     {[spec: structure, playback: :playing], %{streams_to_end: 2}}
   end
@@ -77,4 +77,17 @@ defmodule Example do
     {[], state}
   end
 end
+
+:ok
+```
+
+```elixir
+alias Membrane.RemoteControlled, as: RC
+
+port = System.get_env("RTMP_PORT", "1936")
+destination = "rtmp://localhost:#{port}"
+
+{:ok, _supervisor, pipeline} = RTMP.Server.Source.start(destination: destination)
+
+RTMP.Server.Source.terminate(pipeline, blocking?: true)
 ```
