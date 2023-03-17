@@ -2,10 +2,11 @@
 
 ```elixir
 File.cd(__DIR__)
-# Logger.configure(level: :error)
+Logger.configure(level: :error)
 
 Mix.install([
-  {:membrane_kino_plugin, github: "membraneframework-labs/membrane_kino_plugin"},
+  # {:membrane_kino_plugin, github: "membraneframework-labs/membrane_kino_plugin"},
+  {:membrane_kino_plugin, path: "../../../membrane_kino_plugin"},
   {:membrane_core, "~>0.11.2"},
   {:membrane_realtimer_plugin, "~>0.6.1"},
   {:membrane_rtmp_plugin, "~>0.11.0"}
@@ -15,39 +16,34 @@ Mix.install([
 ## Section
 
 ```elixir
-defmodule RTMP.Client.Sink do
+defmodule Pipeline do
   use Membrane.Pipeline
 
-  alias Membrane.{
-    RTMP,
-    Kino
-  }
+  # @output_file "received.flv"
 
   @impl true
   def handle_init(_ctx, socket: socket, kino: kino) do
-    rtmp_source =
-      child(:rtmp_source, %RTMP.SourceBin{
+    structure = [
+      child(:source, %Membrane.RTMP.SourceBin{
         socket: socket
-      })
-
-    video =
-      get_child(:rtmp_source)
-      |> via_out(:video)
-      |> via_in(:video)
-      |> get_child(:kino_player)
-
-    audio =
-      get_child(:rtmp_source)
+      }),
+      child(:sink, %Membrane.Kino.Player.Sink{kino: kino}),
+      get_child(:source)
       |> via_out(:audio)
-      |> via_in(:audio)
-      |> get_child(:kino_player)
-
-    kino_player =
-      child(:kino_player, %Kino.Player.Sink{
-        kino: kino
+      |> child(:audio_parser, %Membrane.AAC.Parser{
+        in_encapsulation: :none,
+        out_encapsulation: :ADTS
       })
-
-    structure = [rtmp_source, video, audio, kino_player]
+      |> via_in(:audio)
+      |> get_child(:sink),
+      get_child(:source)
+      |> via_out(:video)
+      |> child(:video_parser, %Membrane.H264.FFmpeg.Parser{
+        framerate: {25, 1}
+      })
+      |> via_in(:video)
+      |> get_child(:sink)
+    ]
 
     {[spec: structure, playback: :playing], %{}}
   end
@@ -71,7 +67,7 @@ defmodule RTMP.Client.Sink do
 
   @impl true
   def handle_info({:socket_control_needed, socket, source} = notification, _ctx, state) do
-    case RTMP.SourceBin.pass_control(socket, source) do
+    case Membrane.RTMP.SourceBin.pass_control(socket, source) do
       :ok ->
         :ok
 
@@ -98,10 +94,10 @@ end
 ```
 
 ```elixir
-defmodule RTMP.Client.TcpServer do
+defmodule Example do
   @server_ip {127, 0, 0, 1}
 
-  def run!(port, kino) do
+  def run(port: port, kino: kino) do
     parent = self()
 
     server_options = %Membrane.RTMP.Source.TcpServer{
@@ -114,13 +110,13 @@ defmodule RTMP.Client.TcpServer do
       ],
       socket_handler: fn socket ->
         # On new connection a pipeline is started
-        {:ok, _supervisor, pipeline} = RTMP.Client.Sink.start(socket: socket, kino: kino)
+        {:ok, _supervisor, pipeline} = Pipeline.start_link(socket: socket, kino: kino)
         send(parent, {:pipeline_spawned, pipeline})
-        pipeline
+        {:ok, pipeline}
       end
     }
 
-    {:ok, _server} = Membrane.RTMP.Source.TcpServer.start_link(server_options)
+    Membrane.RTMP.Source.TcpServer.start_link(server_options)
 
     pipeline =
       receive do
@@ -128,7 +124,12 @@ defmodule RTMP.Client.TcpServer do
           pid
       end
 
-    RTMP.Client.Sink.terminate(pipeline, blocking?: true)
+    ref = Process.monitor(pipeline)
+
+    receive do
+      {:DOWN, ^ref, :process, _obj, _reason} ->
+        :ok
+    end
   end
 end
 
@@ -140,7 +141,5 @@ kino = Membrane.Kino.Player.new(:both)
 ```
 
 ```elixir
-{port, _rem} = System.get_env("RTMP_PORT", "1936") |> Integer.parse()
-
-RTMP.Client.TcpServer.run!(port, kino)
+Example.run(port: 1941, kino: kino)
 ```
