@@ -12,8 +12,7 @@ Mix.install([
   {:membrane_mp3_mad_plugin, "~> 0.14.0"},
   {:membrane_ffmpeg_swresample_plugin, "~> 0.16.1"},
   {:membrane_aac_fdk_plugin, "~> 0.14.0"},
-  # {:membrane_kino_plugin, github: "membraneframework-labs/membrane_kino_plugin"}
-  {:membrane_kino_plugin, path: "../../../membrane_kino_plugin"}
+  {:membrane_kino_plugin, github: "membraneframework-labs/membrane_kino_plugin"}
 ])
 ```
 
