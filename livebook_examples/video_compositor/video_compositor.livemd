@@ -94,11 +94,11 @@ defmodule DynamicVideoComposition do
       })
       |> child({:parser, video_id}, %Parser{framerate: @framerate})
       |> child({:decoder, video_id}, Decoder)
-      # Hackney source may fetch all frames at once from one source and flood compositor
+      # Hackney source may fetch all frames at once from one source and flood compositor.
+      # This could cause undefined behavior if the first source sent the entire stream 
+      # and EOS signal before connecting the other sources.
       # To ensure real-time processing, all streams are synchronized by reducing 
-      # processing speed (based on the framerate). This could cause undefined behavior 
-      # if the first source sent the entire stream and EOS signal before connecting 
-      # the other sources
+      # processing speed (based on the framerate). 
       |> child({:realtimer, video_id}, Membrane.Realtimer)
       |> via_in(Pad.ref(:input, video_id),
         options: [initial_placement: placement, timestamp_offset: offset]
