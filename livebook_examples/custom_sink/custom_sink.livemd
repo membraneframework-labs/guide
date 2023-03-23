@@ -1,0 +1,196 @@
+# Custom Source
+
+```elixir
+File.cd(__DIR__)
+Logger.configure(level: :error)
+
+Mix.install([
+  {:kino, "~> 0.8.1"},
+  {:membrane_core, "~> 0.11.2"},
+  {:membrane_file_plugin, "~> 0.13.0"},
+  {:membrane_kino_plugin, github: "membraneframework-labs/membrane_kino_plugin"}
+])
+```
+
+## Section
+
+```elixir
+kino = Membrane.Kino.Player.new(:audio)
+:ok
+```
+
+```elixir
+def fun() do
+  2
+end
+```
+
+```elixir
+import Membrane.ChildrenSpec
+alias Membrane.RemoteControlled, as: RC
+
+defmodule Membrane.Custom.Source do
+  use Membrane.Source
+
+  alias Membrane.RemoteStream
+
+  def_options(
+    handle_demand: [
+      spec: (size :: integer, state :: map() -> {%Membrane.Buffer{}, state :: map()})
+    ],
+    handle_setup: [
+      spec: (state :: map() -> state :: map()),
+      default: &Function.identity/1
+    ],
+    handle_terminate: [
+      spec: (state :: map() -> state :: map()),
+      default: &Function.identity/1
+    ]
+  )
+
+  def_output_pad(:output, accepted_format: %RemoteStream{type: :bytestream})
+
+  @impl true
+  def handle_init(_ctx, options = %__MODULE__{}) do
+    {[], options}
+  end
+
+  @impl true
+  def handle_setup(_ctx, %__MODULE__{handle_setup: handle_setup} = state) do
+    {[], handle_setup.(state)}
+  end
+
+  @impl true
+  def handle_playing(_ctx, state) do
+    {[stream_format: {:output, %RemoteStream{type: :bytestream}}], state}
+  end
+
+  @impl true
+  def handle_demand(:output, size, :buffers, _ctx, %{handle_demand: handle_demand} = state),
+    do: handle_demand.(size, state)
+
+  @impl true
+  def handle_terminate_request(_ctx, %{handle_terminate: handle_terminate} = state) do
+    state = handle_terminate.(state)
+
+    {[terminate: :normal], state}
+  end
+end
+
+:ok
+```
+
+```elixir
+defmodule Membrane.Custom.Filter do
+  use Membrane.Filter
+
+  def_options(
+    handle_process: [
+      spec: (buffer :: %Membrane.Buffer{}, state :: map() -> {%Membrane.Buffer{}, state :: map()})
+    ],
+    handle_setup: [
+      spec: (state :: map() -> state :: map()),
+      default: &Function.identity/1
+    ],
+    handle_terminate: [
+      spec: (state :: map() -> state :: map()),
+      default: &Function.identity/1
+    ]
+  )
+
+  def_input_pad(:input, accepted_format: _any)
+  def_output_pad(:output, accepted_format: _any)
+
+  @impl true
+  def handle_init(_ctx, options = %__MODULE__{}) do
+    {[], options}
+  end
+
+  @impl true
+  def handle_setup(_ctx, %__MODULE__{handle_setup: handle_setup} = state) do
+    {[], handle_setup.(state)}
+  end
+
+  @impl true
+  def handle_process(:input, buffer, _ctx, %__MODULE__{handle_process: handle_process} = state) do
+    {buffer, state} = handle_process.(buffer, state)
+    {[], [buffer: buffer], state}
+  end
+
+  @impl true
+  def handle_terminate_request(_ctx, %{handle_terminate: handle_terminate} = state) do
+    state = handle_terminate.(state)
+
+    {[terminate: :normal], state}
+  end
+end
+
+:ok
+```
+
+```elixir
+defmodule Membrane.Custom.Sink do
+  use Membrane.Sink
+
+  def_options(
+    handle_demand: [
+      spec: (size :: integer, state :: map() -> {%Membrane.Buffer{}, state :: map()})
+    ],
+    handle_setup: [
+      spec: (state :: map() -> state :: map()),
+      default: &Function.identity/1
+    ],
+    handle_terminate: [
+      spec: (state :: map() -> state :: map()),
+      default: &Function.identity/1
+    ]
+  )
+
+  def_input_pad(:input, accepted_format: _any)
+
+  @impl true
+  def handle_init(_ctx, options = %__MODULE__{}) do
+    {[], options}
+  end
+
+  @impl true
+  def handle_setup(_ctx, %__MODULE__{handle_setup: handle_setup} = state) do
+    {[], handle_setup.(state)}
+  end
+
+  @impl true
+  def handle_playing(_ctx, state) do
+    {[stream_format: {:output, %RemoteStream{type: :bytestream}}], state}
+  end
+
+  @impl true
+  def handle_demand(:output, size, :buffers, _ctx, %{handle_demand: handle_demand} = state),
+    do: handle_demand.(size, state)
+
+  @impl true
+  def handle_terminate_request(_ctx, %{handle_terminate: handle_terminate} = state) do
+    state = handle_terminate.(state)
+
+    {[terminate: :normal], state}
+  end
+end
+
+:ok
+```
+
+```elixir
+kino
+```
+
+```elixir
+structure
+```
+
+```elixir
+pipeline = RC.Pipeline.start!()
+RC.Pipeline.exec_actions(pipeline, spec: structure, playback: :playing)
+```
+
+```elixir
+Membrane.Pipeline.terminate(pipeline)
+```

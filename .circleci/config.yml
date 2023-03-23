@@ -1,41 +1,11 @@
-version: 2.0
-jobs:
-  build:
-    docker: 
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - setup_remote_docker:
-          version: 20.10.14
-          docker_layer_caching: true
-      - run: 
-          name: Build and push Docker image
-          command: |
-            docker build --no-cache -t membraneframeworklabs/guide:latest .
-            docker login -u $LABS_USER -p $LABS_USER_PASS
-            docker push membraneframeworklabs/guide:latest
-  deploy:
-    machine: true
-    steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "bd:d0:c7:cc:db:2e:ae:98:fc:4e:ca:d6:3c:60:fd:a0"
-      - run:
-          name: "Deploy guide image over SSH"
-          command: |
-            ssh $SWM_USER@$GUIDE_HOST 'docker rm -f membrane-guide && docker run -d --name membrane-guide -e VIRTUAL_HOST="membrane.stream" -e VIRTUAL_PATH="/guide" --restart=always -m 1G --network=proxy --pull=always membraneframeworklabs/guide:latest'
+version: 2.1
+orbs:
+  elixir: membraneframework/elixir@1
 
 workflows:
-  version: 2
-  build-and-deploy:
+  build:
     jobs:
-      - build
-      - deploy:
-          requires:
-            - build
-          filters:
-            branches:
-              only:
-                - /v[0-9]+\.[0-9]+(-dev)?/
-                - master
-                
+      - elixir/build_test:
+          filters: &filters
+            tags:
+              only: /v.*/
