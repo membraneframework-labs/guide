@@ -20,7 +20,7 @@ Mix.install([
 
 ## Pipeline module definition
 
-Defines a video compositor with a `1440x960` output scene, waiting for up to four videos. Each of them is downloaded in real-time from the network using the `Hackney` module, parsed and decoded from the `H264` format, and composed in real-time. After that, they will be displayed using the `Kino.Video` player.
+Defines a video compositor with a `1440x960` output scene, waiting for up to five videos. Each of them is downloaded in real-time from the network using the `Hackney` module, parsed and decoded from the `H264` format, and composed in real-time. After that, they will be displayed using the `Kino.Video` player.
 
 ```elixir
 defmodule DynamicVideoComposition do
@@ -36,6 +36,12 @@ defmodule DynamicVideoComposition do
   }
 
   alias Membrane.VideoCompositor.RustStructs.BaseVideoPlacement, as: VideoPlacement
+  alias Membrane.VideoCompositor.VideoTransformations
+
+  alias Membrane.VideoCompositor.VideoTransformations.TextureTransformations.{
+    CornersRounding,
+    Cropping
+  }
 
   @media_url "http://raw.githubusercontent.com/membraneframework/static/gh-pages/samples/big-buck-bunny/bun33s_720x480.h264"
 
@@ -51,11 +57,26 @@ defmodule DynamicVideoComposition do
 
   @placement %VideoPlacement{
     size: {720, 480},
-    position: {0, 0},
-    z_value: 0.0
+    position: nil,
+    z_value: nil
   }
 
-  @positions [{0, 0}, {720, 0}, {0, 480}, {720, 480}]
+  @positions [{0, 0}, {720, 0}, {0, 480}, {720, 480}, {360, 240}]
+  @z_values [0.0, 0.0, 0.0, 0.0, 1.0]
+
+  @corners_rounding %CornersRounding{border_radius: 75}
+  @cropping %Cropping{
+    crop_top_left_corner: {0.1, 0.1},
+    crop_size: {0.8, 0.8}
+  }
+
+  @transformations [
+    %VideoTransformations{texture_transformations: [@corners_rounding]},
+    %VideoTransformations{texture_transformations: [@corners_rounding]},
+    %VideoTransformations{texture_transformations: [@corners_rounding]},
+    %VideoTransformations{texture_transformations: [@corners_rounding]},
+    %VideoTransformations{texture_transformations: [@cropping, @corners_rounding]}
+  ]
 
   @impl true
   def handle_init(_ctx, options) do
@@ -73,7 +94,7 @@ defmodule DynamicVideoComposition do
   end
 
   @impl true
-  def handle_info(:add_video, _ctx, state) when state.next_video_id >= 4 do
+  def handle_info(:add_video, _ctx, state) when state.next_video_id >= 5 do
     {[], state}
   end
 
@@ -82,8 +103,13 @@ defmodule DynamicVideoComposition do
     %{start_time: start_time, next_video_id: next_video_id} = state
 
     position = Enum.at(@positions, next_video_id)
-    placement = %VideoPlacement{@placement | position: position}
+    z_value = Enum.at(@z_values, next_video_id)
+    placement = %VideoPlacement{@placement | position: position, z_value: z_value}
+
+    transformations = Enum.at(@transformations, next_video_id)
+
     offset = Time.vm_time() - start_time
+
     video_id = next_video_id
 
     video_source =
@@ -101,7 +127,11 @@ defmodule DynamicVideoComposition do
       # processing speed (based on the framerate). 
       |> child({:realtimer, video_id}, Membrane.Realtimer)
       |> via_in(Pad.ref(:input, video_id),
-        options: [initial_placement: placement, timestamp_offset: offset]
+        options: [
+          initial_placement: placement,
+          initial_video_transformations: transformations,
+          timestamp_offset: offset
+        ]
       )
       |> get_child(:compositor)
 
@@ -128,7 +158,11 @@ Activate pipeline and wait for videos:
 {:ok, _supervisor_pid, pipeline} = Membrane.Pipeline.start(DynamicVideoComposition, kino: kino)
 ```
 
-One can add up to four video inputs:
+One can add up to five video inputs:
+
+```elixir
+send(pipeline, :add_video)
+```
 
 ```elixir
 send(pipeline, :add_video)
