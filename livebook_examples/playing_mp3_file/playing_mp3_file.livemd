@@ -15,16 +15,31 @@ Mix.install([
 ])
 ```
 
-## Section
+## Description
+
+This is example of loading `MP3` audio from the file, transcoding it to the `AAC` codec, and playing it via `Membrane.Kino.Player`.
+
+## Player Creation
 
 ```elixir
 kino = Membrane.Kino.Player.new(:audio)
 :ok
 ```
 
+## Pipeline definition
+
+Defines simple linear pipeline of the given structure:
+
+1. Load `MP3` file from the file.
+2. Transcode `MP3` to `AAC` (it is requeired by `Kino.Player`):
+   1. Decode `MP3` format to `RawAudio`,
+   2. Change `sample_foramat` from `s24le` to `s16le` (it is required by `FDK.Encoder`),
+   3. Encode it to `AAC` format.
+3. Fill in audio stream to the player via `:audio` input pad.
+
 ```elixir
-import Membrane.ChildrenSpec
-alias Membrane.RemoteControlled, as: RC
+import Membrane.ChildrenSpec,
+  only: [{:child, 2}, {:child, 3}, {:via_in, 2}]
 
 alias Membrane.{
   File,
@@ -49,11 +64,19 @@ structure =
 :ok
 ```
 
+## Player
+
+Render player in the livebook cell.
+
 ```elixir
 kino
 ```
 
+Run pipeline:
+
 ```elixir
+alias Membrane.RemoteControlled, as: RC
+
 pipeline = RC.Pipeline.start!()
 RC.Pipeline.exec_actions(pipeline, spec: structure, playback: :playing)
 ```
