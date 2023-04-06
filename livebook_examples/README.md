@@ -23,6 +23,5 @@ This [Livebook](./video_compositor/video_compositor.livemd) shows how to use [Vi
     - [Opus](https://github.com/membraneframework/membrane_opus_plugin#installation)
     - [FFmpeg](https://ffmpeg.org/download.html)
 
-    TODO add more details
 
 
