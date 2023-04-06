@@ -14,6 +14,14 @@ Mix.install([
 ])
 ```
 
+## Installation
+
+To run this demo one needs to install native dependencies:
+
+1. [MP3 MAD](https://github.com/membraneframework/membrane_mp3_mad_plugin/tree/v0.14.0#installation)
+2. [AAC FDK](https://github.com/membraneframework/membrane_aac_fdk_plugin#installation)
+3. [SWResample FFmpeg](https://github.com/membraneframework/membrane_ffmpeg_swresample_plugin#installation)
+
 ## Description
 
 This is example of loading `MP3` audio from the file, transcoding it to the `AAC` codec, and playing it via `Membrane.Kino.Player`.
