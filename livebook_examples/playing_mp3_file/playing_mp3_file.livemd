@@ -38,9 +38,9 @@ kino = Membrane.Kino.Player.new(:audio)
 Defines simple linear pipeline of the given structure:
 
 1. Load `MP3` file from the file.
-2. Transcode `MP3` to `AAC` (it is requeired by `Kino.Player`):
+2. Transcode `MP3` to `AAC` (it is required by `Kino.Player`):
    1. Decode `MP3` format to `RawAudio`,
-   2. Change `sample_foramat` from `s24le` to `s16le` (it is required by `FDK.Encoder`),
+   2. Change `sample_format` from `s24le` to `s16le` (it is required by `FDK.Encoder`),
    3. Encode it to `AAC` format.
 3. Fill in audio stream to the player via `:audio` input pad.
 
@@ -57,8 +57,11 @@ alias Membrane.{
   Kino
 }
 
+# https://freemusicarchive.org/music/Paper_Navy/All_Grown_Up/08_Swan_Song/
+audio_path = "./fixtures/sample.mp3"
+
 structure =
-  child(:file_source, %File.Source{location: "./fixtures/sample.mp3"})
+  child(:file_source, %File.Source{location: audio_path})
   |> child(:decoder_mp3, MP3.MAD.Decoder)
   |> child(:converter, %FFmpeg.SWResample.Converter{
     input_stream_format: %RawAudio{channels: 2, sample_format: :s24le, sample_rate: 44_100},
