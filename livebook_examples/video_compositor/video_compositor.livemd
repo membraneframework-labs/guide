@@ -5,20 +5,25 @@ File.cd(__DIR__)
 Logger.configure(level: :error)
 
 Mix.install([
-  {:kino, "~> 0.8.1"},
   {:membrane_core, "~> 0.11.2"},
-  {:membrane_kino_plugin, github: "membraneframework-labs/membrane_kino_plugin"},
   {:membrane_file_plugin, "~> 0.13.0"},
   {:membrane_raw_video_format, "~> 0.2"},
   {:membrane_h264_ffmpeg_plugin, "~> 0.25.2"},
   {:membrane_video_compositor_plugin, "~> 0.2.1"},
   {:membrane_hackney_plugin, "~> 0.9.0"},
   {:membrane_realtimer_plugin, "~> 0.6.0"},
-  {:membrane_aac_format, "~> 0.7.0"}
+  {:membrane_kino_plugin, github: "membraneframework-labs/membrane_kino_plugin"}
 ])
 ```
 
-## Pipeline module definition
+## Installation
+
+To run this demo one needs to install native dependencies:
+
+1. [H264 FFmpeg](https://github.com/membraneframework/membrane_h264_ffmpeg_plugin/#installation)
+2. [Video Compositor](https://github.com/membraneframework/membrane_video_compositor_plugin#installation)
+
+## Pipeline definition
 
 Defines a video compositor with a `1440x960` output scene, waiting for up to five videos. Each of them is downloaded in real-time from the network using the `Hackney` module, parsed and decoded from the `H264` format, and composed in real-time. After that, they will be displayed using the `Kino.Video` player.
 

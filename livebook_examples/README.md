@@ -3,12 +3,16 @@
 This repository contains examples of using many Membrane modules and libraries.
 
 
-## VideoCompositor
+## Video Compositor and Hackney
 
-This [Livebook](./video_compositor/video_compositor.livemd) shows how to use [Video Compositor](https://hexdocs.pm/membrane_video_compositor_plugin) module to create a video stream from multiple dynamic video sources.
+This [Livebook](./video_compositor/video_compositor.livemd) shows how to use [Video Compositor](https://hexdocs.pm/membrane_video_compositor_plugin) module to create a video stream from multiple dynamic [Hackney](https://hexdocs.pm/membrane_hackney_plugin) video sources.
+
+## Playing MP3 file 
+
+This [Livebook](./playing_mp3_file/playing_mp3_file.livemd) shows how to use [MP3 decoder](https://hexdocs.pm/membrane_mp3_mad_plugin) and [AAC Encoder](https://hexdocs.pm/membrane_aac_fdk_plugin) to transcode and play audio from an MP3 file.
 
 
-## Installation procedure
+## Installation
 
 1. Install Livebook
 
@@ -18,10 +22,7 @@ This [Livebook](./video_compositor/video_compositor.livemd) shows how to use [Vi
     ![Setting path](./assets/path_set.png "Title")
 
 2. Install modules' native dependencies:
-
-    - [Video Compositor](https://github.com/membraneframework/membrane_video_compositor_plugin#installation)
-    - [Opus](https://github.com/membraneframework/membrane_opus_plugin#installation)
-    - [FFmpeg](https://ffmpeg.org/download.html)
-
+    Install native dependencies based on the `Installation` section in the specified livebook.
+    
 
 
