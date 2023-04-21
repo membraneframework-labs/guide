@@ -15,7 +15,7 @@ Mix.install([
 ## Section
 
 ```elixir
-defmodule Pipeline do
+defmodule RTMPSink.Pipeline do
   use Membrane.Pipeline
 
   @impl true
@@ -83,7 +83,8 @@ defmodule Pipeline do
   # The rest of the module is used for self-termination of the pipeline after processing finishes
   @impl true
   def handle_element_end_of_stream(:sink, _pad, _ctx, state) do
-    {[terminate: :shutdown], state}
+    Membrane.Pipeline.terminate(self())
+    {[], state}
   end
 
   @impl true
@@ -96,7 +97,7 @@ end
 ```
 
 ```elixir
-defmodule Example do
+defmodule RTMPSink.Server do
   @server_ip {127, 0, 0, 1}
 
   def run(port: port, kino: kino) do
@@ -112,24 +113,31 @@ defmodule Example do
       ],
       socket_handler: fn socket ->
         # On new connection a pipeline is started
-        {:ok, _supervisor, pipeline} = Pipeline.start_link(socket: socket, kino: kino)
+        {:ok, _supervisor, pipeline} = RTMPSink.Pipeline.start_link(socket: socket, kino: kino)
         send(parent, {:pipeline_spawned, pipeline})
         {:ok, pipeline}
       end
     }
 
-    Membrane.RTMP.Source.TcpServer.start_link(server_options)
+    {:ok, pipeline} = start_server(server_options)
 
-    pipeline =
-      receive do
-        {:pipeline_spawned, pid} ->
-          pid
-      end
+    await_termination(pipeline)
+  end
 
-    ref = Process.monitor(pipeline)
+  defp start_server(server_options) do
+    {:ok, _server_pid} = Membrane.RTMP.Source.TcpServer.start_link(server_options)
 
     receive do
-      {:DOWN, ^ref, :process, _obj, _reason} ->
+      {:pipeline_spawned, pipeline} ->
+        {:ok, pipeline}
+    end
+  end
+
+  defp await_termination(pipeline) do
+    monitor_ref = Process.monitor(pipeline)
+
+    receive do
+      {:DOWN, ^monitor_ref, :process, _pid, _reason} ->
         :ok
     end
   end
@@ -145,5 +153,5 @@ kino = Membrane.Kino.Player.new(:both)
 ```elixir
 port = 1942
 
-Example.run(port: port, kino: kino)
+RTMPSink.Server.run(port: port, kino: kino)
 ```

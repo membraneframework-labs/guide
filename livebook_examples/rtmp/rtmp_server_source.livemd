@@ -15,7 +15,7 @@ Mix.install([
 ## Section
 
 ```elixir
-defmodule Example do
+defmodule RTMPSource.Pipeline do
   use Membrane.Pipeline
 
   @samples_url "https://raw.githubusercontent.com/membraneframework/static/gh-pages/samples/big-buck-bunny/"
@@ -101,6 +101,6 @@ end
 port = 1942
 destination = System.get_env("RTMP_URL", "rtmp://localhost:#{port}")
 
-{:ok, _supervisor, pipeline} = Example.start(destination: destination)
-Example.await_termination(pipeline)
+{:ok, _supervisor, pipeline} = RTMPSource.Pipeline.start(destination: destination)
+RTMPSource.Pipeline.await_termination(pipeline)
 ```
