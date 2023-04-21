@@ -12,7 +12,23 @@ Mix.install([
 ])
 ```
 
-## Section
+## Installation
+
+To run this demo one needs to install native dependencies:
+
+1. [H264 FFmpeg](https://github.com/membraneframework/membrane_h264_ffmpeg_plugin/#installation)
+
+## Description
+
+Defines server receiving media stream from the RTMP source and plays it directly in the notebook.
+
+## Pipeline definition
+
+Here's the definition of the pipeline:
+
+1. The RTMP source provides video and audio data.
+2. The data is then parsed into suitable H264 and AAC formats.
+3. Finally, the media is pushed to Kino.Player.
 
 ```elixir
 defmodule RTMPSink.Pipeline do
@@ -96,6 +112,10 @@ end
 :ok
 ```
 
+## Server
+
+Receiving an RTMP stream requires creating a TCP server. After the connection is established pipeline is created using the given socket.
+
 ```elixir
 defmodule RTMPSink.Server do
   @server_ip {127, 0, 0, 1}
@@ -113,7 +133,7 @@ defmodule RTMPSink.Server do
       ],
       socket_handler: fn socket ->
         # On new connection a pipeline is started
-        {:ok, _supervisor, pipeline} = RTMPSink.Pipeline.start_link(socket: socket, kino: kino)
+        {:ok, _supervisor, pipeline} = RTMPSink.Pipeline.start(socket: socket, kino: kino)
         send(parent, {:pipeline_spawned, pipeline})
         {:ok, pipeline}
       end

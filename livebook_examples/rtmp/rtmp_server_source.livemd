@@ -12,7 +12,19 @@ Mix.install([
 ])
 ```
 
-## Section
+## Installation
+
+To run this demo one needs to install native dependencies:
+
+1. [H264 FFmpeg](https://github.com/membraneframework/membrane_h264_ffmpeg_plugin/#installation)
+
+## Description
+
+Defines pipeline downloading [Big Buck Bunnys](https://en.wikipedia.org/wiki/Big_Buck_Bunny) trailer video and audio from the Membranes' assets samples page, using `Hackney` module, and send it via `RTMP` to the other Livebook.
+
+## Pipeline definition
+
+To download media from the internet, we use `Hackney` and then convert the raw data to the appropriate format, such as `H264` or `AAC`. We also regulate the download speed to avoid overloading the system and ensure that the media is added to the `MP4 container` to comply with `RTMP.Sink` requirements. Finally, we transmit both video and audio using `RTMP` to the other livebook. Once the entire stream has been sent, the pipeline will automatically terminate.
 
 ```elixir
 defmodule RTMPSource.Pipeline do
@@ -68,14 +80,6 @@ defmodule RTMPSource.Pipeline do
   end
 
   # The rest of the example module is only used for self-termination of the pipeline after processing finishes
-  def await_termination(pipeline) do
-    monitor_ref = Process.monitor(pipeline)
-
-    receive do
-      {:DOWN, ^monitor_ref, :process, _pid, _reason} ->
-        :ok
-    end
-  end
 
   @impl true
   def handle_element_end_of_stream(:rtmp_sink, _pad, _ctx, %{streams_to_end: 1} = state) do
@@ -97,10 +101,40 @@ end
 :ok
 ```
 
+## Client Server
+
+A straightforward approach to client-server communication involves utilizing a pipeline mechanism for transmission. The process involves establishing a connection and awaiting the complete transfer of data.
+
+```elixir
+defmodule RTMPSource.Server do
+  def run(port: port) do
+    destination_url = "rtmp://localhost:#{port}"
+
+    {:ok, pipeline} = start_server(destination_url)
+
+    await_termination(pipeline)
+  end
+
+  defp start_server(destination_url) do
+    {:ok, _supervisor, pipeline} = RTMPSource.Pipeline.start(destination: destination_url)
+    {:ok, pipeline}
+  end
+
+  defp await_termination(pipeline) do
+    monitor_ref = Process.monitor(pipeline)
+
+    receive do
+      {:DOWN, ^monitor_ref, :process, _pid, _reason} ->
+        :ok
+    end
+  end
+end
+
+:ok
+```
+
 ```elixir
 port = 1942
-destination = System.get_env("RTMP_URL", "rtmp://localhost:#{port}")
 
-{:ok, _supervisor, pipeline} = RTMPSource.Pipeline.start(destination: destination)
-RTMPSource.Pipeline.await_termination(pipeline)
+RTMPSource.Server.run(port: port)
 ```
