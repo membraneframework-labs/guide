@@ -1,4 +1,4 @@
-# RTMP Client Sink
+# RTMP Receiver
 
 ```elixir
 File.cd(__DIR__)
@@ -31,7 +31,7 @@ Here's the definition of the pipeline:
 3. Finally, the media is pushed to Kino.Player.
 
 ```elixir
-defmodule RTMPSink.Pipeline do
+defmodule RTMP.Receiver.Pipeline do
   use Membrane.Pipeline
 
   @impl true
@@ -117,7 +117,7 @@ end
 Receiving an RTMP stream requires creating a TCP server. After the connection is established, a pipeline is created using the TCP socket.
 
 ```elixir
-defmodule RTMPSink.Server do
+defmodule RTMP.Receiver do
   @server_ip {127, 0, 0, 1}
 
   def run(port: port, kino: kino) do
@@ -133,7 +133,7 @@ defmodule RTMPSink.Server do
       ],
       socket_handler: fn socket ->
         # On new connection a pipeline is started
-        {:ok, _supervisor, pipeline} = RTMPSink.Pipeline.start(socket: socket, kino: kino)
+        {:ok, _supervisor, pipeline} = RTMP.Receiver.Pipeline.start(socket: socket, kino: kino)
         send(parent, {:pipeline_spawned, pipeline})
         {:ok, pipeline}
       end
@@ -173,5 +173,5 @@ kino = Membrane.Kino.Player.new(:both)
 ```elixir
 port = 1942
 
-RTMPSink.Server.run(port: port, kino: kino)
+RTMP.Receiver.run(port: port, kino: kino)
 ```

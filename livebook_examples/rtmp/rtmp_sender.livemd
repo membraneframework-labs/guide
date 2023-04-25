@@ -1,4 +1,4 @@
-# RTMP Server Source
+# RTMP Sender
 
 ```elixir
 File.cd(__DIR__)
@@ -27,7 +27,7 @@ Defines a pipeline downloading [Big Buck Bunny](https://en.wikipedia.org/wiki/Bi
 To download media from the internet, we use `Hackney`. We then convert the raw data to the appropriate format, such as `H264` or `AAC`. We also regulate the download speed to avoid overloading the system and ensure that the media is added to the `MP4 container` to comply with `RTMP.Sink` requirements. Finally, we transmit both video and audio using `RTMP` to the other livebook. Once the entire stream has been sent, the pipeline will automatically terminate.
 
 ```elixir
-defmodule RTMPSource.Pipeline do
+defmodule RTMP.Sender.Pipeline do
   use Membrane.Pipeline
 
   @samples_url "https://raw.githubusercontent.com/membraneframework/static/gh-pages/samples/big-buck-bunny/"
@@ -106,7 +106,7 @@ end
 A straightforward approach to client-server communication involves utilizing a pipeline mechanism for transmission. The process involves establishing a connection and awaiting the complete transfer of data.
 
 ```elixir
-defmodule RTMPSource.Server do
+defmodule RTMP.Sender do
   def run(port: port) do
     destination_url = "rtmp://localhost:#{port}"
 
@@ -116,7 +116,7 @@ defmodule RTMPSource.Server do
   end
 
   defp start_server(destination_url) do
-    {:ok, _supervisor, pipeline} = RTMPSource.Pipeline.start(destination: destination_url)
+    {:ok, _supervisor, pipeline} = RTMP.Sender.Pipeline.start(destination: destination_url)
     {:ok, pipeline}
   end
 
@@ -136,5 +136,5 @@ end
 ```elixir
 port = 1942
 
-RTMPSource.Server.run(port: port)
+RTMP.Sender.run(port: port)
 ```
