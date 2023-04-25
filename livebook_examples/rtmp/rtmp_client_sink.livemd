@@ -20,7 +20,7 @@ To run this demo one needs to install native dependencies:
 
 ## Description
 
-Defines server receiving media stream from the RTMP source and plays it directly in the notebook.
+Defines a server that receives a media stream from the RTMP source and plays it directly in the notebook.
 
 ## Pipeline definition
 
@@ -114,7 +114,7 @@ end
 
 ## Server
 
-Receiving an RTMP stream requires creating a TCP server. After the connection is established pipeline is created using the given socket.
+Receiving an RTMP stream requires creating a TCP server. After the connection is established, a pipeline is created using the TCP socket.
 
 ```elixir
 defmodule RTMPSink.Server do

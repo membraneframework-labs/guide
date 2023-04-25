@@ -20,11 +20,11 @@ To run this demo one needs to install native dependencies:
 
 ## Description
 
-Defines pipeline downloading [Big Buck Bunnys](https://en.wikipedia.org/wiki/Big_Buck_Bunny) trailer video and audio from the Membranes' assets samples page, using `Hackney` module, and send it via `RTMP` to the other Livebook.
+Defines a pipeline downloading [Big Buck Bunny](https://en.wikipedia.org/wiki/Big_Buck_Bunny) trailer video and audio from Membranes' asset samples page using the `Hackney` plugin, and sending it via `RTMP` to the other Livebook.
 
 ## Pipeline definition
 
-To download media from the internet, we use `Hackney` and then convert the raw data to the appropriate format, such as `H264` or `AAC`. We also regulate the download speed to avoid overloading the system and ensure that the media is added to the `MP4 container` to comply with `RTMP.Sink` requirements. Finally, we transmit both video and audio using `RTMP` to the other livebook. Once the entire stream has been sent, the pipeline will automatically terminate.
+To download media from the internet, we use `Hackney`. We then convert the raw data to the appropriate format, such as `H264` or `AAC`. We also regulate the download speed to avoid overloading the system and ensure that the media is added to the `MP4 container` to comply with `RTMP.Sink` requirements. Finally, we transmit both video and audio using `RTMP` to the other livebook. Once the entire stream has been sent, the pipeline will automatically terminate.
 
 ```elixir
 defmodule RTMPSource.Pipeline do
