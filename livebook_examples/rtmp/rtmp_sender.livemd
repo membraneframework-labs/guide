@@ -101,9 +101,9 @@ end
 :ok
 ```
 
-## Client Server
+## Sender
 
-A straightforward approach to client-server communication involves utilizing a pipeline mechanism for transmission. The process involves establishing a connection and awaiting the complete transfer of data.
+RTMP protocol requires a client-server communication, where the TCP server receives the data and the client sends it.
 
 ```elixir
 defmodule RTMP.Sender do
