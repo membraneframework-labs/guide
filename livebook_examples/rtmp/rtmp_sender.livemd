@@ -110,12 +110,12 @@ defmodule RTMP.Sender do
   def run(port: port) do
     destination_url = "rtmp://localhost:#{port}"
 
-    {:ok, pipeline} = start_server(destination_url)
+    {:ok, pipeline} = start_tcp_client(destination_url)
 
     await_termination(pipeline)
   end
 
-  defp start_server(destination_url) do
+  defp start_tcp_client(destination_url) do
     {:ok, _supervisor, pipeline} = RTMP.Sender.Pipeline.start(destination: destination_url)
     {:ok, pipeline}
   end
