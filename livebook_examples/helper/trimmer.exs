@@ -30,7 +30,6 @@ defmodule Trimmer do
   @impl true
   def handle_process(:input, %Buffer{pts: pts}, _ctx, %{first_pts: nil} = state)
     when not is_nil(pts) do
-    IO.inspect(pts, label: :pts)
     {[], %{state | first_pts: pts}}
   end
 
@@ -44,12 +43,13 @@ defmodule Trimmer do
     end
   end
 
-  defp ignore_buffer?( %Buffer{pts: pts}, state) do
-    t = pts - state.first_pts
-    IO.inspect(t)
-    case state.stop do
-      :infinity -> t <= state.start
-      stop when is_integer(stop) -> t <= state.start or state.stop
-    end
+
+ defp ignore_buffer?(%Buffer{pts: pts}, state = %{first_pts: first_pts, start: start, stop: :infinity}) do
+    pts - first_pts >= start
+ end
+ 
+ defp ignore_buffer?(%Buffer{pts: pts}, state = %{first_pts: first_pts, start: start, stop: stop}) do
+    t = pts - first_pts
+    start <= t and t <= stop
   end
 end
