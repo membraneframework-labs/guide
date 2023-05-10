@@ -44,11 +44,15 @@ defmodule Trimmer do
   end
 
 
- defp ignore_buffer?(%Buffer{pts: pts}, state = %{first_pts: first_pts, start: start, stop: :infinity}) do
+  defp ignore_buffer?(%Buffer{pts: pts}, state = %{stop: :infinity}) do
+    %{first_pts: first_pts, start: start} = state
+
     pts - first_pts >= start
- end
- 
- defp ignore_buffer?(%Buffer{pts: pts}, state = %{first_pts: first_pts, start: start, stop: stop}) do
+  end
+
+  defp ignore_buffer?(%Buffer{pts: pts}, state) do
+    %{first_pts: first_pts, start: start, stop: stop} = state
+
     t = pts - first_pts
     start <= t and t <= stop
   end
