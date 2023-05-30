@@ -30,13 +30,6 @@ This is an example of mixing multiple short "beep" sound into background music, 
 
 ## Pipeline definition
 
-Creates Livebook audio player as a sink ("final destination") of the pipeline.
-
-```elixir
-kino = Membrane.Kino.Player.new(:audio)
-:ok
-```
-
 Define all constants.
 
 ```elixir
@@ -97,6 +90,8 @@ import Membrane.ChildrenSpec
 
 alias Membrane.{AudioMixer, AAC, Kino}
 
+kino = Membrane.Kino.Player.new(audio: true)
+
 mixer_output =
   child(:mixer, Membrane.AudioMixer)
   |> child(:encoder_aac, AAC.FDK.Encoder)
@@ -116,12 +111,10 @@ structure = beeps_split ++ [beep_audio_input, background_audio_input, mixer_outp
 ## Playing audio
 
 ```elixir
-kino
-```
-
-```elixir
 alias Membrane.RemoteControlled, as: RC
 
 pipeline = RC.Pipeline.start!()
 RC.Pipeline.exec_actions(pipeline, spec: structure, playback: :playing)
+
+kino
 ```

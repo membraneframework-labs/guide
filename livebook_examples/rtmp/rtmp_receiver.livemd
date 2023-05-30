@@ -49,7 +49,7 @@ defmodule RTMP.Receiver.Pipeline do
         out_encapsulation: :ADTS
       })
       |> via_in(:audio)
-      |> get_child(:sink)
+      |> get_child(:player)
 
     playing_video =
       get_child(:source)
@@ -58,9 +58,9 @@ defmodule RTMP.Receiver.Pipeline do
         framerate: {25, 1}
       })
       |> via_in(:video)
-      |> get_child(:sink)
+      |> get_child(:player)
 
-    player = child(:sink, %Membrane.Kino.Player.Sink{kino: kino})
+    player = child(:player, %Membrane.Kino.Player.Sink{kino: kino})
 
     structure = [source, playing_audio, playing_video, player]
     {[spec: structure, playback: :playing], %{}}
@@ -167,11 +167,10 @@ end
 ```
 
 ```elixir
-kino = Membrane.Kino.Player.new(:both)
-```
-
-```elixir
 port = 1942
+
+kino = Membrane.Kino.Player.new(video: true, audio: true)
+Kino.render(kino)
 
 RTMP.Receiver.run(port: port, kino: kino)
 ```
