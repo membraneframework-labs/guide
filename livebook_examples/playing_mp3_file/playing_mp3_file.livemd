@@ -26,13 +26,6 @@ To run this demo one needs to install native dependencies:
 
 This is example of loading `MP3` audio from the file, transcoding it to the `AAC` codec, and playing it via `Membrane.Kino.Player`.
 
-## Player Creation
-
-```elixir
-kino = Membrane.Kino.Player.new(:audio)
-:ok
-```
-
 ## Pipeline definition
 
 Defines simple linear pipeline of the given structure:
@@ -58,7 +51,8 @@ alias Membrane.{
 }
 
 # https://freemusicarchive.org/music/Paper_Navy/All_Grown_Up/08_Swan_Song/
-audio_path = "./fixtures/sample.mp3"
+audio_path = "./assets/sample.mp3"
+kino = Membrane.Kino.Player.new(audio: true)
 
 structure =
   child(:file_source, %File.Source{location: audio_path})
@@ -76,12 +70,6 @@ structure =
 
 ## Player
 
-Render player in the livebook cell.
-
-```elixir
-kino
-```
-
 Run pipeline:
 
 ```elixir
@@ -89,4 +77,6 @@ alias Membrane.RemoteControlled, as: RC
 
 pipeline = RC.Pipeline.start!()
 RC.Pipeline.exec_actions(pipeline, spec: structure, playback: :playing)
+
+kino
 ```

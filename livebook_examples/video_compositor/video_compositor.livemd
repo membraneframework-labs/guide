@@ -149,18 +149,15 @@ end
 
 ## Playing video
 
-Kino video player.
-
-**Remember to press the play button on the player after viewing the first video**
-
-```elixir
-kino = Membrane.Kino.Player.new(:video)
-```
-
 Activate pipeline and wait for videos:
 
 ```elixir
-{:ok, _supervisor_pid, pipeline} = Membrane.Pipeline.start(DynamicVideoComposition, kino: kino)
+kino = Membrane.Kino.Player.new(video: true)
+
+{:ok, _supervisor_pid, pipeline} =
+  Membrane.Pipeline.start(DynamicVideoComposition, kino: kino)
+
+kino
 ```
 
 One can add up to five video inputs:
