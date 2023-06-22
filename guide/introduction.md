@@ -13,9 +13,9 @@ Elements can be organized into a "pipeline," - a sequence of linked elements tha
 The documentation for the developer's API is available at [hexdocs](https://hexdocs.pm/membrane_core/readme.html).
 
 ### Membrane packages
-Membrane packages provide the multimedia processing logic. They are organized by domain, so a package named after a container (e.g. membrane_mp4_plugin) contains elements for muxing and demuxing that container. A complete list of all the Membrane packages managed by the Membrane team is available here.
+Membrane packages provide the multimedia processing logic. They are organized by domain, so a package named after a container (e.g. membrane_mp4_plugin) contains elements for muxing and demuxing that container.
 
-A complete list of all the Membrane packages managed by the Membrane team is available [here](https://membrane.stream/guide/v0.7/packages.html#content).
+A complete list of all the Membrane packages managed by the Membrane team is available [here](https://membrane.stream/guide/v0.9/packages.html#content).
 
 ## Where can I learn Membrane?
 There are a number of resources available for learning about Membrane:
