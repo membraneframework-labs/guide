@@ -1,0 +1,147 @@
+# Soundwave
+
+## Section
+
+```elixir
+File.cd(__DIR__)
+Logger.configure(level: :error)
+
+Mix.install([
+  {:membrane_core, "~> 0.11.2"},
+  {:membrane_file_plugin, "~> 0.13.0"},
+  {:membrane_mp3_mad_plugin, "~> 0.14.0"},
+  {:membrane_ffmpeg_swresample_plugin, "~> 0.16.1"},
+  {:membrane_aac_fdk_plugin, "~> 0.14.0"},
+  {:membrane_kino_plugin, github: "membraneframework-labs/membrane_kino_plugin"},
+  {:membrane_tee_plugin, "~> 0.10.0"},
+  {:vega_lite, "~> 0.1.7"},
+  {:kino_vega_lite, "~> 0.1.8"},
+  {:membrane_realtimer_plugin, "~> 0.6.1"},
+  {:membrane_raw_audio_parser_plugin, "~> 0.1.0"},
+  {:membrane_portaudio_plugin, "~>0.15.0"}
+])
+```
+
+```elixir
+defmodule Visualizer do
+  use Membrane.Sink
+  alias VegaLite, as: Vl
+
+  @sample_rate 44100
+  @bits_per_sample 16
+
+  def_input_pad(:input,
+    accepted_format: %Membrane.RawAudio{
+      channels: 1,
+      sample_rate: @sample_rate,
+      sample_format: :s16le
+    },
+    demand_mode: :auto
+  )
+
+  @impl true
+  def handle_init(_ctx, _opts) do
+    chart = create_chart()
+    Kino.render(chart)
+    {[], %{chart: chart, initial_pts: nil}}
+  end
+
+  @impl true
+  def handle_write(:input, buffer, _ctx, state) do
+    state = if state.initial_pts == nil, do: %{state | initial_pts: buffer.pts}, else: state
+
+    density = 900
+    window_size_in_seconds = 5
+    window = :erlang.round(window_size_in_seconds * @sample_rate / density)
+
+    samples =
+      for <<sample::integer-size(@bits_per_sample)-little-signed <- buffer.payload>>, do: sample
+
+    sample_duration = Ratio.new(1, @sample_rate) |> Membrane.Time.seconds()
+
+    how_many_points = :erlang.round(length(samples) / density)
+
+    points =
+      Enum.chunk_every(samples, how_many_points)
+      |> Enum.with_index()
+      |> Enum.flat_map(fn {samples_per_point, point_i} ->
+        {min, min_i} =
+          Enum.with_index(samples_per_point) |> Enum.min_by(fn {y, _sample_i} -> y end)
+
+        min_pts =
+          (buffer.pts + (point_i * density + min_i) * sample_duration - state.initial_pts)
+          |> Membrane.Time.round_to_milliseconds()
+
+        {max, max_i} =
+          Enum.with_index(samples_per_point) |> Enum.min_by(fn {y, _sample_i} -> y end)
+
+        max_pts =
+          (buffer.pts + (point_i * density + max_i) * sample_duration - state.initial_pts)
+          |> Membrane.Time.round_to_milliseconds()
+
+        [%{x: min_pts, y: min}, %{x: max_pts, y: max}]
+      end)
+
+    Kino.VegaLite.push_many(state.chart, points, window: window)
+    {[], state}
+  end
+
+  defp create_chart() do
+    Vl.new(width: 1000, height: 400, title: "Amplitude")
+    |> Vl.mark(:line, point: true)
+    |> Vl.encode_field(:x, "x", title: "Time [s]", type: :quantitative)
+    |> Vl.encode_field(:y, "y",
+      title: "",
+      type: :quantitative,
+      scale: %{domain: [-2 ** (@bits_per_sample - 1), 2 ** (@bits_per_sample - 1) - 1]}
+    )
+    |> Kino.VegaLite.new()
+  end
+end
+```
+
+```elixir
+alias Membrane.{
+  File,
+  MP3,
+  FFmpeg,
+  RawAudio,
+  AAC
+}
+
+alias Membrane.RemoteControlled, as: RC
+
+import Membrane.ChildrenSpec
+
+structure = [
+  child(:microphone, Membrane.PortAudio.Source)
+  |> child(:converter, %FFmpeg.SWResample.Converter{
+    input_stream_format: %RawAudio{channels: 1, sample_format: :s16le, sample_rate: 48000},
+    output_stream_format: %RawAudio{channels: 1, sample_format: :s16le, sample_rate: 44_100}
+  })
+  |> child(:audio_parser, %Membrane.RawAudioParser{
+    stream_format: %Membrane.RawAudio{
+      channels: 1,
+      sample_format: :s16le,
+      sample_rate: 44_100
+    },
+    overwrite_pts?: true,
+    pts_offset: Membrane.Time.seconds(0)
+  })
+  |> child(:visualizer, Visualizer)
+]
+
+:ok
+```
+
+```elixir
+pipeline = RC.Pipeline.start!()
+```
+
+```elixir
+RC.Pipeline.exec_actions(pipeline, spec: structure, playback: :playing)
+```
+
+```elixir
+Membrane.Pipeline.terminate(pipeline, blocking?: true)
+```

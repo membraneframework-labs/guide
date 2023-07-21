@@ -1,0 +1,129 @@
+# Speech to text
+
+## Section
+
+```elixir
+File.cd(__DIR__)
+Logger.configure(level: :error)
+
+Mix.install(
+  [
+    {:bumblebee, "~> 0.3.0"},
+    {:exla, "~> 0.2"},
+    {:membrane_core, "~> 0.11.2"},
+    {:membrane_ffmpeg_swresample_plugin, "~> 0.16.1"},
+    {:membrane_aac_fdk_plugin, "~> 0.14.0"},
+    {:membrane_realtimer_plugin, "~> 0.6.1"},
+    {:membrane_raw_audio_parser_plugin, "~> 0.1.0"},
+    {:membrane_portaudio_plugin, "~>0.15.0"}
+  ],
+  config: [
+    nx: [default_backend: EXLA.Backend]
+  ]
+)
+```
+
+```elixir
+defmodule SpeechToText do
+  use Membrane.Sink
+
+  @sample_rate 16_000
+  @bytes_per_sample 4
+  @channels 1
+  @chunk_duration 1
+  @chunk_size @sample_rate * @bytes_per_sample * @channels * @chunk_duration
+
+  def_input_pad(:input,
+    accepted_format: %Membrane.RawAudio{
+      channels: @channels,
+      sample_rate: @sample_rate,
+      sample_format: :f32le
+    },
+    demand_mode: :auto
+  )
+
+  @impl true
+  def handle_init(_ctx, _opts) do
+    {:ok, whisper} = Bumblebee.load_model({:hf, "openai/whisper-tiny"})
+    {:ok, featurizer} = Bumblebee.load_featurizer({:hf, "openai/whisper-tiny"})
+    {:ok, tokenizer} = Bumblebee.load_tokenizer({:hf, "openai/whisper-tiny"})
+    {:ok, generation_config} = Bumblebee.load_generation_config({:hf, "openai/whisper-tiny"})
+
+    serving =
+      Bumblebee.Audio.speech_to_text(whisper, featurizer, tokenizer, generation_config,
+        defn_options: [compiler: EXLA]
+      )
+
+    state = %{serving: serving, samples: <<>>, transcribing?: false}
+    {[], state}
+  end
+
+  @impl true
+  def handle_write(:input, buffer, _ctx, state) do
+    all_samples = state.samples <> buffer.payload
+
+    if byte_size(all_samples) > @chunk_size and not state.transcribing? do
+      transcribe(all_samples, state.serving)
+      {[], %{state | samples: <<>>, transcribing?: true}}
+    else
+      {[], %{state | samples: all_samples}}
+    end
+  end
+
+  defp transcribe(data, serving) do
+    send_to = self()
+
+    Task.async(fn ->
+      model_input = Nx.from_binary(data, :f32)
+      results = Nx.Serving.run(serving, model_input)
+      transcription = Enum.map(results.results, & &1.text) |> Enum.join()
+      send(send_to, {:transcribed, transcription})
+    end)
+  end
+
+  @impl true
+  def handle_info({:transcribed, transcription}, _ctx, state) do
+    IO.inspect(transcription, label: "Transcription")
+    state = %{state | transcribing?: false}
+    {[], state}
+  end
+
+  @impl true
+  def handle_info(_other, _ctx, state) do
+    {[], state}
+  end
+end
+```
+
+```elixir
+alias Membrane.{
+  File,
+  MP3,
+  FFmpeg,
+  RawAudio,
+  AAC
+}
+
+alias Membrane.RemoteControlled, as: RC
+
+import Membrane.ChildrenSpec
+
+structure = [
+  child(:microphone, Membrane.PortAudio.Source)
+  |> child(:converter, %FFmpeg.SWResample.Converter{
+    input_stream_format: %RawAudio{channels: 1, sample_format: :s16le, sample_rate: 48000},
+    output_stream_format: %RawAudio{channels: 1, sample_format: :f32le, sample_rate: 16_000}
+  })
+  |> child(:speech_to_text, SpeechToText)
+]
+
+:ok
+```
+
+```elixir
+pipeline = RC.Pipeline.start!()
+```
+
+```elixir
+RC.Pipeline.exec_actions(pipeline, spec: structure, playback: :playing)
+```
