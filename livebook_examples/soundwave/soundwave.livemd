@@ -1,99 +1,172 @@
-# Soundwave
+# Soundwave plotting examples
 
-## Section
+## Installation
+
+You need to install the following `mix` dependencies:
 
 ```elixir
 File.cd(__DIR__)
 Logger.configure(level: :error)
 
 Mix.install([
-  {:membrane_core, "~> 0.11.2"},
-  {:membrane_file_plugin, "~> 0.13.0"},
-  {:membrane_mp3_mad_plugin, "~> 0.14.0"},
-  {:membrane_ffmpeg_swresample_plugin, "~> 0.16.1"},
-  {:membrane_aac_fdk_plugin, "~> 0.14.0"},
-  {:membrane_kino_plugin, github: "membraneframework-labs/membrane_kino_plugin"},
-  {:membrane_tee_plugin, "~> 0.10.0"},
+  {:membrane_core, "~> 0.12.7"},
+  {:membrane_ffmpeg_swresample_plugin, "~> 0.17.0"},
   {:vega_lite, "~> 0.1.7"},
   {:kino_vega_lite, "~> 0.1.8"},
-  {:membrane_realtimer_plugin, "~> 0.6.1"},
-  {:membrane_raw_audio_parser_plugin, "~> 0.1.0"},
-  {:membrane_portaudio_plugin, "~>0.15.0"}
+  {:membrane_raw_audio_parser_plugin, "~> 0.2.0"},
+  {:membrane_portaudio_plugin, "~>0.16.0"}
 ])
 ```
+
+Furthermore, you need to have `FFMpeg` installed. For installation details take a look [here](https://www.ffmpeg.org/).
+
+## Soundwave plotting sink
+
+Since there is no plugin in the `Membrane Framework`, that already provides an element capable of plotting soundwave, we need to write one on our own. 
+The element, called `Visualizer` is a sink, placed at the end of a pipeline.
+
+The element has a single `:input` pad, on which raw audio is expected to appear.
+
+> Raw audio is represented as an array of samples, with each sample describing the
+> 
+> Once the `stream_format` is received on the `:input` pad, some relevant information, i.e. the number of channels or the sampling rate, are fetched out of `Membrane.RawAudio` stream format structure. Based on that information a `VegaLite` chart is prepared.
+
+Once a buffer is received, its payload is split into samples, based on `sample_format` of the `Membrane.RawAudio`. The amplitude of sound from different channels measured at the same time is average. As a result, a list of samples with each sample being an amplitude of sound at given time is produced.
+
+That list of samples is appended to the list of unprocessed samples stored in the element's state. Right after that `maybe_plot` function is invoked - and if there are enough samples, the samples are used to produce some points that are put on the plot.
+
+Plotting all the audio samples with the typically used frequency (e.g. `44100 Hz`) is impossible due to limitations of the plot displaying system. That is why the list of samples is split into a number of chunks, and for each of these chunks a sample with `maximal` and `minimal` amplitude is found. For each chunk, only these two samples representing a given chunk are later put on the plot, with `x` value being a given sample timestamp, and `y` value being an measured amplitude of audio.
+tributes are used to drive the process of plotting:
+
+* `@windows_size` - describes the maximum number of points that are visible together on a plot,
+* `@window_duration` - describes the time range (in seconds) of points visible on the plot,
+* `@plot_updating_frequency` - describes how many times per second a plot should be updated with new points.
+  We encourage you to play with these attributes and adjust them to your needs. Please be aware, that setting to high `@windows_size` or `@plot_updating_frequency` might cause the plot to not be generated in realtime. At the same time, setting too low values of these parameters might result in loss of plot's accuracy (for instance making it insensitive to high frequency sounds).
+
+For more implementation details take a look at the code and the comments that describes parts, that might appear unobvious.
 
 ```elixir
 defmodule Visualizer do
   use Membrane.Sink
   alias VegaLite, as: Vl
 
-  @sample_rate 44100
-  @bits_per_sample 16
+  @window_size 1000
+
+  # second
+  @window_duration 3
+
+  # Hz
+  @plot_update_frequency 50
 
   def_input_pad(:input,
-    accepted_format: %Membrane.RawAudio{
-      channels: 1,
-      sample_rate: @sample_rate,
-      sample_format: :s16le
-    },
+    accepted_format: %Membrane.RawAudio{},
     demand_mode: :auto
   )
 
   @impl true
   def handle_init(_ctx, _opts) do
-    chart = create_chart()
-    Kino.render(chart)
-    {[], %{chart: chart, initial_pts: nil}}
+    {[],
+     %{
+       chart: nil,
+       initial_pts: nil,
+       bits_per_sample: nil,
+       sample_rate: nil,
+       sample_format: nil,
+       channels: nil,
+       samples: []
+     }}
   end
 
   @impl true
-  def handle_write(:input, buffer, _ctx, state) do
-    state = if state.initial_pts == nil, do: %{state | initial_pts: buffer.pts}, else: state
+  def handle_stream_format(:input, stream_format, %{pads: %{input: %{stream_format: nil}}}, state) do
+    {_sign, bits_per_sample, _endianness} =
+      Membrane.RawAudio.SampleFormat.to_tuple(stream_format.sample_format)
 
-    density = 900
-    window_size_in_seconds = 5
-    window = :erlang.round(window_size_in_seconds * @sample_rate / density)
+    chart = create_chart(stream_format)
+    Kino.render(chart)
 
-    samples =
-      for <<sample::integer-size(@bits_per_sample)-little-signed <- buffer.payload>>, do: sample
+    {[],
+     %{
+       state
+       | sample_rate: stream_format.sample_rate,
+         sample_format: stream_format.sample_format,
+         channels: stream_format.channels,
+         bits_per_sample: bits_per_sample,
+         chart: chart
+     }}
+  end
 
-    sample_duration = Ratio.new(1, @sample_rate) |> Membrane.Time.seconds()
-
-    how_many_points = :erlang.round(length(samples) / density)
-
-    points =
-      Enum.chunk_every(samples, how_many_points)
-      |> Enum.with_index()
-      |> Enum.flat_map(fn {samples_per_point, point_i} ->
-        {min, min_i} =
-          Enum.with_index(samples_per_point) |> Enum.min_by(fn {y, _sample_i} -> y end)
-
-        min_pts =
-          (buffer.pts + (point_i * density + min_i) * sample_duration - state.initial_pts)
-          |> Membrane.Time.round_to_milliseconds()
-
-        {max, max_i} =
-          Enum.with_index(samples_per_point) |> Enum.min_by(fn {y, _sample_i} -> y end)
-
-        max_pts =
-          (buffer.pts + (point_i * density + max_i) * sample_duration - state.initial_pts)
-          |> Membrane.Time.round_to_milliseconds()
-
-        [%{x: min_pts, y: min}, %{x: max_pts, y: max}]
-      end)
-
-    Kino.VegaLite.push_many(state.chart, points, window: window)
+  @impl true
+  def handle_stream_format(:input, _stream_format, _ctx, state) do
     {[], state}
   end
 
-  defp create_chart() do
-    Vl.new(width: 1000, height: 400, title: "Amplitude")
+  @impl true
+  def handle_write(:input, buffer, ctx, state) do
+    state = if state.initial_pts == nil, do: %{state | initial_pts: buffer.pts}, else: state
+
+    samples =
+      for(<<sample::size(state.bits_per_sample) <- buffer.payload>>,
+        do: <<sample::size(state.bits_per_sample)>>
+      )
+      |> Enum.map(&Membrane.RawAudio.sample_to_value(&1, ctx.pads[:input].stream_format))
+      |> Enum.chunk_every(state.channels)
+      |> Enum.map(&(Enum.sum(&1) / length(&1)))
+
+    state = %{state | samples: state.samples ++ samples}
+
+    maybe_plot(buffer.pts, state)
+  end
+
+  defp maybe_plot(pts, state) do
+    points_per_update = @window_size / (@window_duration * @plot_update_frequency)
+    samples_per_update = state.sample_rate / @plot_update_frequency
+    samples_per_point = :erlang.ceil(samples_per_update / points_per_update)
+
+    state =
+      if length(state.samples) > samples_per_update do
+        sample_duration = Ratio.new(1, state.sample_rate) |> Membrane.Time.seconds()
+
+        # `*2`, because in each loop run we are producing 2 points
+        points =
+          Enum.chunk_every(state.samples, 2 * samples_per_point)
+          |> Enum.with_index()
+          |> Enum.flat_map(fn {point_samples, point_i} ->
+            Enum.with_index(point_samples)
+            |> Enum.min_max_by(fn {value, _sample_i} -> value end)
+            |> Tuple.to_list()
+            |> Enum.map(fn {value, sample_i} ->
+              x =
+                (pts + (point_i * samples_per_point + sample_i) * sample_duration -
+                   state.initial_pts)
+                |> Membrane.Time.round_to_milliseconds()
+
+              %{x: x, y: value}
+            end)
+          end)
+
+        Kino.VegaLite.push_many(state.chart, points, window: @window_size)
+        %{state | samples: []}
+      else
+        state
+      end
+
+    {[], state}
+  end
+
+  defp create_chart(stream_format) do
+    Vl.new(width: 1000, height: 400, title: "Amplitude vs time")
     |> Vl.mark(:line, point: true)
     |> Vl.encode_field(:x, "x", title: "Time [s]", type: :quantitative)
     |> Vl.encode_field(:y, "y",
-      title: "",
+      title: "Amplitude",
       type: :quantitative,
-      scale: %{domain: [-2 ** (@bits_per_sample - 1), 2 ** (@bits_per_sample - 1) - 1]}
+      scale: %{
+        domain: [
+          Membrane.RawAudio.sample_min(stream_format) * 1.1,
+          Membrane.RawAudio.sample_max(stream_format) * 1.1
+        ]
+      }
     )
     |> Kino.VegaLite.new()
   end
@@ -109,7 +182,7 @@ alias Membrane.{
   AAC
 }
 
-alias Membrane.RemoteControlled, as: RC
+alias Membrane.RCPipeline
 
 import Membrane.ChildrenSpec
 
@@ -135,11 +208,11 @@ structure = [
 ```
 
 ```elixir
-pipeline = RC.Pipeline.start!()
+pipeline = RCPipeline.start!()
 ```
 
 ```elixir
-RC.Pipeline.exec_actions(pipeline, spec: structure, playback: :playing)
+RCPipeline.exec_actions(pipeline, spec: structure, playback: :playing)
 ```
 
 ```elixir
