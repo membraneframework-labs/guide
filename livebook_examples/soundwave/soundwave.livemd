@@ -209,13 +209,12 @@ All the elements are connected linearily.
 ```elixir
 import Membrane.ChildrenSpec
 
-structure = [
+structure =
   child(:microphone, Membrane.PortAudio.Source)
   |> child(:audio_parser, %Membrane.RawAudioParser{
     overwrite_pts?: true
   })
   |> child(:visualizer, Visualizer)
-]
 
 :ok
 ```
@@ -237,3 +236,9 @@ RCPipeline.exec_actions(pipeline, spec: structure)
 ```
 
 On the plot above you should be able to see the relation between an audio amplitude and time.
+
+You can terminate the pipeline with the following code:
+
+```elixir
+RCPipeline.terminate(pipeline)
+```

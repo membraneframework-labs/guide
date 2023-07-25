@@ -60,7 +60,7 @@ defmodule SpeechToText do
   @bytes_per_sample 4
   @channels 1
   # seconds
-  @chunk_duration 1
+  @chunk_duration 5
   @chunk_size @sample_rate * @bytes_per_sample * @channels * @chunk_duration
 
   def_input_pad(:input,
@@ -164,3 +164,9 @@ RCPipeline.exec_actions(pipeline, spec: structure)
 
 The prints with the transcription should start appearing below the last cell you have evaluated.
 Try saying something to the microphone in english and the transcription of your words should appear.
+
+You can terminate the pipeline with the following code:
+
+```elixir
+RCPipeline.terminate(pipeline)
+```
