@@ -10,15 +10,14 @@ Logger.configure(level: :error)
 
 Mix.install([
   {:membrane_core, "~> 0.12.7"},
-  {:membrane_ffmpeg_swresample_plugin, "~> 0.17.0"},
-  {:vega_lite, "~> 0.1.7"},
-  {:kino_vega_lite, "~> 0.1.8"},
   {:membrane_raw_audio_parser_plugin, "~> 0.2.0"},
-  {:membrane_portaudio_plugin, "~>0.16.0"}
+  {:membrane_portaudio_plugin, "~>0.16.0"},
+  {:vega_lite, "~> 0.1.7"},
+  {:kino_vega_lite, "~> 0.1.8"}
 ])
 ```
 
-Furthermore, you need to have `FFMpeg` installed. For installation details take a look [here](https://www.ffmpeg.org/).
+Furthermore, you need to have `FFmpeg` installed. For installation details take a look [here](https://www.ffmpeg.org/).
 
 ## Soundwave plotting sink
 
@@ -27,13 +26,28 @@ The element, called `Visualizer` is a sink, placed at the end of a pipeline.
 
 The element has a single `:input` pad, on which raw audio is expected to appear.
 
-> Raw audio is represented as an array of samples, with each sample describing the
+> Raw audio is represented as an array of samples, with each sample describing the amplitude of the sound at given time. There is a possibility that there are a few samples (from so called different channels) for the same point in the time. In such a case, the samples from different channels (e.g. samples `A` from the first channel and samples `B` from the second channel) might be either interleaved (`ABABABAB`), or put one sequence after the other: (`AAAABBBB`).
 > 
-> Once the `stream_format` is received on the `:input` pad, some relevant information, i.e. the number of channels or the sampling rate, are fetched out of `Membrane.RawAudio` stream format structure. Based on that information a `VegaLite` chart is prepared.
+> Each sample is of a particular format, and the format is defined by:
+> 
+> * the type of a number - e.g. `f` might stand for a `float` and `s` might stand for a `signed` integer
+> * number of bits used to represent a number
+> * endianness (order of bytes) - specifies the significanty of the bytes in the bytes sequence (little endian or big endian).
+>   An exemplary sample format might be `s16le` which stand for a signed integer written on 16 bits, with low endian order of bytes.
+> 
+> For some intuition on the formats you can take a look at a [`Membrane.RawAudio.SampleFormat` module](https://github.com/membraneframework/membrane_raw_audio_format/blob/master/lib/membrane_raw_audio/sample_format.ex)
+
+### Stream format handling
+
+Once the `stream_format` is received on the `:input` pad, some relevant information, i.e. the number of channels or the sampling rate, are fetched out of `Membrane.RawAudio` stream format structure. Based on that information a `VegaLite` chart is prepared.
+
+### Buffers handling
 
 Once a buffer is received, its payload is split into samples, based on `sample_format` of the `Membrane.RawAudio`. The amplitude of sound from different channels measured at the same time is average. As a result, a list of samples with each sample being an amplitude of sound at given time is produced.
 
 That list of samples is appended to the list of unprocessed samples stored in the element's state. Right after that `maybe_plot` function is invoked - and if there are enough samples, the samples are used to produce some points that are put on the plot.
+
+### Plotting of the soundwave
 
 Plotting all the audio samples with the typically used frequency (e.g. `44100 Hz`) is impossible due to limitations of the plot displaying system. That is why the list of samples is split into a number of chunks, and for each of these chunks a sample with `maximal` and `minimal` amplitude is found. For each chunk, only these two samples representing a given chunk are later put on the plot, with `x` value being a given sample timestamp, and `y` value being an measured amplitude of audio.
 tributes are used to drive the process of plotting:
@@ -48,18 +62,20 @@ For more implementation details take a look at the code and the comments that de
 ```elixir
 defmodule Visualizer do
   use Membrane.Sink
+
+  alias Membrane.RawAudio
   alias VegaLite, as: Vl
 
   @window_size 1000
 
-  # second
+  # seconds
   @window_duration 3
 
   # Hz
   @plot_update_frequency 50
 
   def_input_pad(:input,
-    accepted_format: %Membrane.RawAudio{},
+    accepted_format: %RawAudio{},
     demand_mode: :auto
   )
 
@@ -80,7 +96,7 @@ defmodule Visualizer do
   @impl true
   def handle_stream_format(:input, stream_format, %{pads: %{input: %{stream_format: nil}}}, state) do
     {_sign, bits_per_sample, _endianness} =
-      Membrane.RawAudio.SampleFormat.to_tuple(stream_format.sample_format)
+      RawAudio.SampleFormat.to_tuple(stream_format.sample_format)
 
     chart = create_chart(stream_format)
     Kino.render(chart)
@@ -109,7 +125,8 @@ defmodule Visualizer do
       for(<<sample::size(state.bits_per_sample) <- buffer.payload>>,
         do: <<sample::size(state.bits_per_sample)>>
       )
-      |> Enum.map(&Membrane.RawAudio.sample_to_value(&1, ctx.pads[:input].stream_format))
+      |> Enum.map(&RawAudio.sample_to_value(&1, ctx.pads[:input].stream_format))
+      # we need to make an average out of the samples for all the channels
       |> Enum.chunk_every(state.channels)
       |> Enum.map(&(Enum.sum(&1) / length(&1)))
 
@@ -131,13 +148,17 @@ defmodule Visualizer do
         points =
           Enum.chunk_every(state.samples, 2 * samples_per_point)
           |> Enum.with_index()
-          |> Enum.flat_map(fn {point_samples, point_i} ->
+          |> Enum.flat_map(fn {point_samples, chunk_i} ->
             Enum.with_index(point_samples)
             |> Enum.min_max_by(fn {value, _sample_i} -> value end)
             |> Tuple.to_list()
             |> Enum.map(fn {value, sample_i} ->
+              # the pts of a given sample is the pts of the buffer in which it has arrived
+              # plus the time that has elapsed for all the previous chunks 
+              # plus the time for all the preceeding samples from a given chunk
+              # minus the pts 
               x =
-                (pts + (point_i * samples_per_point + sample_i) * sample_duration -
+                (pts + (chunk_i * samples_per_point + sample_i) * sample_duration -
                    state.initial_pts)
                 |> Membrane.Time.round_to_milliseconds()
 
@@ -163,8 +184,9 @@ defmodule Visualizer do
       type: :quantitative,
       scale: %{
         domain: [
-          Membrane.RawAudio.sample_min(stream_format) * 1.1,
-          Membrane.RawAudio.sample_max(stream_format) * 1.1
+          # we want the range of the domain to be slightly bigger than the range of an amplitude
+          RawAudio.sample_min(stream_format) * 1.1,
+          RawAudio.sample_max(stream_format) * 1.1
         ]
       }
     )
@@ -173,33 +195,24 @@ defmodule Visualizer do
 end
 ```
 
+## Pipeline structure
+
+Once we are ready with the `Visualizer` element, we can set the pipeline up.
+The pipeline will consist of:
+
+* an microphone input,
+* a raw audio parser (we need that element to provide timestamps to the buffers),
+* the `Visualizer`.
+
+All the elements are connected linearily.
+
 ```elixir
-alias Membrane.{
-  File,
-  MP3,
-  FFmpeg,
-  RawAudio,
-  AAC
-}
-
-alias Membrane.RCPipeline
-
 import Membrane.ChildrenSpec
 
 structure = [
   child(:microphone, Membrane.PortAudio.Source)
-  |> child(:converter, %FFmpeg.SWResample.Converter{
-    input_stream_format: %RawAudio{channels: 1, sample_format: :s16le, sample_rate: 48000},
-    output_stream_format: %RawAudio{channels: 1, sample_format: :s16le, sample_rate: 44_100}
-  })
   |> child(:audio_parser, %Membrane.RawAudioParser{
-    stream_format: %Membrane.RawAudio{
-      channels: 1,
-      sample_format: :s16le,
-      sample_rate: 44_100
-    },
-    overwrite_pts?: true,
-    pts_offset: Membrane.Time.seconds(0)
+    overwrite_pts?: true
   })
   |> child(:visualizer, Visualizer)
 ]
@@ -207,14 +220,20 @@ structure = [
 :ok
 ```
 
+## Running the pipeline
+
+Finally, we can start the `Membrane.RCPipeline` (remote controlled pipeline):
+
 ```elixir
+alias Membrane.RCPipeline
+
 pipeline = RCPipeline.start!()
 ```
 
-```elixir
-RCPipeline.exec_actions(pipeline, spec: structure, playback: :playing)
-```
+And commision `spec` action execution with the previously created `structure`:
 
 ```elixir
-Membrane.Pipeline.terminate(pipeline, blocking?: true)
+RCPipeline.exec_actions(pipeline, spec: structure)
 ```
+
+On the plot above you should be able to see the relation between an audio amplitude and time.
