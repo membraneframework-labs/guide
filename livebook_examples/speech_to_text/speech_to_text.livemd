@@ -1,6 +1,6 @@
 # Speech to text
 
-## Section
+## Installation
 
 ```elixir
 File.cd(__DIR__)
@@ -10,12 +10,10 @@ Mix.install(
   [
     {:bumblebee, "~> 0.3.0"},
     {:exla, "~> 0.2"},
-    {:membrane_core, "~> 0.11.2"},
-    {:membrane_ffmpeg_swresample_plugin, "~> 0.16.1"},
-    {:membrane_aac_fdk_plugin, "~> 0.14.0"},
-    {:membrane_realtimer_plugin, "~> 0.6.1"},
-    {:membrane_raw_audio_parser_plugin, "~> 0.1.0"},
-    {:membrane_portaudio_plugin, "~>0.15.0"}
+    {:membrane_core, "~> 0.12.7"},
+    {:membrane_ffmpeg_swresample_plugin, "~> 0.17.0"},
+    {:membrane_raw_audio_parser_plugin, "~> 0.2.0"},
+    {:membrane_portaudio_plugin, "~>0.16.0"}
   ],
   config: [
     nx: [default_backend: EXLA.Backend]
@@ -23,18 +21,50 @@ Mix.install(
 )
 ```
 
+You need to have `FFmpeg` installed. For installation details take a look [here](https://www.ffmpeg.org/).
+
+Furthermore, there is a possibility, that the `XLA` backend  (used by `Nx` to improve the performance tensor operations) is not automatically installed - in such a case follow the instruction [here](https://hexdocs.pm/exla/EXLA.html#module-xla-binaries).
+
+## Element performing speech to text
+
+We need to write our own sink that will perform speech to text and display the resulting transcription. Let's call this element `SpeechToText`.
+
+For the purpose of performing the transcription the element will use the Open AI's [Whisper](https://openai.com/research/whisper) model. 
+It can be easily loaded and the used with a "little" help from [Bumblebee](https://github.com/elixir-nx/bumblebee).
+
+Whipser model requires the input audio samples to be in `f32le` format, which means, that they are represented as a floating numbers written on 32 bits, with little endian bytes order. The required input sample rate is 16 kHz as well as only single channel samples are allowed.
+
+### Initialization
+
+In the initialization process, we load the `Whisper` model, along with the featurizer, tokenizer and the generation configuration. Then we create a speech to text serving, and indicate that we want to use `EXLA` backend for the tensor operations.
+
+### Buffers handling
+
+Once a buffer arrives, we store its payload along all already seen audio samples in the element's state.
+
+The audio needs to be split into chunks and the transcription is performed on each of these chunks.
+With the `@chunk_duration` attribute we can specify how long the chunk should be.
+
+In case there are enough samples already stored in the element's state and no transcription occurs at a time, the transcription is launched as an asynchronous task. Once its results are available, a message of form `{:transcribed, transcription}` is sent to the element.
+
+We reflect these requirements in the definition of the accepted input stream format: `Membrane.RawAudio`.
+
 ```elixir
+alias Membrane.RawAudio
+
 defmodule SpeechToText do
   use Membrane.Sink
 
   @sample_rate 16_000
+  # sample format is `:f32le`, so each format is written on 32 bits = 4 bytes
   @bytes_per_sample 4
   @channels 1
+  # seconds
   @chunk_duration 1
   @chunk_size @sample_rate * @bytes_per_sample * @channels * @chunk_duration
 
   def_input_pad(:input,
-    accepted_format: %Membrane.RawAudio{
+    accepted_format: %RawAudio{
       channels: @channels,
       sample_rate: @sample_rate,
       sample_format: :f32le
@@ -95,35 +125,42 @@ defmodule SpeechToText do
 end
 ```
 
-```elixir
-alias Membrane.{
-  File,
-  MP3,
-  FFmpeg,
-  RawAudio,
-  AAC
-}
+## Pipeline structure definition
 
-alias Membrane.RemoteControlled, as: RC
+The pipeline consists of three elements:
+
+* the `Membrane.PortAudio.Source` - responsible for fetching the audio input from your microphone
+* the `Membrane.FFmpeg.SWResampleConverter` - responsible for performing the sample rate conversion to the desired 16 kHz as well as the sample format conversion
+* the `SpeechToText` sink we have previously created
+
+```elixir
+alias Membrane.FFmpeg
 
 import Membrane.ChildrenSpec
 
-structure = [
+structure =
   child(:microphone, Membrane.PortAudio.Source)
   |> child(:converter, %FFmpeg.SWResample.Converter{
-    input_stream_format: %RawAudio{channels: 1, sample_format: :s16le, sample_rate: 48000},
     output_stream_format: %RawAudio{channels: 1, sample_format: :f32le, sample_rate: 16_000}
   })
   |> child(:speech_to_text, SpeechToText)
-]
 
 :ok
 ```
 
-```elixir
-pipeline = RC.Pipeline.start!()
-```
+## Running of the pipeline
 
 ```elixir
-RC.Pipeline.exec_actions(pipeline, spec: structure, playback: :playing)
+alias Membrane.RCPipeline
+
+pipeline = RCPipeline.start!()
 ```
+
+Finally we can commision `spec` action execution with the previously created `structure`:
+
+```elixir
+RCPipeline.exec_actions(pipeline, spec: structure)
+```
+
+The prints with the transcription should start appearing below the last cell you have evaluated.
+Try saying something to the microphone in english and the transcription of your words should appear.

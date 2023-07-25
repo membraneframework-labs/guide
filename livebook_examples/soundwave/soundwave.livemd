@@ -1,4 +1,4 @@
-# Soundwave plotting examples
+# Soundwave plotting example
 
 ## Installation
 
@@ -230,7 +230,7 @@ alias Membrane.RCPipeline
 pipeline = RCPipeline.start!()
 ```
 
-And commision `spec` action execution with the previously created `structure`:
+Finally we can commision `spec` action execution with the previously created `structure`:
 
 ```elixir
 RCPipeline.exec_actions(pipeline, spec: structure)
