@@ -69,11 +69,11 @@ defmodule SpeechToText do
       sample_rate: @sample_rate,
       sample_format: :f32le
     },
-    demand_mode: :auto
+    flow_control: :auto
   )
 
   @impl true
-  def handle_init(_ctx, _opts) do
+  def handle_setup(_ctx, _initial_state) do
     {:ok, whisper} = Bumblebee.load_model({:hf, "openai/whisper-tiny"})
     {:ok, featurizer} = Bumblebee.load_featurizer({:hf, "openai/whisper-tiny"})
     {:ok, tokenizer} = Bumblebee.load_tokenizer({:hf, "openai/whisper-tiny"})
@@ -89,7 +89,7 @@ defmodule SpeechToText do
   end
 
   @impl true
-  def handle_write(:input, buffer, _ctx, state) do
+  def handle_buffer(:input, buffer, _ctx, state) do
     all_samples = state.samples <> buffer.payload
 
     if byte_size(all_samples) > @chunk_size and not state.transcribing? do
@@ -138,7 +138,7 @@ alias Membrane.FFmpeg
 
 import Membrane.ChildrenSpec
 
-structure =
+spec =
   child(:microphone, Membrane.PortAudio.Source)
   |> child(:converter, %FFmpeg.SWResample.Converter{
     output_stream_format: %RawAudio{channels: 1, sample_format: :f32le, sample_rate: 16_000}
@@ -159,7 +159,7 @@ pipeline = RCPipeline.start!()
 Finally we can commision `spec` action execution with the previously created `structure`:
 
 ```elixir
-RCPipeline.exec_actions(pipeline, spec: structure)
+RCPipeline.exec_actions(pipeline, spec: spec)
 ```
 
 The prints with the transcription should start appearing below the last cell you have evaluated.

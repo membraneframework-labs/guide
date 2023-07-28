@@ -66,6 +66,8 @@ defmodule Visualizer do
   alias Membrane.RawAudio
   alias VegaLite, as: Vl
 
+  require Membrane.Logger
+
   @window_size 1000
 
   # seconds
@@ -74,9 +76,11 @@ defmodule Visualizer do
   # Hz
   @plot_update_frequency 50
 
+  @points_per_update @window_size / (@window_duration * @plot_update_frequency)
+
   def_input_pad(:input,
     accepted_format: %RawAudio{},
-    demand_mode: :auto
+    flow_control: :auto
   )
 
   @impl true
@@ -85,7 +89,7 @@ defmodule Visualizer do
      %{
        chart: nil,
        initial_pts: nil,
-       bits_per_sample: nil,
+       bytes_per_sample: nil,
        sample_rate: nil,
        sample_format: nil,
        channels: nil,
@@ -93,8 +97,11 @@ defmodule Visualizer do
      }}
   end
 
+  defguardp has_stream_format_arrived(ctx) when ctx.pads.input.stream_format != nil
+
   @impl true
-  def handle_stream_format(:input, stream_format, %{pads: %{input: %{stream_format: nil}}}, state) do
+  def handle_stream_format(:input, stream_format, ctx, state)
+      when not has_stream_format_arrived(ctx) do
     {_sign, bits_per_sample, _endianness} =
       RawAudio.SampleFormat.to_tuple(stream_format.sample_format)
 
@@ -107,25 +114,25 @@ defmodule Visualizer do
        | sample_rate: stream_format.sample_rate,
          sample_format: stream_format.sample_format,
          channels: stream_format.channels,
-         bits_per_sample: bits_per_sample,
+         bytes_per_sample: :erlang.round(bits_per_sample / 8),
          chart: chart
      }}
   end
 
   @impl true
   def handle_stream_format(:input, _stream_format, _ctx, state) do
+    Membrane.Logger.warning(":input stream format received once again, ignoring.")
     {[], state}
   end
 
   @impl true
-  def handle_write(:input, buffer, ctx, state) do
+  def handle_buffer(:input, buffer, ctx, state) do
     state = if state.initial_pts == nil, do: %{state | initial_pts: buffer.pts}, else: state
 
     samples =
-      for(<<sample::size(state.bits_per_sample) <- buffer.payload>>,
-        do: <<sample::size(state.bits_per_sample)>>
-      )
-      |> Enum.map(&RawAudio.sample_to_value(&1, ctx.pads[:input].stream_format))
+      for <<sample::binary-size(state.bytes_per_sample) <- buffer.payload>> do
+        RawAudio.sample_to_value(sample, ctx.pads.input.stream_format)
+      end
       # we need to make an average out of the samples for all the channels
       |> Enum.chunk_every(state.channels)
       |> Enum.map(&(Enum.sum(&1) / length(&1)))
@@ -136,9 +143,8 @@ defmodule Visualizer do
   end
 
   defp maybe_plot(pts, state) do
-    points_per_update = @window_size / (@window_duration * @plot_update_frequency)
     samples_per_update = state.sample_rate / @plot_update_frequency
-    samples_per_point = :erlang.ceil(samples_per_update / points_per_update)
+    samples_per_point = :erlang.ceil(samples_per_update / @points_per_update)
 
     state =
       if length(state.samples) > samples_per_update do
@@ -154,9 +160,9 @@ defmodule Visualizer do
             |> Tuple.to_list()
             |> Enum.map(fn {value, sample_i} ->
               # the pts of a given sample is the pts of the buffer in which it has arrived
-              # plus the time that has elapsed for all the previous chunks 
+              # plus the time that has elapsed for all the previous chunks from that buffer
               # plus the time for all the preceeding samples from a given chunk
-              # minus the pts 
+              # minus the first buffer's pts 
               x =
                 (pts + (chunk_i * samples_per_point + sample_i) * sample_duration -
                    state.initial_pts)
@@ -209,7 +215,7 @@ All the elements are connected linearily.
 ```elixir
 import Membrane.ChildrenSpec
 
-structure =
+spec =
   child(:microphone, Membrane.PortAudio.Source)
   |> child(:audio_parser, %Membrane.RawAudioParser{
     overwrite_pts?: true
@@ -232,7 +238,7 @@ pipeline = RCPipeline.start!()
 Finally we can commision `spec` action execution with the previously created `structure`:
 
 ```elixir
-RCPipeline.exec_actions(pipeline, spec: structure)
+RCPipeline.exec_actions(pipeline, spec: spec)
 ```
 
 On the plot above you should be able to see the relation between an audio amplitude and time.
