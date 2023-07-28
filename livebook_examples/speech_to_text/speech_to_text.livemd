@@ -55,6 +55,8 @@ alias Membrane.RawAudio
 defmodule SpeechToText do
   use Membrane.Sink
 
+  require Membrane.Logger
+
   @sample_rate 16_000
   # sample format is `:f32le`, so each format is written on 32 bits = 4 bytes
   @bytes_per_sample 4
@@ -119,7 +121,8 @@ defmodule SpeechToText do
   end
 
   @impl true
-  def handle_info(_other, _ctx, state) do
+  def handle_info(other_msg, _ctx, state) do
+    Membrane.Logger.debug("Unknown message received: #{inspect(other_msg)}")
     {[], state}
   end
 end
