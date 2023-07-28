@@ -1,5 +1,11 @@
 # Soundwave plotting example
 
+## Introduction
+
+This livebook example shows how to perform real-time soundwave plotting with the use of the [Membrane Framework](https://github.com/membraneframework) and [Vega-Lite](https://vega.github.io/vega-lite/).
+
+By following that example you will learn how to read the audio from the microphone, how is audio represented, and how to create your custom Membrane element that plots the soundwave with the use of the elixir bindings to the Vega-Lite.
+
 ## Installation
 
 You need to install the following `mix` dependencies:
@@ -26,38 +32,38 @@ The element, called `Visualizer` is a sink, placed at the end of a pipeline.
 
 The element has a single `:input` pad, on which raw audio is expected to appear.
 
-> Raw audio is represented as an array of samples, with each sample describing the amplitude of the sound at given time. There is a possibility that there are a few samples (from so called different channels) for the same point in the time. In such a case, the samples from different channels (e.g. samples `A` from the first channel and samples `B` from the second channel) might be either interleaved (`ABABABAB`), or put one sequence after the other: (`AAAABBBB`).
+> Raw audio is represented as an array of samples, with each sample describing the amplitude of the sound at a given time. There is a possibility that there are a few samples (from so-called different channels) for the same point in time. In such a case, the samples from different channels (e.g. samples `A` from the first channel and samples `B` from the second channel) might be either interleaved (`ABABABAB`), or put one sequence after the other: (`AAAABBBB`).
 > 
 > Each sample is of a particular format, and the format is defined by:
 > 
 > * the type of a number - e.g. `f` might stand for a `float` and `s` might stand for a `signed` integer
 > * number of bits used to represent a number
-> * endianness (order of bytes) - specifies the significanty of the bytes in the bytes sequence (little endian or big endian).
->   An exemplary sample format might be `s16le` which stand for a signed integer written on 16 bits, with low endian order of bytes.
+> * endianness (order of bytes) - specifies the significance of the bytes in the byte sequence (little endian or big endian).
+>   An exemplary sample format might be `s16le` which stands for a signed integer written on 16 bits, with low endian order of bytes.
 > 
 > For some intuition on the formats you can take a look at a [`Membrane.RawAudio.SampleFormat` module](https://github.com/membraneframework/membrane_raw_audio_format/blob/master/lib/membrane_raw_audio/sample_format.ex)
 
 ### Stream format handling
 
-Once the `stream_format` is received on the `:input` pad, some relevant information, i.e. the number of channels or the sampling rate, are fetched out of `Membrane.RawAudio` stream format structure. Based on that information a `VegaLite` chart is prepared.
+Once the `stream_format` is received on the `:input` pad, some relevant information, i.e. the number of channels or the sampling rate, is fetched out of `Membrane.RawAudio` stream format structure. Based on that information a `VegaLite` chart is prepared.
 
 ### Buffers handling
 
-Once a buffer is received, its payload is split into samples, based on `sample_format` of the `Membrane.RawAudio`. The amplitude of sound from different channels measured at the same time is average. As a result, a list of samples with each sample being an amplitude of sound at given time is produced.
+Once a buffer is received, its payload is split into samples, based on `sample_format` of the `Membrane.RawAudio`. The amplitude of sound from different channels measured at the same time is average. As a result, a list of samples with each sample being an amplitude of sound at a given time is produced.
 
 That list of samples is appended to the list of unprocessed samples stored in the element's state. Right after that `maybe_plot` function is invoked - and if there are enough samples, the samples are used to produce some points that are put on the plot.
 
 ### Plotting of the soundwave
 
-Plotting all the audio samples with the typically used frequency (e.g. `44100 Hz`) is impossible due to limitations of the plot displaying system. That is why the list of samples is split into a number of chunks, and for each of these chunks a sample with `maximal` and `minimal` amplitude is found. For each chunk, only these two samples representing a given chunk are later put on the plot, with `x` value being a given sample timestamp, and `y` value being an measured amplitude of audio.
+Plotting all the audio samples with the typically used frequency (e.g. `44100 Hz`) is impossible due to limitations of the plot displaying system. That is why the list of samples is split into several chunks, and for each of these chunks, a sample with `maximal` and `minimal` amplitude is found. For each chunk, only these two samples representing a given chunk are later put on the plot, with `x` value being a given sample timestamp, and `y` value being a measured amplitude of audio.
 tributes are used to drive the process of plotting:
 
 * `@windows_size` - describes the maximum number of points that are visible together on a plot,
 * `@window_duration` - describes the time range (in seconds) of points visible on the plot,
 * `@plot_updating_frequency` - describes how many times per second a plot should be updated with new points.
-  We encourage you to play with these attributes and adjust them to your needs. Please be aware, that setting to high `@windows_size` or `@plot_updating_frequency` might cause the plot to not be generated in realtime. At the same time, setting too low values of these parameters might result in loss of plot's accuracy (for instance making it insensitive to high frequency sounds).
+  We encourage you to play with these attributes and adjust them to your needs. Please be aware, that setting too high `@windows_size` or `@plot_updating_frequency` might cause the plot to not be generated in real-time. At the same time, setting too low values of these parameters might result in a loss of the plot's accuracy (for instance making it insensitive to high-frequency sounds).
 
-For more implementation details take a look at the code and the comments that describes parts, that might appear unobvious.
+For more implementation details take a look at the code and the comments that describe parts, that might appear unobvious.
 
 ```elixir
 defmodule Visualizer do
@@ -206,11 +212,11 @@ end
 Once we are ready with the `Visualizer` element, we can set the pipeline up.
 The pipeline will consist of:
 
-* an microphone input,
+* a microphone input,
 * a raw audio parser (we need that element to provide timestamps to the buffers),
 * the `Visualizer`.
 
-All the elements are connected linearily.
+All the elements are connected linearly.
 
 ```elixir
 import Membrane.ChildrenSpec
@@ -227,7 +233,7 @@ spec =
 
 ## Running the pipeline
 
-Finally, we can start the `Membrane.RCPipeline` (remote controlled pipeline):
+Finally, we can start the `Membrane.RCPipeline` (remote-controlled pipeline):
 
 ```elixir
 alias Membrane.RCPipeline
@@ -235,7 +241,7 @@ alias Membrane.RCPipeline
 pipeline = RCPipeline.start!()
 ```
 
-Finally we can commision `spec` action execution with the previously created `structure`:
+Finally, we can commission `spec` action execution with the previously created `structure`:
 
 ```elixir
 RCPipeline.exec_actions(pipeline, spec: spec)
