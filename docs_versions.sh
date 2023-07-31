@@ -3,7 +3,7 @@
 for version in 3 4 5 6 7 8 9
 do
     mkdir -p /app/guide/v0.$version \
-    && cd /app
+    && cd /app \
     && git clone --branch v0.$version  https://github.com/membraneframework/guide.git v0.$version \
     && cd /app/v0.$version \
     && mix local.rebar --force \
