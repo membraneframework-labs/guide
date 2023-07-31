@@ -1,0 +1,135 @@
+# Messages source and sink
+
+## Section
+
+```elixir
+File.cd(__DIR__)
+Logger.configure(level: :error)
+
+Mix.install([
+  {:membrane_core, "~> 0.12.7"}
+])
+```
+
+```elixir
+defmodule MessageSource do
+  use Membrane.Source
+
+  def_output_pad(:output,
+    mode: :push,
+    accepted_format: _any
+  )
+
+  def_options(
+    sender: [
+      description: "PID of the process that will send messages with the bufers payload",
+      spec: pid()
+    ]
+  )
+
+  @impl true
+  def handle_init(_ctx, opts) do
+    send(opts.sender, {:hello_from_message_source, self()})
+    {[], %{sender: opts.sender, buffered: []}}
+  end
+
+  @impl true
+  def handle_playing(_ctx, state) do
+    {actions, state} = send_buffers(state)
+    {[stream_format: {:output, %Membrane.RemoteStream{type: :bytestream}}] ++ actions, state}
+  end
+
+  @impl true
+  def handle_info({:message, pid, message}, ctx, state) do
+    if pid == state.sender do
+      state = %{state | buffered: state.buffered ++ [message]}
+
+      if ctx.playback == :playing do
+        send_buffers(state)
+      else
+        {[], state}
+      end
+    else
+      {[], state}
+    end
+  end
+
+  @impl true
+  def handle_info(_msg, _ctx, state) do
+    {[], state}
+  end
+
+  defp send_buffers(state) do
+    actions =
+      Enum.map(state.buffered, fn message ->
+        {:buffer, {:output, %Membrane.Buffer{payload: message}}}
+      end)
+
+    {actions, %{state | buffered: []}}
+  end
+end
+```
+
+```elixir
+defmodule MessageSink do
+  use Membrane.Sink
+
+  def_input_pad(:input, mode: :push, accepted_format: _any)
+  def_options(receiver: [description: "PID of the process that will 
+    receive messages with the bufers payload", spec: pid()])
+
+  @impl true
+  def handle_init(_ctx, opts) do
+    {[], %{receiver: opts.receiver}}
+  end
+
+  @impl true
+  def handle_write(:input, buffer, _ctx, state) do
+    send(state.receiver, {:message, self(), buffer.payload})
+    {[], state}
+  end
+end
+```
+
+```elixir
+alias Membrane.RCPipeline
+import Membrane.ChildrenSpec
+
+structure =
+  child(:source, %MessageSource{sender: self()})
+  |> child(:sink, %MessageSink{receiver: self()})
+
+pipeline = RCPipeline.start!()
+RCPipeline.exec_actions(pipeline, spec: structure, playback: :playing)
+
+message_source_pid =
+  receive do
+    {:hello_from_message_source, message_source_pid} -> message_source_pid
+  end
+
+payloads = 1..10
+sender_pid = self()
+
+Task.async(fn ->
+  Enum.each(
+    payloads,
+    fn payload ->
+      send(message_source_pid, {:message, sender_pid, payload})
+    end
+  )
+end)
+
+defmodule Flusher do
+  def flush() do
+    receive do
+      msg ->
+        IO.inspect(msg)
+        flush()
+    after
+      0 -> :ok
+    end
+  end
+end
+
+Flusher.flush()
+```
