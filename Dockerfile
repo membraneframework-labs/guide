@@ -6,7 +6,6 @@ WORKDIR /app
 COPY docs_versions.sh . 
 RUN chmod +x docs_versions.sh
 RUN ./docs_versions.sh
-RUN tree -d /app
 
 FROM nginx:alpine
 COPY --from=build /app/guide /usr/share/nginx/html/guide
