@@ -1,13 +1,5 @@
 # Speech to text
 
-## Introduction
-
-This livebook example shows how to perform a real-time speech-to-text conversion with the use of the [Membrane Framework](https://github.com/membraneframework) and the [Bumblebee](https://github.com/elixir-nx/bumblebee).
-
-You will see how to fetch the audio from your microphone, perform preprocessing and create your own Membrane element that runs an AI speech-to-text conversion model.
-
-## Installation
-
 ```elixir
 File.cd(__DIR__)
 Logger.configure(level: :error)
@@ -19,13 +11,29 @@ Mix.install(
     {:membrane_core, "~> 0.12.7"},
     {:membrane_ffmpeg_swresample_plugin, "~> 0.17.0"},
     {:membrane_raw_audio_parser_plugin, "~> 0.2.0"},
-    {:membrane_portaudio_plugin, "~>0.16.0"}
+    {:membrane_portaudio_plugin, "~> 0.16.0"}
   ],
   config: [
     nx: [default_backend: EXLA.Backend]
   ]
 )
 ```
+
+## Introduction
+
+This livebook example shows how to perform a real-time speech-to-text conversion with the use of the [Membrane Framework](https://github.com/membraneframework) and the [Bumblebee](https://github.com/elixir-nx/bumblebee).
+
+You will see how to fetch the audio from your microphone, perform preprocessing and create your own Membrane element that runs an AI speech-to-text conversion model.
+
+## Installation
+
+**IMPORTANT: To run this livebook with Livebook Desktop, you need to attach to a custom runtime, because the default one doesn't have access to the microphone.** If that's your case, either use [another way to install Livebook](https://github.com/livebook-dev/livebook/#direct-installation-with-elixir) or attach a custom runtime, for example by running:
+
+```
+elixir --no-halt --sname name --cookie cookie
+```
+
+in the terminal and specifying it in the `Runtime` -> `Configure` -> `Attached node` menu on the left.
 
 You need to have `FFmpeg` installed. For installation details take a look [here](https://www.ffmpeg.org/).
 
@@ -148,26 +156,23 @@ alias Membrane.FFmpeg
 import Membrane.ChildrenSpec
 
 spec =
-  child(:microphone, Membrane.PortAudio.Source)
-  |> child(:converter, %FFmpeg.SWResample.Converter{
+  child(Membrane.PortAudio.Source)
+  |> child(%FFmpeg.SWResample.Converter{
     output_stream_format: %RawAudio{channels: 1, sample_format: :f32le, sample_rate: 16_000}
   })
-  |> child(:speech_to_text, SpeechToText)
+  |> child(SpeechToText)
 
 :ok
 ```
 
 ## Running of the pipeline
 
+Finally, we can commission `spec` action execution with the previously created `structure`:
+
 ```elixir
 alias Membrane.RCPipeline
 
 pipeline = RCPipeline.start!()
-```
-
-Finally, we can commission `spec` action execution with the previously created `structure`:
-
-```elixir
 RCPipeline.exec_actions(pipeline, spec: spec)
 ```
 
