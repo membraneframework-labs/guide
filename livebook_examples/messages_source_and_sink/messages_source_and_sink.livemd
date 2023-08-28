@@ -127,21 +127,11 @@ end)
 ## Printing of the messages received and pipeline termination
 
 ```elixir
-defmodule Flusher do
-  def flush() do
-    receive do
-      {:message, _pid, _value} = msg ->
-        IO.inspect(msg)
-        flush()
-
-      _other_msg ->
-        flush()
-    after
-      0 -> :ok
-    end
+for _i <- 1..10 do
+  receive do
+    {:message, _pid, _value} = msg -> IO.inspect(msg)
   end
 end
 
 RCPipeline.terminate(pipeline)
-Flusher.flush()
 ```
