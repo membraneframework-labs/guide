@@ -43,6 +43,48 @@ links = [
 
 ## Dynamic pads
 
+#### Dynamic Pads
+
+A dynamic pad is a type of pad that acts as a template - each time some other pad is linked to a dynamic pad, a new instance of it is created.
+
+Dynamic pads don't have to be linked when the element is started. Obviously,
+the element has to support that, but in return, it gives new possibilities when the number
+of pads can change on-the-fly.
+
+Another use case for dynamic pads is when the number of pads is not known at the compile time.
+For example, an audio mixer may have an any number of inputs.
+
+
+#### Creating an element with dynamic pads
+
+Creating an element with dynamic pads is not much different than
+creating one with static pads. The key difference is that
+we need to specify that one of the pads is dynamic, by setting pad `availability`
+to `:on_request`.
+
+Now, each time some element is linked to this pad, a new instance of the
+pad is created and callback `c:Membrane.Element.Base.handle_pad_added/3`
+is invoked. Instances of a pad can be referenced as `Pad.ref(pad_name, pad_id)`.
+
+#### Gotchas
+
+As usual, with great power comes great responsibility. When implementing an element with
+dynamic pads you need to remember to implement `c:Membrane.Element.Base.handle_pad_added/3`
+and `c:Membrane.Element.Base.handle_pad_removed/3` callbacks.
+`c:Membrane.Element.Base.handle_event/4` might also need some attention as the default
+implementation won't support dynamic pads. And of course, the logic of an element may become more complicated
+as it has to support changing number of pads.
+
+## Options
+
+Both elements and their pads may define their own `options` that parametrize their work.
+For example, some audio decoder may have an option named `bitrate` that represents bitrate of the output data.
+
+The options for an element are passed when the element is created, while pad options are provided when
+two elements are linked
+
+Since each element performs particular tasks, connecting elements together is crucial. This can be done via pads
+
 Dynamic pads ([described here](elements.html#dynamic-pads)) can be linked just like any other pad.
 The main difference is that each link creates a new instance of this pad, so it can be linked multiple times.
 

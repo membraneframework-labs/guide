@@ -1,21 +1,21 @@
 # Membrane Framework guide
 Hello, and welcome to the general guide to the Membrane Framework!
 
-Membrane is a multimedia processing framework that focuses on reliability, concurrency, and scalability. It is primarily written in Elixir, while some platform-specific or time-constrained parts are written in C. With a range of existing packages and an easy-to-use interface for writing your own, Membrane can be used to process almost any type of multimedia.
+Membrane is a multimedia processing framework that focuses on reliability, concurrency, and scalability. It is primarily written in Elixir, while some platform-specific or time-constrained parts are written in Rust C. With a range of existing packages and an easy-to-use interface for writing your own, Membrane can be used to process almost any type of multimedia.
 
 ## Structure of the Membrane Framework
-The Membrane Framework allows you to define your own processing units, called "elements." An element might be able to mux incoming audio and video streams into a container, or play raw audio using your sound card.
+The Membrane Framework allows you to define your own processing units, called "elements." An element might be able, for example, to mux incoming audio and video streams into MP4, or play raw audio using your sound card.
 
-Elements can be organized into a "pipeline," - a sequence of linked elements that performs a specific task. For example, a pipeline might receive an incoming RTSP stream from a webcam and convert it to an HLS stream, or act as a selective forwarding unit (SFU) to implement your own videoconferencing room.
+Elements can be organized into a pipeline - a sequence of linked elements that perform a specific task. For example, a pipeline might receive an incoming RTSP stream from a webcam and convert it to an HLS stream, or act as a selective forwarding unit (SFU) to implement your own videoconferencing room.
 
 ### Membrane Core
-[Membrane Core](https://github.com/membraneframework/membrane_core) is the heart and soul of the Membrane Framework. It is written entirely in Elixir and provides the internal mechanisms and developer's interfaces that allow you to prepare processing elements and link them together in a convenient yet reliable way. Note that Membrane Core does not contain any multimedia-specific logic. 
+[Membrane Core](https://github.com/membraneframework/membrane_core) is the heart and soul of the Membrane Framework. It is written entirely in Elixir and provides the internal mechanisms and API that allow you to prepare processing elements and link them together in a convenient yet reliable way. Note that Membrane Core does not contain any multimedia-specific logic. 
 The documentation for the developer's API is available at [hexdocs](https://hexdocs.pm/membrane_core/readme.html).
 
 ### Membrane packages
 Membrane packages provide the multimedia processing logic. They are organized by domain, so a package named after a container (e.g. membrane_mp4_plugin) contains elements for muxing and demuxing that container.
 
-A complete list of all the Membrane packages managed by the Membrane team is available [here](https://membrane.stream/guide/v0.9/packages.html#content).
+A complete list of all the Membrane packages managed by the Membrane team is available [here](https://github.com/membraneframework/membrane_core/Membrane-packages).
 
 ## Where can I learn Membrane?
 There are a number of resources available for learning about Membrane:
